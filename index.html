@@ -45,7 +45,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
-.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:start}.target-stack{display:grid;gap:10px;position:sticky;top:92px}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}
+.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:start}.target-stack{display:grid;gap:10px;position:sticky;top:92px}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(3,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
@@ -62,7 +62,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
 .spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
 @media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.combat-layout{grid-template-columns:250px minmax(0,1fr)}.attack-grid{grid-template-columns:1fr}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
-@media(max-width:760px){.combat-layout{grid-template-columns:1fr}.target-stack{position:static}.attack-toolbar{align-items:flex-start;flex-direction:column}.attack-toolbar .mode-inline{margin-left:0;width:100%;justify-content:space-between}.attack-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
+@media(max-width:760px){.turn-economy{grid-template-columns:1fr 1fr}.turn-label{grid-column:1/-1}.turn-next{grid-column:1/-1}.combat-layout{grid-template-columns:1fr}.target-stack{position:static}.attack-toolbar{align-items:flex-start;flex-direction:column}.attack-toolbar .mode-inline{margin-left:0;width:100%;justify-content:space-between}.attack-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
 
 </style>
 </head>
@@ -83,6 +83,14 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <div class="card center">PV temporaires<span id="tempHpView" class="big">0</span><span id="tempHpSource" class="temp-source">aucun</span></div>
 </section>
 
+<div class="turn-economy">
+  <div class="turn-label"><b>Tour <span id="turnEconomyView">1</span></b></div>
+  <div id="ecoAction" class="eco free"><b>⚔ Action</b>Disponible</div>
+  <div id="ecoBonus" class="eco free"><b>✦ Bonus</b>Disponible</div>
+  <div id="ecoReaction" class="eco free"><b>↯ Réaction</b>Disponible</div>
+  <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
+</div>
+
 <nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
 
 <section class="panel active" data-panel="combat">
@@ -95,7 +103,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
         <div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
         <div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
       </div>
-      <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="newTurn">↻ Nouveau tour</button></div>
+      <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button></div>
       <div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
       <div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
       <div id="hitConfirm" class="statusbox" style="display:none">
@@ -219,7 +227,8 @@ const S={
  solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,
  biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
  agathys:false,agathysDamage:25,
- spectreActive:false,spectreHp:22,spectreTemp:5
+ spectreActive:false,spectreHp:22,spectreTemp:5,
+ actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:''
 };
 const undo=[];const SAVE='kentaro-eclipse-v4';
 let ribbonTimer=null,fxTimer=null;
@@ -296,6 +305,12 @@ function storeInRing(name,level,fromKentaro=false){
  if(fromKentaro){if(S.slots<1)return log('❌ Aucun emplacement de pacte N5 restant.');push();S.slots--;S.ring.push({name,level:5,caster:'Kentaro'});render();return log(`💍 ${name} stocké par Kentaro avec un slot N5 • anneau ${ringUsed()}/5.`)}
  push();S.ring.push({name,level,caster:'Autre/manuel'});render();log(`💍 ${name} stocké avec un emplacement N${level} • anneau ${ringUsed()}/5.`)
 }
+function resetEconomy(){S.actionUsed=false;S.actionKind='';S.actionLabel='';S.attackCount=0;S.bonusUsed=false;S.bonusLabel='';S.bonusSpell=false;S.reactionUsed=false;S.reactionLabel=''}
+function useAttackAction(){if(S.actionUsed&&S.actionKind!=='attack'){log(`❌ Action déjà utilisée : ${S.actionLabel||S.actionKind}.`);return false}if(S.attackCount>=2){log('❌ Action d’attaque déjà complète : Kentaro a déjà effectué ses 2 attaques.');return false}if(!S.actionUsed){S.actionUsed=true;S.actionKind='attack';S.actionLabel='Attaquer'}S.attackCount++;return true}
+function useMainAction(label,kind='action'){if(S.actionUsed){log(`❌ Action déjà utilisée : ${S.actionLabel||S.actionKind}.`);return false}if(kind==='spell'&&S.bonusSpell){log('❌ Un sort a déjà été lancé en action bonus ce tour : seule une incantation mineure d’1 action reste autorisée.');return false}S.actionUsed=true;S.actionKind=kind;S.actionLabel=label;return true}
+function useBonusAction(label,isSpell=false){if(S.bonusUsed){log(`❌ Action bonus déjà utilisée : ${S.bonusLabel}.`);return false}if(isSpell&&S.actionUsed&&S.actionKind==='spell'){log('❌ Tu as déjà lancé un sort de niveau avec ton Action : impossible de lancer aussi un sort en action bonus ce tour.');return false}S.bonusUsed=true;S.bonusLabel=label;S.bonusSpell=isSpell;return true}
+function useReaction(label){if(S.reactionUsed){log(`❌ Réaction déjà utilisée : ${S.reactionLabel}.`);return false}S.reactionUsed=true;S.reactionLabel=label;return true}
+function renderEconomy(){const a=q('#ecoAction'),b=q('#ecoBonus'),r=q('#ecoReaction'),tv=q('#turnEconomyView');if(!a)return;if(tv)tv.textContent=S.turn;const actionTxt=S.actionUsed?(S.actionKind==='attack'?`${S.attackCount}/2 attaques`:(S.actionLabel||'Utilisée')):'Disponible';a.innerHTML=`<b>⚔ Action</b>${actionTxt}`;b.innerHTML=`<b>✦ Bonus</b>${S.bonusUsed?(S.bonusLabel||'Utilisée'):'Disponible'}`;r.innerHTML=`<b>↯ Réaction</b>${S.reactionUsed?(S.reactionLabel||'Utilisée'):'Disponible'}`;a.className='eco '+(S.actionUsed?'used':'free');b.className='eco '+(S.bonusUsed?'used':'free');r.className='eco '+(S.reactionUsed?'used':'free');const attackBlocked=(S.actionUsed&&S.actionKind!=='attack')||S.attackCount>=2;['solinar','solinarCrit','selhane','selhaneCrit'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=attackBlocked});['thirdSmart','thirdSun','thirdMoon'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=S.bonusUsed});const eb=q('#eldritch');if(eb)eb.disabled=!!S.actionUsed}
 function renderSlots(){const x=q('#slots');x.innerHTML='';for(let i=0;i<2;i++){const b=document.createElement('button');b.className='pip '+(i<S.slots?'':'off');b.title=i<S.slots?'Disponible':'Dépensé';b.onclick=()=>{push();S.slots=i<S.slots?Math.max(0,S.slots-1):Math.min(2,S.slots+1);render()};x.appendChild(b)}}
 function render(){
  q('#hpView').textContent=S.hp;q('#hpInput').value=S.hp;q('#slotView').textContent=S.slots+'/2';
@@ -309,13 +324,14 @@ function render(){
  const hc=q('#hitConfirm');if(hc){hc.style.display=S.pendingHit?'block':'none';if(S.pendingHit)q('#hitConfirmText').textContent=`🎯 ${S.pendingHit.name} — jet total ${S.pendingHit.total}. La CA est vide : touché ou raté ?`;}
  q('#concSpellView').textContent=S.conc?(S.concSpell||'Concentration active'):'Aucune';
  q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
- renderSlots();renderRing()
+ renderEconomy();renderSlots();renderRing()
 }
 function useSlot(){if(S.slots<1){log('❌ Aucun emplacement de pacte restant.');return false}push();S.slots--;render();return true}
 function resolveHit(nat,total,crit){
  const ac=Number(S.targetAC)||0;if(crit)return true;if(nat===1)return false;if(!ac)return true;return total>=ac
 }
-function blade(which,forceCrit=false){
+function blade(which,forceCrit=false,mode='action'){
+ if(mode==='action'){if(!useAttackAction())return render()}else if(mode==='bonus'){if(!useBonusAction('3e attaque',false))return render()}
  const sun=which==='sun',name=sun?'☀ Solinar':'☾ Sélhane',adv=sealAdvantage();
  let nat=20,detail='critique forcé',hitRoll=30;
  if(!forceCrit){const rr=askNat(name,adv);if(!rr)return log('ℹ️ Jet annulé.');nat=rr.nat;detail=rr.detail;hitRoll=nat+10}
@@ -342,14 +358,17 @@ function blade(which,forceCrit=false){
  if(crit && S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?'Solinar':'Sélhane'}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
 }
 function castSpellButton(b){
- if(!useSlot())return;const name=b.dataset.spell;if(b.dataset.conc)startConcentration(name);
+ const name=b.dataset.spell,bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name);
+ if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
+ if(bonus){if(!useBonusAction(name,true))return render()}else{if(!useMainAction(name,'spell'))return render()}
+ if(!useSlot())return;if(b.dataset.conc)startConcentration(name);
  if(b.dataset.agathys){S.agathys=true;S.agathysDamage=25;setTempHp(25,"Armure d’Agathys")}
- render();log(`✨ ${name} lancé avec un emplacement de pacte N5${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
+ render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
 }
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
 q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#targetAC').oninput=e=>{S.targetAC=e.target.value;render()};q('#curseTarget').oninput=e=>{S.curseTarget=e.target.value;render()};
 q('#manualDice').onclick=()=>{push();S.manualDice=!S.manualDice;render();log(S.manualDice?'🎲 Mode jets manuels : le compagnon te demandera le résultat naturel du d20.':'🎲 Mode jets automatiques réactivé.')};
-q('#solinar').onclick=()=>blade('sun');q('#solinarCrit').onclick=()=>blade('sun',true);q('#selhane').onclick=()=>blade('moon');q('#selhaneCrit').onclick=()=>blade('moon',true);q('#thirdSun').onclick=()=>blade('sun');q('#thirdMoon').onclick=()=>blade('moon');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun');if(!S.selHit)return blade('moon');blade('sun')};
+q('#solinar').onclick=()=>blade('sun');q('#solinarCrit').onclick=()=>blade('sun',true);q('#selhane').onclick=()=>blade('moon');q('#selhaneCrit').onclick=()=>blade('moon',true);q('#thirdSun').onclick=()=>blade('sun',false,'bonus');q('#thirdMoon').onclick=()=>blade('moon',false,'bonus');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun',false,'bonus');if(!S.selHit)return blade('moon',false,'bonus');blade('sun',false,'bonus')};
 function confirmPendingBlade(hit){
  if(!S.pendingHit)return;
  const p=S.pendingHit;S.pendingHit=null;
@@ -374,20 +393,20 @@ function confirmPendingBlade(hit){
 q('#confirmHit').onclick=()=>confirmPendingBlade(true);
 q('#confirmMiss').onclick=()=>confirmPendingBlade(false);
 
-q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.lastCrit=false;S.lastCritBlade='';if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : suivi des touches réinitialisé.`)};
-q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
-q('#shroudToggle').onclick=()=>{push();if(!S.shroud){S.shroud=true;startConcentration('Voile spirituel');log('◐ Voile spirituel activé manuellement : +2d8 par touche.')}else{S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}log('◐ Voile spirituel désactivé.')}render()};
+q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : Action, action bonus et réaction restaurées • suivi des touches réinitialisé.`)};
+q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');if(!S.curse&&!useBonusAction('Malédiction',false))return render();push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : action bonus consommée • +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
+q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
 q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);S.lastCrit=false;render();log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
 q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);S.lastCrit=false;render();log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
-q('#eldritch').onclick=()=>{fx('red');let lines=[],tot=0;const cursed=curseApplies();for(let i=1;i<=2;i++){const rr=askNat(`Décharge occulte — rayon ${i}`,false);if(!rr)continue;const a=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19),hit=resolveHit(rr.nat,a,crit);if(hit){const r=roll(crit?2:1,10,4+(cursed?4:0));tot+=r.total;lines.push(`Rayon ${i}: ${rr.detail}+8=${a} TOUCHÉ${crit?' CRITIQUE':''} • ${r.total} force${cursed?' (Malédiction +4)':''}`)}else lines.push(`Rayon ${i}: ${rr.detail}+8=${a} RATÉ`)}log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTotal des rayons touchés : ${tot}`)};
+q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();render();fx('red');let lines=[],tot=0;const cursed=curseApplies();for(let i=1;i<=2;i++){const rr=askNat(`Décharge occulte — rayon ${i}`,false);if(!rr)continue;const a=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19),hit=resolveHit(rr.nat,a,crit);if(hit){const r=roll(crit?2:1,10,4+(cursed?4:0));tot+=r.total;lines.push(`Rayon ${i}: ${rr.detail}+8=${a} TOUCHÉ${crit?' CRITIQUE':''} • ${r.total} force${cursed?' (Malédiction +4)':''}`)}else lines.push(`Rayon ${i}: ${rr.detail}+8=${a} RATÉ`)}log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTotal des rayons touchés : ${tot}`)};
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
 qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
 q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys : la créature qui vient de toucher Kentaro au corps-à-corps subit ${S.agathysDamage} dégâts de froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
-q('#hexArmor').onclick=()=>{if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');const x=d(6),amt=Number(q('#incomingDamage').value)||0;if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)applyIncomingDamage(amt,'attaque de la cible maudite')}};
+q('#hexArmor').onclick=()=>{if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');if(!useReaction('Armure des maléfices'))return render();render();const x=d(6),amt=Number(q('#incomingDamage').value)||0;if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)applyIncomingDamage(amt,'attaque de la cible maudite')}};
 q('#applyDamage').onclick=()=>applyIncomingDamage(Number(q('#incomingDamage').value)||0,'dégâts reçus');
-q('#lazarus').onclick=()=>{push();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
+q('#lazarus').onclick=()=>{if(!useReaction('Tombeau de Lazarus'))return render();push();render();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
 q('#concSave').onclick=()=>concentrationSave(Number(q('#concDamageDef').value)||0);
 q('#autoConcSave').onclick=()=>concentrationSave(Number(q('#concDamage').value)||0);
 q('#dropConc').onclick=()=>{if(!S.conc)return;push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`◐ Concentration rompue : ${old}.`)};
@@ -396,11 +415,11 @@ q('#setTempManual').onclick=()=>{push();setTempHp(Number(q('#tempManual').value)
 q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
 q('#stoneVision').onclick=()=>{if(!S.stoneReady)return log('❌ Vision de la Pierre déjà utilisée aujourd’hui.');push();S.stoneReady=false;log('👁 Vision de la Pierre activée : 12 s • rayon 18 m • avantage sur la prochaine attaque.')};
 q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').value==='__custom'?'block':'none'};q('#ringStoreManual').onclick=()=>storeInRing(ringSpellName(),Number(q('#ringLevel').value),false);q('#ringStoreKentaro').onclick=()=>storeInRing(ringSpellName(),5,true);q('#ringClear').onclick=()=>{if(!S.ring.length)return log('ℹ️ L’anneau est déjà vide.');push();S.ring=[];render();log('💍 Anneau vidé.')};
-q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.lastCrit=false;render();log('☕ Repos court : slots restaurés, Malédiction et Soif ténébreuse prêtes. Concentration et PV temporaires ne sont pas effacés automatiquement.')};
-q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
+q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.lastCrit=false;resetEconomy();render();log('☕ Repos court : slots restaurés, Malédiction et Soif ténébreuse prêtes. Concentration et PV temporaires ne sont pas effacés automatiquement.')};
+q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:''});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
 q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
 q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
-q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
+q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;resetEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>q('#kentaro-ribbon').classList.remove('show');
 render();load(true);
 })();
