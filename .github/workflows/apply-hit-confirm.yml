@@ -1,0 +1,45 @@
+name: Apply approved hit confirmation UI
+on:
+  push:
+    branches: [main]
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('<div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>\n</div>', '<div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>\n<div id="hitConfirm" class="statusbox" style="display:none">\n  <b id="hitConfirmText">Résultat à confirmer</b>\n  <div class="row">\n    <button id="confirmHit" class="btn-green">✅ Touché</button>\n    <button id="confirmMiss" class="btn-red">❌ Raté</button>\n  </div>\n</div>\n</div>',1)
+          s=s.replace("lastCrit:false,lastCritBlade:'',agathys:false", "lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false",1)
+          needle="q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';"
+          s=s.replace(needle, needle+"\n const hc=q('#hitConfirm');if(hc){hc.style.display=S.pendingHit?'block':'none';if(S.pendingHit)q('#hitConfirmText').textContent=`🎯 ${S.pendingHit.name} — jet total ${S.pendingHit.total}. La CA est vide : touché ou raté ?`;}",1)
+          old=""" const cursed=curseApplies(),crit=forceCrit||nat===20||(cursed&&nat===19),hit=resolveHit(nat,hitRoll,crit);\n if(!hit){if(sun)S.solHit=false;else S.selHit=false;render();return log(`${name}\\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}\n const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,parts=[];"""
+          new=""" const cursed=curseApplies(),crit=forceCrit||nat===20||(cursed&&nat===19);\n if(!S.targetAC&&!crit){\n   S.pendingHit={which,name,total:hitRoll,nat,crit:false,detail};\n   render();\n   return log(`${name}\\nJet ${detail} +10 = ${hitRoll} → CA non renseignée : confirme TOUCHÉ ou RATÉ.`);\n }\n const hit=resolveHit(nat,hitRoll,crit);\n if(!hit){if(sun)S.solHit=false;else S.selHit=false;render();return log(`${name}\\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}\n const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,parts=[];"""
+          s=s.replace(old,new,1)
+          anchor="q('#newTurn').onclick="
+          helper="""function confirmPendingBlade(hit){\n if(!S.pendingHit)return;\n const p=S.pendingHit;S.pendingHit=null;\n const sun=p.which==='sun',name=p.name;\n if(!hit){\n   if(sun)S.solHit=false;else S.selHit=false;\n   render();log(`${name}\\nConfirmation : RATÉ.`);return;\n }\n const cursed=curseApplies(),crit=false;\n const w=roll(1,8,4),elem=roll(1,6);let extra=0,parts=[];\n if(cursed){extra+=4;parts.push('Malédiction +4')}\n if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}\n const total=w.total+elem.total+extra;\n if(sun)S.solHit=true;else S.selHit=true;\n if(S.sameTarget&&S.solHit&&S.selHit&&!S.seal){\n   const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=S.currentTarget||'Cible';S.sealExpiresAfterTurn=S.turn;\n   extra+=se.total+me.total;parts.push(`Sceau +${se.total+me.total}`);fx('eclipse');\n }\n render();\n log(`${name}\\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);\n}\nq('#confirmHit').onclick=()=>confirmPendingBlade(true);\nq('#confirmMiss').onclick=()=>confirmPendingBlade(false);\n\n"""
+          s=s.replace(anchor,helper+anchor,1)
+          s=s.replace("S.turn++;S.solHit=S.selHit=S.seal=false;", "S.turn++;S.solHit=S.selHit=S.seal=false;S.pendingHit=null;",1)
+          s=s.replace("ring,lastCrit:false,lastCritBlade:'',agathys:false", "ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false",1)
+          s=s.replace("S.solHit=S.selHit=S.seal=false;S.sealTarget='';", "S.solHit=S.selHit=S.seal=false;S.pendingHit=null;S.sealTarget='';",1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add hit confirmation when target AC is blank" || exit 0
+          git push
+      - name: Remove workflow
+        run: |
+          git rm .github/workflows/apply-hit-confirm.yml
+          git commit -m "Remove temporary hit confirmation workflow" || exit 0
+          git push
