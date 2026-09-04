@@ -89,8 +89,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
 
 <section class="panel active" data-panel="combat">
-<div class="card golden"><div class="action-title">Routine des Lames jumelles</div><div class="meta">Action : Solinar + Sélhane grâce à Lame assoiffée • Action bonus : 3e attaque • le compagnon suit désormais la cible, sa CA et le Sceau.</div>
-<div class="control-grid">
+<div class="card golden"><div class="control-grid">
 <div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
 <div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
 <div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
@@ -98,7 +97,6 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div>
 <div class="strategy-bar"><button id="strategyStandard">Standard</button><button id="strategyBoss" class="btn-gold">Boss</button><button id="strategySurvival" class="btn-red">Survie</button><button id="fullTurn" class="btn-violet">⚔ Résoudre le tour complet</button></div>
 <div id="strategyHint" class="strategy-hint">Standard : lames jumelles, Sceau, puis adaptation.</div>
-<div class="combo"><div id="stepSun" class="combo-step s1"><b>1 — Solinar</b>1d8 + 4 + 1d6 radiant</div><div id="stepMoon" class="combo-step s2"><b>2 — Sélhane</b>1d8 + 4 + 1d6 psychique</div><div id="stepSeal" class="combo-step s3"><b>3 — Sceau d’éclipse</b>+1d8 radiant +1d8 psychique si les deux touchent la même cible</div></div>
 <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="sameTarget" class="toggle on">◎ Même cible ON</button><button id="newTurn">↻ Nouveau tour</button></div>
 <div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
 <div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
@@ -297,7 +295,6 @@ function render(){
  q('#shroudToggle').textContent='◐ Voile spirituel '+(S.shroud?'ON':'OFF');q('#shroudToggle').classList.toggle('on',S.shroud);q('#sameTarget').textContent='◎ Même cible '+(S.sameTarget?'ON':'OFF');q('#sameTarget').classList.toggle('on',S.sameTarget);
  q('#manualDice').textContent=S.manualDice?'🎲 Jets manuels':'🎲 Jets auto';q('#manualDice').classList.toggle('on',S.manualDice);
  q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';
- q('#stepSun').classList.toggle('activeglow',S.solHit);q('#stepMoon').classList.toggle('activeglow',S.selHit);q('#stepSeal').classList.toggle('activeglow',!!S.sealTarget);
  q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?'touché':'—'} • Sélhane : ${S.selHit?'touché':'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
  q('#critOffer').textContent=S.lastCrit?`✦ CRITIQUE en attente (${S.lastCritBlade}) — Châtiment occulte conseillé : 12d8 si tu veux le dépenser.`:'Aucun critique en attente.';q('#critOffer').classList.toggle('crit-offer',S.lastCrit);
