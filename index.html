@@ -381,20 +381,28 @@ function confirmPendingBlade(hit){
  const sun=p.which==='sun',name=p.name,target=p.target||'';
  if(!hit){
    if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
-   render();log(`${name}\nConfirmation : RATÉ.`);return;
+   render();log(`${name}
+Confirmation : RATÉ
+Attaque : ${p.total}`);return;
  }
  const cursed=curseAppliesTo(target),crit=false;
- const w=roll(1,8,4),elem=roll(1,6);let extra=0,parts=[];
+ const w=roll(1,8,4),elem=roll(1,6);let extra=0,sealDamage=0,parts=[];
  if(cursed){extra+=4;parts.push('Malédiction +4')}
  if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
  if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
  if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
    const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
-   extra+=se.total+me.total;parts.push(`Sceau +${se.total+me.total}`);fx('eclipse');
+   sealDamage=se.total+me.total;fx('eclipse');
  }
- const total=w.total+elem.total+extra;
+ const damage=w.total+elem.total+extra;
+ const total=damage+sealDamage;
  render();
- log(`${name}\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);
+ log(`${name}
+Confirmation : TOUCHÉ
+Attaque : ${p.total}
+Dégâts : ${damage}${parts.length?` • ${parts.join(' • ')}`:''}${sealDamage?`
+Sceau d’Éclipse : +${sealDamage}`:''}
+TOTAL : ${total}`);
 }
 q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingBlade(true)};
 q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingBlade(false)};
