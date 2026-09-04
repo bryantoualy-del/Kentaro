@@ -21,7 +21,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 .head{text-align:center;padding:6px 4px 16px;border-bottom:1px solid #333a4b;position:relative}.head h1{margin:0;font-size:clamp(34px,8vw,58px);letter-spacing:.12em}.head h1 .ken{background:linear-gradient(90deg,#ffe1aa,#ff9b37 42%,#d8e8ff 58%,#68afff);-webkit-background-clip:text;background-clip:text;color:transparent}.subtitle{color:var(--muted);font-style:italic}.eclipse-mark{display:flex;justify-content:center;gap:12px;align-items:center;margin-bottom:6px;font-size:20px}.sunIcon{color:var(--sun2);text-shadow:0 0 14px rgba(255,144,43,.6)}.moonIcon{color:var(--moon2);text-shadow:0 0 14px rgba(86,166,255,.6)}
 .grid{display:grid;gap:8px}.stats{grid-template-columns:repeat(6,1fr);margin-top:12px}.resources{grid-template-columns:repeat(5,1fr);margin-top:8px}.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px}.center{text-align:center}.big{display:block;font-size:22px;font-weight:bold;color:#fff}.big.sun{color:var(--sun2)}.big.moon{color:var(--moon2)}.big.gold{color:#f0c36d}
 .hp-controls{display:flex;justify-content:center;align-items:center;gap:5px;margin-top:4px}.hp-controls input{width:70px;min-height:44px;text-align:center;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:8px;font-size:16px}
-.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.tab.active{background:linear-gradient(90deg,#71302a,#383965,#244d78);border-color:#a67655}.panel{display:none}.panel.active{display:block}.two{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:repeat(3,1fr)}.action-title{font-weight:bold;font-size:17px}.solar .action-title{color:var(--sun2)}.lunar .action-title{color:var(--moon2)}.violet .action-title{color:#c5a8ef}.golden .action-title{color:#f0c36d}.meta{font-size:13px;color:var(--muted);margin-top:3px}.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.solar button,.btn-sun{background:linear-gradient(180deg,#6c331b,#3d1d12);border-color:#a45b2c}.lunar button,.btn-moon{background:linear-gradient(180deg,#214b73,#142d49);border-color:#4c7eb1}.btn-violet{background:#3b2c52;border-color:#6f568e}.btn-red{background:#572331;border-color:#8f4255}.btn-green{background:#264737;border-color:#4f7a66}.btn-gold{background:#5d4320;border-color:#96733d}
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0;position:sticky;top:max(6px,env(safe-area-inset-top));z-index:20;padding:6px;border:1px solid rgba(70,78,101,.65);border-radius:14px;background:rgba(9,11,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.tab{flex:1 1 150px}.tab.active{background:linear-gradient(90deg,#71302a,#383965,#244d78);border-color:#a67655}.panel{display:none}.panel.active{display:block}.two{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:repeat(3,1fr)}.action-title{font-weight:bold;font-size:17px}.solar .action-title{color:var(--sun2)}.lunar .action-title{color:var(--moon2)}.violet .action-title{color:#c5a8ef}.golden .action-title{color:#f0c36d}.meta{font-size:13px;color:var(--muted);margin-top:3px}.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.solar button,.btn-sun{background:linear-gradient(180deg,#6c331b,#3d1d12);border-color:#a45b2c}.lunar button,.btn-moon{background:linear-gradient(180deg,#214b73,#142d49);border-color:#4c7eb1}.btn-violet{background:#3b2c52;border-color:#6f568e}.btn-red{background:#572331;border-color:#8f4255}.btn-green{background:#264737;border-color:#4f7a66}.btn-gold{background:#5d4320;border-color:#96733d}
 .tag{display:inline-block;border:1px solid #4b5368;border-radius:999px;padding:2px 7px;font-size:12px;color:var(--muted);margin:2px 4px 2px 0}.rule{border-left:3px solid #b87d3b;padding:9px 11px;background:#15161f;color:var(--muted);border-radius:6px;font-size:13px;margin-top:10px}
 .slotrow{display:flex;align-items:center;gap:8px;margin:8px 0}.pip{width:30px;height:30px;min-height:30px;padding:0;border-radius:50%;background:linear-gradient(135deg,var(--sun),var(--moon));border-color:#b48665}.pip.off{background:transparent;border-color:#495166}
 .modebar{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.toggle.on{box-shadow:0 0 0 2px rgba(255,255,255,.14) inset,0 0 16px rgba(98,131,255,.15);border-color:#8695c8}.statusbox{margin-top:8px;padding:9px;border:1px solid #394154;border-radius:9px;background:#0c0e14;font-size:13px;color:#c8ced8}
@@ -63,7 +63,9 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 @keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
 .crit-offer{border-color:#c59b54!important;box-shadow:0 0 18px rgba(225,166,64,.24)}
-@media(max-width:760px){.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(3,1fr)}}
+.spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
+@media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
+@media(max-width:760px){.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
 
 </style>
 </head>
@@ -84,7 +86,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <div class="card center">PV temporaires<span id="tempHpView" class="big">0</span><span id="tempHpSource" class="temp-source">aucun</span></div>
 </section>
 
-<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
 
 <section class="panel active" data-panel="combat">
 <div class="card golden"><div class="action-title">Routine des Lames jumelles</div><div class="meta">Action : Solinar + Sélhane grâce à Lame assoiffée • Action bonus : 3e attaque • le compagnon suit désormais la cible, sa CA et le Sceau.</div>
@@ -109,9 +111,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
 <article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
 <article class="card"><div class="action-title">✹ Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante.</div><button id="eldritch">Lancer 2 rayons</button></article>
-<article class="card" id="spectreCard"><div class="action-title">👻 Spectre maudit</div><div class="meta">CA 12 • 22 PV + 5 PV temp (½ niveau) • vol 15 m • Absorption de vie +8 • 3d6 nécrotiques.</div>
-<div class="spectre-grid"><div class="spectre-stat">État<br><b id="spectreState">Inactif</b></div><div class="spectre-stat">PV<br><b id="spectreHp">22</b></div><div class="spectre-stat">PV temp<br><b id="spectreTemp">5</b></div><div class="spectre-stat">CA<br><b>12</b></div></div>
-<div class="row"><button id="spectreInvoke">Invoquer</button><button id="spectre">Attaquer</button><input id="spectreDmg" class="compact-input" style="max-width:100px" type="number" min="0" placeholder="Dégâts"><button id="spectreTake">Appliquer</button></div></article>
+
 </div>
 </section>
 
@@ -181,6 +181,19 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card"><div class="action-title">Perle de pouvoir</div><div class="meta">Objet magique listé dans ton équipement.</div></article>
 <article class="card"><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur ta fiche.</div></article>
 <article class="card"><div class="action-title">Kane</div><div class="meta">Katana / épée longue familiale +1, transmise dans la famille Amane.</div></article>
+</div></section>
+
+<section class="panel" data-panel="spectre"><div class="grid two spectre-layout">
+<article class="card" id="spectreCard"><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
+<div class="spectre-grid"><div class="spectre-stat">État<br><b id="spectreState">Inactif</b></div><div class="spectre-stat">PV<br><b id="spectreHp">22</b></div><div class="spectre-stat">PV temp<br><b id="spectreTemp">5</b></div><div class="spectre-stat">CA<br><b>12</b></div></div>
+<div class="row"><button id="spectreInvoke">Invoquer</button><button id="spectre">Attaquer</button><input id="spectreDmg" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts"><button id="spectreTake">Appliquer</button></div>
+<div class="rule spectre-note">Le bouton <b>Appliquer</b> retire d’abord les <b>PV temporaires</b> du spectre, puis ses <b>PV</b>. Quand ses PV tombent à 0, il repasse automatiquement à l’état <b>Inactif</b>.</div></article>
+<article class="card violet"><div class="action-title">Résumé tactique</div><div class="meta">Petit pense-bête visuel pour gérer le spectre sans repasser par l’onglet Combat.</div>
+<div class="spectre-summary">
+<div class="statusbox"><b>Profil rapide</b><br><span class="tag">CA 12</span><span class="tag">22 PV</span><span class="tag">5 PV temp</span><span class="tag">Vol 15 m</span></div>
+<div class="statusbox"><b>Offense</b><br>Absorption de vie : <b>+8</b> pour toucher • <b>3d6 nécrotiques</b>.</div>
+<div class="statusbox"><b>Flux conseillé</b><br>1. <b>Invoquer</b><br>2. <b>Attaquer</b><br>3. saisir les dégâts reçus puis <b>Appliquer</b>.</div>
+</div></article>
 </div></section>
 
 <div class="footer-actions"><button id="shortRest">☕ Repos court</button><button id="longRest">🌙 Repos long</button><button class="btn-gold" id="saveGame">💾 Sauvegarder</button><button id="loadGame">↩ Charger</button><button id="resetSave">Effacer sauvegarde</button></div>
