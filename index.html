@@ -45,6 +45,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
+.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:start}.target-stack{display:grid;gap:10px;position:sticky;top:92px}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
@@ -60,8 +61,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 @keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
 .spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
-@media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
-@media(max-width:760px){.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
+@media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.combat-layout{grid-template-columns:250px minmax(0,1fr)}.attack-grid{grid-template-columns:1fr}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
+@media(max-width:760px){.combat-layout{grid-template-columns:1fr}.target-stack{position:static}.attack-toolbar{align-items:flex-start;flex-direction:column}.attack-toolbar .mode-inline{margin-left:0;width:100%;justify-content:space-between}.attack-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
 
 </style>
 </head>
@@ -85,32 +86,38 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
 
 <section class="panel active" data-panel="combat">
-<div class="card golden">
-<div class="control-grid">
-<div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
-<div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
-<div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
-<div><span class="label-mini">Mode de jets</span><button id="manualDice" class="toggle">🎲 Jets auto</button></div>
-</div>
-<div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="newTurn">↻ Nouveau tour</button></div>
-<div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
-<div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
-<div id="hitConfirm" class="statusbox" style="display:none">
-  <b id="hitConfirmText">Résultat à confirmer</b>
-  <div class="row">
-    <button id="confirmHit" class="btn-green">✅ Touché</button>
-    <button id="confirmMiss" class="btn-red">❌ Raté</button>
+<div class="combat-layout">
+  <div class="target-stack">
+    <div class="card golden target-card">
+      <div class="action-title">🎯 Cible</div>
+      <div class="target-fields">
+        <div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
+        <div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
+        <div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
+      </div>
+      <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="newTurn">↻ Nouveau tour</button></div>
+      <div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
+      <div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
+      <div id="hitConfirm" class="statusbox" style="display:none">
+        <b id="hitConfirmText">Résultat à confirmer</b>
+        <div class="row"><button id="confirmHit" class="btn-green">✅ Touché</button><button id="confirmMiss" class="btn-red">❌ Raté</button></div>
+      </div>
+    </div>
   </div>
-</div>
-</div>
 
-<div class="grid two" style="margin-top:8px">
-<article class="card solar"><div class="action-title">☀ Solinar</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts radiants • JS CON 15 : aveuglé 1 tour selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="solinar">Attaquer</button><button id="solinarCrit">Forcer critique</button></div></article>
-<article class="card lunar"><div class="action-title">☾ Sélhane</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts psychiques • JS SAG 15 : désavantage à la prochaine attaque selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="selhane">Attaquer</button><button id="selhaneCrit">Forcer critique</button></div></article>
-<article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
-<article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
-<article class="card"><div class="action-title">✹ Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><button id="eldritch">Lancer 2 rayons</button></article>
-
+  <div class="attack-column">
+    <div class="attack-toolbar">
+      <div><b>⚔ Attaques</b></div>
+      <div class="mode-inline"><span class="label-mini">Mode de jets</span><button id="manualDice" class="toggle">🎲 Jets auto</button></div>
+    </div>
+    <div class="attack-grid">
+      <article class="card solar"><div class="action-title">☀ Solinar</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts radiants • JS CON 15 : aveuglé 1 tour selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="solinar">Attaquer</button><button id="solinarCrit">Forcer critique</button></div></article>
+      <article class="card lunar"><div class="action-title">☾ Sélhane</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts psychiques • JS SAG 15 : désavantage à la prochaine attaque selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="selhane">Attaquer</button><button id="selhaneCrit">Forcer critique</button></div></article>
+      <article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
+      <article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
+      <article class="card"><div class="action-title">🔴 Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><button id="eldritch">Lancer 2 rayons</button></article>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -195,7 +202,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div></article>
 </div></section>
 
-<div class="footer-actions"><button id="shortRest">☕ Repos court</button><button id="longRest">🌙 Repos long</button><button class="btn-gold" id="saveGame">💾 Sauvegarder</button><button id="loadGame">↩ Charger</button><button id="resetSave">Effacer sauvegarde</button></div>
+<div class="footer-actions"><button id="shortRest">☕ Repos court</button><button id="longRest">🌙 Repos long</button><button id="resetSave">Effacer sauvegarde</button></div>
 <div id="saveStatus" class="meta" style="margin-top:8px">Sauvegarde locale : aucune modification enregistrée.</div>
 <div id="combatToolbar"><button id="undoLast">↶ Annuler dernière action</button><button id="toggleHistory">Historique</button><button id="newCombat">Nouveau combat</button></div>
 <div id="historyPanel"><div id="log" class="log">Prêt. Que l’éclipse tombe.</div><div style="margin-top:7px"><button id="clearLog">Effacer journal</button></div></div>
@@ -392,7 +399,7 @@ q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').val
 q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.lastCrit=false;render();log('☕ Repos court : slots restaurés, Malédiction et Soif ténébreuse prêtes. Concentration et PV temporaires ne sont pas effacés automatiquement.')};
 q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
 q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
-q('#saveGame').onclick=()=>save(false);q('#loadGame').onclick=()=>load(false);q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
+q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>q('#kentaro-ribbon').classList.remove('show');
 render();load(true);
