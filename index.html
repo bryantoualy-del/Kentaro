@@ -234,7 +234,7 @@ const S={
  biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
  agathys:false,agathysDamage:25,
  spectreActive:false,spectreHp:22,spectreTemp:5,
- actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:''
+ actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',eldritchRun:null
 };
 const undo=[];const SAVE='kentaro-eclipse-v4';
 let ribbonTimer=null,fxTimer=null;
@@ -343,7 +343,7 @@ function blade(which,forceCrit=false,mode='action'){
  if(!forceCrit){const rr=askNat(name,adv);if(!rr)return log('ℹ️ Jet annulé.');nat=rr.nat;detail=rr.detail;hitRoll=nat+10}
  const cursed=curseApplies(),crit=forceCrit||nat===20||(cursed&&nat===19);
  if(!S.targetAC&&!crit){
-   S.pendingHit={which,name,total:hitRoll,nat,crit:false,detail,target:S.currentTarget};
+   S.pendingHit={kind:'blade',which,name,total:hitRoll,nat,crit:false,detail,target:S.currentTarget};
    render();
    return log(`${name}\nJet ${detail} +10 = ${hitRoll} → CA non renseignée : confirme TOUCHÉ ou RATÉ.`);
  }
@@ -404,15 +404,43 @@ Dégâts : ${damage}${parts.length?` • ${parts.join(' • ')}`:''}${sealDamage
 Sceau d’Éclipse : +${sealDamage}`:''}
 TOTAL : ${total}`);
 }
-q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingBlade(true)};
-q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingBlade(false)};
+function finishEldritchRun(){
+ const run=S.eldritchRun;if(!run)return;
+ const cursed=run.cursed,lines=run.lines||[],total=run.total||0;
+ S.eldritchRun=null;S.pendingHit=null;render();fx('red');
+ log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTOTAL : ${total} dégâts de force`);
+}
+function continueEldritchRun(){
+ const run=S.eldritchRun;if(!run)return;
+ if(run.ray>2)return finishEldritchRun();
+ const i=run.ray,rr=askNat(`Décharge occulte — rayon ${i}`,false);
+ if(!rr){run.lines.push(`Rayon ${i} : jet annulé`);run.ray++;return continueEldritchRun()}
+ const attack=rr.nat+8,crit=rr.nat===20||(run.cursed&&rr.nat===19);
+ if(!S.targetAC&&!crit){
+   S.pendingHit={kind:'eldritch',ray:i,total:attack,nat:rr.nat,detail:rr.detail,crit:false};render();
+   return log(`🔴 Décharge occulte — Rayon ${i}\nAttaque : ${rr.detail} +8 = ${attack}\nCA non renseignée : confirme TOUCHÉ ou RATÉ.`)
+ }
+ const hit=resolveHit(rr.nat,attack,crit);
+ if(hit){const r=roll(crit?2:1,10,4+(run.cursed?4:0));run.total+=r.total;run.lines.push(`Rayon ${i} : Attaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''} • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`)}
+ else run.lines.push(`Rayon ${i} : Attaque ${attack} → RATÉ`);
+ run.ray++;continueEldritchRun();
+}
+function confirmPendingEldritch(hit){
+ const p=S.pendingHit,run=S.eldritchRun;if(!p||!run)return;S.pendingHit=null;
+ if(hit){const r=roll(1,10,4+(run.cursed?4:0));run.total+=r.total;run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → TOUCHÉ • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${r.total}${run.cursed?' • Malédiction +4':''}`)}
+ else{run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → RATÉ`);log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`)}
+ run.ray++;render();setTimeout(()=>continueEldritchRun(),80);
+}
+function confirmPendingAttack(hit){if(!S.pendingHit)return;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);return confirmPendingBlade(hit)}
+q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(true)};
+q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(false)};
 
-q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : Action, action bonus et réaction restaurées • suivi des touches réinitialisé.`)};
+q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : Action, action bonus et réaction restaurées • suivi des touches réinitialisé.`)};
 q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');if(!S.curse&&!useBonusAction('Malédiction',false))return render();push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : action bonus consommée • +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
 q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
 q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);S.lastCrit=false;render();log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
 q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);S.lastCrit=false;render();log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
-q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();render();fx('red');let lines=[],tot=0;const cursed=curseApplies();for(let i=1;i<=2;i++){const rr=askNat(`Décharge occulte — rayon ${i}`,false);if(!rr)continue;const a=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19),hit=resolveHit(rr.nat,a,crit);if(hit){const r=roll(crit?2:1,10,4+(cursed?4:0));tot+=r.total;lines.push(`Rayon ${i}: ${rr.detail}+8=${a} TOUCHÉ${crit?' CRITIQUE':''} • ${r.total} force${cursed?' (Malédiction +4)':''}`)}else lines.push(`Rayon ${i}: ${rr.detail}+8=${a} RATÉ`)}log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTotal des rayons touchés : ${tot}`)};
+q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('red');continueEldritchRun()};
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
@@ -433,7 +461,7 @@ q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.
 q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:''});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
 q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
 q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
-q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;resetEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
+q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;resetEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit)q('#kentaro-ribbon').classList.remove('show')};
 render();load(true);
 })();
