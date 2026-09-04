@@ -1,0 +1,80 @@
+name: Repair Kentaro target detection
+on:
+  push:
+    paths:
+      - '.github/workflows/repair-target-detection.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore last good index and apply approved target logic
+        run: |
+          git show HEAD~2:index.html > index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          text=text.replace('<div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="sameTarget" class="toggle on">◎ Même cible ON</button><button id="newTurn">↻ Nouveau tour</button></div>','<div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="newTurn">↻ Nouveau tour</button></div>',1)
+          text=text.replace(" shroud:false,sameTarget:true,conc:false,concSpell:'',\n solHit:false,selHit:false,seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,"," shroud:false,conc:false,concSpell:'',\n solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,",1)
+          text=text.replace("function curseApplies(){return S.curse && cleanName(S.curseTarget) && cleanName(S.currentTarget)===cleanName(S.curseTarget)}","function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}\nfunction curseApplies(){return curseAppliesTo(S.currentTarget)}\nfunction bladesShareTarget(){return cleanName(S.solTarget) && cleanName(S.solTarget)===cleanName(S.selTarget)}",1)
+          text=text.replace(" q('#shroudToggle').textContent='◐ Voile spirituel '+(S.shroud?'ON':'OFF');q('#shroudToggle').classList.toggle('on',S.shroud);q('#sameTarget').textContent='◎ Même cible '+(S.sameTarget?'ON':'OFF');q('#sameTarget').classList.toggle('on',S.sameTarget);"," q('#shroudToggle').textContent='◐ Voile spirituel '+(S.shroud?'ON':'OFF');q('#shroudToggle').classList.toggle('on',S.shroud);",1)
+          text=text.replace("S.pendingHit={which,name,total:hitRoll,nat,crit:false,detail};","S.pendingHit={which,name,total:hitRoll,nat,crit:false,detail,target:S.currentTarget};",1)
+          text=text.replace("if(!hit){if(sun)S.solHit=false;else S.selHit=false;render();return log(`${name}\\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}","if(!hit){if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}render();return log(`${name}\\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}",1)
+          text=text.replace("const dmg=w.total+elem.total+extra;if(sun)S.solHit=true;else S.selHit=true;\n let sealText='';\n if(S.sameTarget&&S.solHit&&S.selHit&&cleanName(S.currentTarget)){\n   const r=d(8),p=d(8);S.seal=true;S.sealTarget=S.currentTarget;S.sealExpiresAfterTurn=S.turn+1;sealText=`\\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')\n } else fx(sun?'sun':'moon');","const dmg=w.total+elem.total+extra;if(sun){S.solHit=true;S.solTarget=S.currentTarget}else{S.selHit=true;S.selTarget=S.currentTarget}\n let sealText='';\n if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){\n   const r=d(8),p=d(8);S.seal=true;S.sealTarget=sun?S.solTarget:S.selTarget;S.sealExpiresAfterTurn=S.turn+1;sealText=`\\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')\n } else fx(sun?'sun':'moon');",1)
+          old=""" const sun=p.which==='sun',name=p.name;
+ if(!hit){
+   if(sun)S.solHit=false;else S.selHit=false;
+   render();log(`${name}\\nConfirmation : RATÉ.`);return;
+ }
+ const cursed=curseApplies(),crit=false;
+ const w=roll(1,8,4),elem=roll(1,6);let extra=0,parts=[];
+ if(cursed){extra+=4;parts.push('Malédiction +4')}
+ if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
+ const total=w.total+elem.total+extra;
+ if(sun)S.solHit=true;else S.selHit=true;
+ if(S.sameTarget&&S.solHit&&S.selHit&&!S.seal){
+   const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=S.currentTarget||'Cible';S.sealExpiresAfterTurn=S.turn;
+   extra+=se.total+me.total;parts.push(`Sceau +${se.total+me.total}`);fx('eclipse');
+ }
+ render();
+ log(`${name}\\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);
+}"""
+          new=""" const sun=p.which==='sun',name=p.name,target=p.target||'';
+ if(!hit){
+   if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
+   render();log(`${name}\\nConfirmation : RATÉ.`);return;
+ }
+ const cursed=curseAppliesTo(target),crit=false;
+ const w=roll(1,8,4),elem=roll(1,6);let extra=0,parts=[];
+ if(cursed){extra+=4;parts.push('Malédiction +4')}
+ if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
+ if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
+ if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
+   const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
+   extra+=se.total+me.total;parts.push(`Sceau +${se.total+me.total}`);fx('eclipse');
+ }
+ const total=w.total+elem.total+extra;
+ render();
+ log(`${name}\\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);
+}"""
+          text=text.replace(old,new,1)
+          text=text.replace("q('#sameTarget').onclick=()=>{push();S.sameTarget=!S.sameTarget;render()};\n","",1)
+          text=text.replace("S.turn++;S.solHit=S.selHit=S.seal=false;S.pendingHit=null;","S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;",1)
+          text=text.replace("S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.lastCrit=false;","S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.lastCrit=false;",1)
+          text=text.replace("solHit:false,selHit:false,seal:false,sealTarget:''","solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:''",1)
+          text=text.replace("S.solHit=S.selHit=S.seal=false;S.pendingHit=null;S.sealTarget='';","S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';",1)
+          text=text.replace("q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?'touché':'—'} • Sélhane : ${S.selHit?'touché':'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;","q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?`touché${S.solTarget?' → '+S.solTarget:''}`:'—'} • Sélhane : ${S.selHit?`touché${S.selTarget?' → '+S.selTarget:''}`:'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;",1)
+          if 'sameTarget' in text:
+              raise SystemExit('sameTarget still present')
+          p.write_text(text,encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Auto-detect same target for Eclipse Seal"
+          git push
