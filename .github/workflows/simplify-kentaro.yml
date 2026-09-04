@@ -1,0 +1,55 @@
+name: Simplify Kentaro combat UI
+
+on:
+  push:
+    paths:
+      - '.github/workflows/simplify-kentaro.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  simplify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove twin-blade routine block
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          s = re.sub(
+              r'<div class="card golden"><div class="action-title">Routine des Lames jumelles</div><div class="meta">.*?</div>\s*<div class="control-grid">',
+              '<div class="card golden"><div class="control-grid">',
+              s,
+              count=1,
+              flags=re.S,
+          )
+
+          combo = '<div class="combo"><div id="stepSun" class="combo-step s1"><b>1 — Solinar</b>1d8 + 4 + 1d6 radiant</div><div id="stepMoon" class="combo-step s2"><b>2 — Sélhane</b>1d8 + 4 + 1d6 psychique</div><div id="stepSeal" class="combo-step s3"><b>3 — Sceau d’éclipse</b>+1d8 radiant +1d8 psychique si les deux touchent la même cible</div></div>\n'
+          s = s.replace(combo, '', 1)
+
+          s = re.sub(r"\s*q\('#stepSun'\)[^\n]*\n", '\n', s, count=1)
+
+          p.write_text(s, encoding='utf-8')
+
+          tmp = Path('kentaro_v5_ipad_simplified.b64')
+          if tmp.exists():
+              tmp.unlink()
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Simplify Kentaro combat UI"
+            git push
+          fi
