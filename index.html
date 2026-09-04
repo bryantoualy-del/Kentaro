@@ -1,1 +1,401 @@
-__PLACEHOLDER__
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0b10">
+<title>Kentaro — Compagnon de combat : Éclipse</title>
+<style>
+:root{
+  --bg:#07080d;--panel:#10131b;--panel2:#171b25;--line:#31384a;
+  --ivory:#f5eee3;--muted:#aab0bd;--gold:#e1a640;--sun:#ff8a24;--sun2:#ffcc68;
+  --moon:#4fa3ff;--moon2:#98d4ff;--blood:#8c263b;--violet:#7653a6;--green:#416f5a;
+}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;color:var(--ivory);font-family:Georgia,"Times New Roman",serif;background:
+radial-gradient(circle at 15% -10%,rgba(255,116,26,.18),transparent 34%),
+radial-gradient(circle at 85% -10%,rgba(54,128,255,.19),transparent 34%),
+linear-gradient(180deg,#0b0d14,#07080d 52%,#05060a)}
+button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;background:#1a1f2b;color:var(--ivory);border-radius:10px;padding:9px 12px;cursor:pointer}button:active{transform:translateY(1px)}
+.wrap{max-width:1080px;margin:auto;padding:12px}.shell{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(18,21,30,.97),rgba(9,11,16,.98));border:1px solid #3a4052;border-radius:18px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.48)}
+.shell:before,.shell:after{content:"";position:absolute;top:0;width:36%;height:4px}.shell:before{left:0;background:linear-gradient(90deg,var(--sun),transparent)}.shell:after{right:0;background:linear-gradient(270deg,var(--moon),transparent)}
+.head{text-align:center;padding:6px 4px 16px;border-bottom:1px solid #333a4b;position:relative}.head h1{margin:0;font-size:clamp(34px,8vw,58px);letter-spacing:.12em}.head h1 .ken{background:linear-gradient(90deg,#ffe1aa,#ff9b37 42%,#d8e8ff 58%,#68afff);-webkit-background-clip:text;background-clip:text;color:transparent}.subtitle{color:var(--muted);font-style:italic}.eclipse-mark{display:flex;justify-content:center;gap:12px;align-items:center;margin-bottom:6px;font-size:20px}.sunIcon{color:var(--sun2);text-shadow:0 0 14px rgba(255,144,43,.6)}.moonIcon{color:var(--moon2);text-shadow:0 0 14px rgba(86,166,255,.6)}
+.grid{display:grid;gap:8px}.stats{grid-template-columns:repeat(6,1fr);margin-top:12px}.resources{grid-template-columns:repeat(5,1fr);margin-top:8px}.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px}.center{text-align:center}.big{display:block;font-size:22px;font-weight:bold;color:#fff}.big.sun{color:var(--sun2)}.big.moon{color:var(--moon2)}.big.gold{color:#f0c36d}
+.hp-controls{display:flex;justify-content:center;align-items:center;gap:5px;margin-top:4px}.hp-controls input{width:70px;min-height:44px;text-align:center;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:8px;font-size:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0;position:sticky;top:max(6px,env(safe-area-inset-top));z-index:20;padding:6px;border:1px solid rgba(70,78,101,.65);border-radius:14px;background:rgba(9,11,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.tab{flex:1 1 150px}.tab.active{background:linear-gradient(90deg,#71302a,#383965,#244d78);border-color:#a67655}.panel{display:none}.panel.active{display:block}.two{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:repeat(3,1fr)}.action-title{font-weight:bold;font-size:17px}.solar .action-title{color:var(--sun2)}.lunar .action-title{color:var(--moon2)}.violet .action-title{color:#c5a8ef}.golden .action-title{color:#f0c36d}.meta{font-size:13px;color:var(--muted);margin-top:3px}.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.solar button,.btn-sun{background:linear-gradient(180deg,#6c331b,#3d1d12);border-color:#a45b2c}.lunar button,.btn-moon{background:linear-gradient(180deg,#214b73,#142d49);border-color:#4c7eb1}.btn-violet{background:#3b2c52;border-color:#6f568e}.btn-red{background:#572331;border-color:#8f4255}.btn-green{background:#264737;border-color:#4f7a66}.btn-gold{background:#5d4320;border-color:#96733d}
+.tag{display:inline-block;border:1px solid #4b5368;border-radius:999px;padding:2px 7px;font-size:12px;color:var(--muted);margin:2px 4px 2px 0}.rule{border-left:3px solid #b87d3b;padding:9px 11px;background:#15161f;color:var(--muted);border-radius:6px;font-size:13px;margin-top:10px}
+.slotrow{display:flex;align-items:center;gap:8px;margin:8px 0}.pip{width:30px;height:30px;min-height:30px;padding:0;border-radius:50%;background:linear-gradient(135deg,var(--sun),var(--moon));border-color:#b48665}.pip.off{background:transparent;border-color:#495166}
+.modebar{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.toggle.on{box-shadow:0 0 0 2px rgba(255,255,255,.14) inset,0 0 16px rgba(98,131,255,.15);border-color:#8695c8}.statusbox{margin-top:8px;padding:9px;border:1px solid #394154;border-radius:9px;background:#0c0e14;font-size:13px;color:#c8ced8}
+.combo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}.combo-step{padding:10px;border-radius:10px;border:1px solid #3c4253;background:#11141c}.combo-step b{display:block;margin-bottom:3px}.combo-step.s1 b{color:var(--sun2)}.combo-step.s2 b{color:var(--moon2)}.combo-step.s3 b{color:#f4d08b}.activeglow{border-color:#d7a65e!important;box-shadow:0 0 18px rgba(224,157,67,.18)}
+.footer-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.log{margin-top:10px;background:#06070b;border:1px solid #343b4c;border-radius:11px;min-height:135px;max-height:300px;overflow:auto;padding:11px;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+#kentaro-ribbon{position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-145%);width:min(calc(100% - 16px),780px);z-index:9999;background:linear-gradient(90deg,#7d341f 0%,#3c314c 48%,#1f4d78 100%);border:2px solid #e7bb69;border-radius:14px;padding:12px 14px;box-shadow:0 12px 34px rgba(0,0,0,.65),0 0 0 2px rgba(231,187,105,.12) inset;opacity:0;pointer-events:none;transition:.25s ease}#kentaro-ribbon.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}#kentaro-ribbon .title{color:#fff0d1;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase}#kentaro-ribbon .body{margin-top:6px;color:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;line-height:1.35;white-space:pre-wrap;font-weight:800}#kentaro-ribbon .hint{margin-top:5px;color:#ddd4c5;font-size:11px}
+#historyPanel{display:none;margin-top:10px}#historyPanel.open{display:block}
+.ring-meter{height:12px;border:1px solid #4a5163;border-radius:999px;overflow:hidden;background:#080a0f;margin:9px 0}
+.ring-fill{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--moon),var(--gold));transition:width .2s ease}
+.ring-controls{display:grid;grid-template-columns:1.5fr .8fr;gap:7px;margin-top:8px}
+.ring-controls select,.ring-controls input{width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:8px;padding:8px}
+.ring-list{display:grid;gap:6px;margin-top:9px}.ring-spell{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px;border:1px solid #394154;border-radius:9px;background:#0c0e14}
+.ring-spell .spellname{font-weight:bold}.ring-spell .spellmeta{font-size:12px;color:var(--muted)}
+#combatToolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.note-red{color:#ff9da9}.note-blue{color:#9ed0ff}
+@media(max-width:760px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.two,.three,.combo{grid-template-columns:1fr}.wrap{padding:7px}.shell{padding:10px}}
+
+/* iPad — table-ready upgrades */
+.resources{grid-template-columns:repeat(6,1fr)}
+.control-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
+.control-grid input,.control-grid select,.compact-input{
+  width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);
+  border:1px solid #444b5e;border-radius:8px;padding:8px
+}
+.label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+.temp-source{font-size:11px;color:#cbb9df}
+.conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
+.conc-banner strong{color:#d8c0ff}
+.seal-banner{border:1px solid #a87a3d;background:linear-gradient(90deg,rgba(255,138,36,.13),rgba(118,83,166,.14),rgba(79,163,255,.13));padding:9px;border-radius:10px;margin-top:8px}
+.spectre-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.spectre-stat{padding:7px;border:1px solid #394154;border-radius:8px;background:#0c0e14;text-align:center}
+#fxOverlay{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0}
+#fxOverlay.fx-sun{background:radial-gradient(circle at center,rgba(255,127,31,.42),rgba(255,106,0,.12) 40%,transparent 72%);animation:fxPulse .48s ease}
+#fxOverlay.fx-moon{background:radial-gradient(circle at center,rgba(55,150,255,.42),rgba(68,80,255,.12) 40%,transparent 72%);animation:fxPulse .48s ease}
+#fxOverlay.fx-red{background:radial-gradient(circle at center,rgba(255,30,54,.52),rgba(130,0,20,.14) 45%,transparent 74%);animation:fxPulse .52s ease}
+#fxOverlay.fx-eclipse{background:linear-gradient(90deg,rgba(255,123,25,.38),rgba(110,65,150,.22) 48%,rgba(59,149,255,.38));animation:fxEclipse .75s ease}
+@keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+@keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
+.spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
+@media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
+@media(max-width:760px){.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
+
+</style>
+</head>
+<body>
+<div id="fxOverlay" aria-hidden="true"></div>
+<div class="wrap"><main class="shell" id="app">
+<header class="head"><div class="eclipse-mark"><span class="sunIcon">☀</span><span>✦</span><span class="moonIcon">☾</span></div><h1><span class="ken">KENTARO</span></h1><div class="subtitle">Dhampire • Occultiste 10 • Lame Maudite • Porteur de Solinar & Sélhane</div></header>
+
+<section class="grid stats">
+<div class="card center">CA<span class="big gold">18</span></div><div class="card center">PV<span id="hpView" class="big">103</span></div><div class="card center">Initiative<span class="big">+2</span></div><div class="card center">DD sorts<span class="big">16</span></div><div class="card center">Att. sort<span class="big">+8</span></div><div class="card center">Lames<span class="big gold">+10</span></div>
+</section>
+<section class="grid resources">
+<div class="card center">Slots de pacte<span id="slotView" class="big gold">2/2</span></div>
+<div class="card center">Malédiction<span id="curseView" class="big">Prête</span></div>
+<div class="card center">Châtiment occulte<span class="big">6d8</span></div>
+<div class="card center">Armure maléfices<span class="big">4–6</span><span class="meta">sur d6</span></div>
+<div class="card center">PV actuels<div class="hp-controls"><button id="hpMinus">−</button><input id="hpInput" type="number" min="0" max="103" value="103"><button id="hpPlus">+</button></div></div>
+<div class="card center">PV temporaires<span id="tempHpView" class="big">0</span><span id="tempHpSource" class="temp-source">aucun</span></div>
+</section>
+
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
+
+<section class="panel active" data-panel="combat">
+<div class="card golden">
+<div class="control-grid">
+<div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
+<div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
+<div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
+<div><span class="label-mini">Mode de jets</span><button id="manualDice" class="toggle">🎲 Jets auto</button></div>
+</div>
+<div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="newTurn">↻ Nouveau tour</button></div>
+<div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
+<div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
+<div id="hitConfirm" class="statusbox" style="display:none">
+  <b id="hitConfirmText">Résultat à confirmer</b>
+  <div class="row">
+    <button id="confirmHit" class="btn-green">✅ Touché</button>
+    <button id="confirmMiss" class="btn-red">❌ Raté</button>
+  </div>
+</div>
+</div>
+
+<div class="grid two" style="margin-top:8px">
+<article class="card solar"><div class="action-title">☀ Solinar</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts radiants • JS CON 15 : aveuglé 1 tour selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="solinar">Attaquer</button><button id="solinarCrit">Forcer critique</button></div></article>
+<article class="card lunar"><div class="action-title">☾ Sélhane</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts psychiques • JS SAG 15 : désavantage à la prochaine attaque selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="selhane">Attaquer</button><button id="selhaneCrit">Forcer critique</button></div></article>
+<article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
+<article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
+<article class="card"><div class="action-title">✹ Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><button id="eldritch">Lancer 2 rayons</button></article>
+
+</div>
+</section>
+
+<section class="panel" data-panel="spells">
+<div class="conc-banner"><strong>◐ Concentration</strong> — <span id="concSpellView">Aucune</span>
+<div class="row"><input id="concDamage" class="compact-input" style="max-width:135px" type="number" min="0" placeholder="Dégâts reçus"><button id="autoConcSave" class="btn-violet">Tester concentration</button><button id="dropConc">Rompre</button></div>
+<div id="concInfo" class="meta">DD = max(10, moitié des dégâts) • Esprit occulte : avantage au JS CON (+3).</div></div>
+<div class="card golden"><div class="action-title">Emplacements de pacte</div><div id="slots"></div><div class="meta">Occultiste niv. 10 : 2 emplacements de pacte. Le bouton d’un sort consomme 1 slot.</div></div>
+<div class="grid two" style="margin-top:8px">
+<article class="card" id="agathysCard"><div class="action-title">Armure d’Agathys</div><div class="meta">Avec un slot de pacte N5 : 25 PV temporaires • tant qu’il en reste, une créature qui te touche au corps-à-corps subit 25 froid.</div><div class="row"><button data-spell="Armure d’Agathys" data-agathys="1">Lancer N5</button><button id="agathysHit">Je suis touché au CàC</button></div></article>
+<article class="card violet"><div class="action-title">Maléfice</div><div class="meta">Concentration • moins prioritaire avec cette construction.</div><button data-spell="Maléfice" data-conc="1">Lancer</button></article>
+<article class="card"><div class="action-title">Foulée brumeuse</div><div class="meta">Action bonus • mobilité.</div><button data-spell="Foulée brumeuse">Lancer</button></article>
+<article class="card"><div class="action-title">Invisibilité</div><div class="meta">Concentration.</div><button data-spell="Invisibilité" data-conc="1">Lancer</button></article>
+<article class="card violet"><div class="action-title">Voile spirituel</div><div class="meta">Concentration • setup de gros combat • avec un slot N5, ajoute 2d8 à chaque attaque qui touche.</div><button data-spell="Voile spirituel" data-conc="1" data-shroud="1">Lancer</button></article>
+<article class="card"><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
+<article class="card"><div class="action-title">Ombre d’égarement</div><div class="meta">Sort connu niveau 4.</div><button data-spell="Ombre d’égarement">Lancer</button></article>
+<article class="card"><div class="action-title">Bannissement</div><div class="meta">JS CHA DD16 • neutraliser une cible quand le corps-à-corps est défavorable.</div><button data-spell="Bannissement" data-conc="1">Lancer</button></article>
+<article class="card violet"><div class="action-title">Perturbations synaptiques</div><div class="meta">N5 • meilleur choix multi-cible dans ton arbre de décision.</div><button data-spell="Perturbations synaptiques">Lancer</button></article>
+</div>
+</section>
+
+<section class="panel" data-panel="defense"><div class="grid two">
+<article class="card" id="hexArmorCard"><div class="action-title">Armure des maléfices</div><div class="meta">Uniquement contre la <b>cible maudite</b> : sur 4–6 au d6, l’attaque qui t’a touché est annulée.</div><div class="row"><input id="incomingDamage" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts"><button id="hexArmor">Touché par la cible maudite</button><button id="applyDamage">Appliquer dégâts</button></div></article>
+<article class="card"><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
+<article class="card"><div class="action-title">Esprit occulte</div><div class="meta">Avantage aux JS de Constitution pour maintenir la concentration. Utilise le test automatique ci-dessous.</div><div class="row"><input id="concDamageDef" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus"><button id="concSave">Tester concentration</button></div></article>
+<article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
+<article class="card"><div class="action-title">Soif ténébreuse</div><div class="meta">Morsure sur cible neutralisée ou empoignée • 1 perforant + 4 nécrotiques si alimentation • 4 PV temp • 1/repos court ou long.</div><button id="bite">Mordre / se nourrir</button></article>
+<article class="card"><div class="action-title">PV temporaires</div><div class="meta">Les PV temporaires ne se cumulent pas. Le compagnon te demande avant de remplacer une source existante.</div><div class="row"><input id="tempManual" class="compact-input" style="max-width:110px" type="number" min="0" placeholder="PV temp"><button id="setTempManual">Définir</button><button id="clearTemp">Effacer</button></div></article>
+</div></section>
+
+<section class="panel" data-panel="items"><div class="grid two">
+<article class="card golden"><div class="action-title">Solinar & Sélhane</div><div class="meta">Vestige de la Divergence • état éveillé • bonus d’arme +2 • finesse + légère pour Kentaro • les deux comptent comme armes de pacte.</div><div class="tag">Sceau d’éclipse</div><div class="tag">Parade crépusculaire +1 CA en main</div><div class="tag">Pas entre les rayons 1/repos court</div></article>
+<article class="card"><div class="action-title">Vision de la Pierre</div><div class="meta">1/jour • 12 s • voir à travers illusions et objets solides dans un rayon de 18 m • avantage sur la prochaine attaque.</div><button id="stoneVision">Activer</button></article>
+<article class="card violet">
+<div class="action-title">◉ Anneau de stockage de sorts</div>
+<div class="meta">Capacité totale : <b>5 niveaux de sorts</b>. L’espace occupé dépend du <b>niveau de l’emplacement utilisé</b> pour stocker le sort.</div>
+<div class="ring-meter"><div id="ringFill" class="ring-fill"></div></div>
+<div class="statusbox"><b id="ringCount">0/5 niveaux occupés</b><br><span id="ringFree" class="meta">5 niveaux libres</span></div>
+
+<div class="ring-controls">
+<select id="ringSpell">
+<option value="Armure d’Agathys">Armure d’Agathys</option>
+<option value="Maléfice">Maléfice</option>
+<option value="Foulée brumeuse">Foulée brumeuse</option>
+<option value="Suggestion">Suggestion</option>
+<option value="Invisibilité">Invisibilité</option>
+<option value="Voile spirituel">Voile spirituel</option>
+<option value="Porte dimensionnelle">Porte dimensionnelle</option>
+<option value="Ombre d’égarement">Ombre d’égarement</option>
+<option value="Bannissement">Bannissement</option>
+<option value="Perturbations synaptiques">Perturbations synaptiques</option>
+<option value="__custom">Autre sort…</option>
+</select>
+<select id="ringLevel" aria-label="Niveau de l’emplacement">
+<option value="1">Emplacement N1</option><option value="2">Emplacement N2</option><option value="3">Emplacement N3</option><option value="4">Emplacement N4</option><option value="5" selected>Emplacement N5</option>
+</select>
+</div>
+<input id="ringCustom" style="display:none;margin-top:7px;width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:8px;padding:8px" placeholder="Nom du sort personnalisé">
+<div class="row">
+<button id="ringStoreManual" class="btn-violet">＋ Stocker / allié</button>
+<button id="ringStoreKentaro" class="btn-gold">＋ Stocker avec Kentaro (slot N5)</button>
+<button id="ringClear">Vider l’anneau</button>
+</div>
+<div id="ringList" class="ring-list"></div>
+<div class="rule">Quand Kentaro stocke lui-même un sort avec son emplacement de pacte N5, il occupe <b>5/5</b> dans l’anneau, même si le sort est normalement de niveau inférieur. « Stocker / allié » permet de comptabiliser un sort placé par un autre lanceur avec un emplacement N1 à N5.</div>
+</article>
+<article class="card"><div class="action-title">Perle de pouvoir</div><div class="meta">Objet magique listé dans ton équipement.</div></article>
+<article class="card"><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur ta fiche.</div></article>
+<article class="card"><div class="action-title">Kane</div><div class="meta">Katana / épée longue familiale +1, transmise dans la famille Amane.</div></article>
+</div></section>
+
+<section class="panel" data-panel="spectre"><div class="grid two spectre-layout">
+<article class="card" id="spectreCard"><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
+<div class="spectre-grid"><div class="spectre-stat">État<br><b id="spectreState">Inactif</b></div><div class="spectre-stat">PV<br><b id="spectreHp">22</b></div><div class="spectre-stat">PV temp<br><b id="spectreTemp">5</b></div><div class="spectre-stat">CA<br><b>12</b></div></div>
+<div class="row"><button id="spectreInvoke">Invoquer</button><button id="spectre">Attaquer</button><input id="spectreDmg" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts"><button id="spectreTake">Appliquer</button></div>
+<div class="rule spectre-note">Le bouton <b>Appliquer</b> retire d’abord les <b>PV temporaires</b> du spectre, puis ses <b>PV</b>. Quand ses PV tombent à 0, il repasse automatiquement à l’état <b>Inactif</b>.</div></article>
+<article class="card violet"><div class="action-title">Résumé tactique</div><div class="meta">Petit pense-bête visuel pour gérer le spectre sans repasser par l’onglet Combat.</div>
+<div class="spectre-summary">
+<div class="statusbox"><b>Profil rapide</b><br><span class="tag">CA 12</span><span class="tag">22 PV</span><span class="tag">5 PV temp</span><span class="tag">Vol 15 m</span></div>
+<div class="statusbox"><b>Offense</b><br>Absorption de vie : <b>+8</b> pour toucher • <b>3d6 nécrotiques</b>.</div>
+<div class="statusbox"><b>Flux conseillé</b><br>1. <b>Invoquer</b><br>2. <b>Attaquer</b><br>3. saisir les dégâts reçus puis <b>Appliquer</b>.</div>
+</div></article>
+</div></section>
+
+<div class="footer-actions"><button id="shortRest">☕ Repos court</button><button id="longRest">🌙 Repos long</button><button class="btn-gold" id="saveGame">💾 Sauvegarder</button><button id="loadGame">↩ Charger</button><button id="resetSave">Effacer sauvegarde</button></div>
+<div id="saveStatus" class="meta" style="margin-top:8px">Sauvegarde locale : aucune modification enregistrée.</div>
+<div id="combatToolbar"><button id="undoLast">↶ Annuler dernière action</button><button id="toggleHistory">Historique</button><button id="newCombat">Nouveau combat</button></div>
+<div id="historyPanel"><div id="log" class="log">Prêt. Que l’éclipse tombe.</div><div style="margin-top:7px"><button id="clearLog">Effacer journal</button></div></div>
+<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div>
+</main></div>
+<script>
+(()=>{
+const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)],d=n=>1+Math.floor(Math.random()*n);
+const roll=(n,sides,mod=0)=>{let a=[];for(let i=0;i<n;i++)a.push(d(sides));return{dice:a,total:a.reduce((x,y)=>x+y,0)+mod}};
+const S={
+ hp:103,maxHp:103,tempHp:0,tempSource:'',
+ slots:2,curse:false,curseReady:true,curseTarget:'',currentTarget:'',targetAC:'',
+ shroud:false,conc:false,concSpell:'',
+ solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,
+ biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
+ agathys:false,agathysDamage:25,
+ spectreActive:false,spectreHp:22,spectreTemp:5
+};
+const undo=[];const SAVE='kentaro-eclipse-v4';
+let ribbonTimer=null,fxTimer=null;
+function snap(){return JSON.parse(JSON.stringify(S))}
+function push(){undo.push(snap());if(undo.length>40)undo.shift()}
+function restore(x){Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,x);render()}
+function save(silent=true){try{localStorage.setItem(SAVE,JSON.stringify(S));q('#saveStatus').textContent='Sauvegarde locale : état enregistré sur cet appareil.';if(!silent)log('💾 Partie sauvegardée.')}catch(e){if(!silent)log('❌ Sauvegarde locale indisponible.')}}
+function load(silent=true){try{const x=JSON.parse(localStorage.getItem(SAVE)||'null');if(x){Object.assign(S,x);render();if(!silent)log('↩ Sauvegarde chargée.')}}catch(e){}}
+function fx(type){
+ const o=q('#fxOverlay'); if(!o)return;
+ o.className=''; void o.offsetWidth; o.className='fx-'+type;
+ clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',850);
+}
+function log(t){
+ const el=q('#log');el.textContent=(el.textContent==='Prêt. Que l’éclipse tombe.'?'':el.textContent+'\n\n')+t;el.scrollTop=el.scrollHeight;
+ q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');r.classList.add('show');clearTimeout(ribbonTimer);ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);save(true)
+}
+function cleanName(x){return (x||'').trim().toLowerCase()}
+function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}
+function curseApplies(){return curseAppliesTo(S.currentTarget)}
+function bladesShareTarget(){return cleanName(S.solTarget) && cleanName(S.solTarget)===cleanName(S.selTarget)}
+function sealAdvantage(){return !!(S.sealTarget && cleanName(S.currentTarget)===cleanName(S.sealTarget) && S.turn<=S.sealExpiresAfterTurn)}
+function askNat(label,adv=false){
+ if(!S.manualDice){
+   if(adv){const a=d(20),b=d(20);return {nat:Math.max(a,b),detail:`${a}/${b} → ${Math.max(a,b)}`}}
+   const a=d(20);return {nat:a,detail:String(a)}
+ }
+ const msg=adv?`${label} — saisis le meilleur d20 naturel (avantage)`:`${label} — saisis le d20 naturel`;
+ const v=prompt(msg,'');
+ const n=Math.max(1,Math.min(20,parseInt(v||'',10)||0));
+ if(!n)return null;
+ return {nat:n,detail:`manuel ${n}`}
+}
+function setTempHp(amount,source){
+ amount=Math.max(0,Number(amount)||0);
+ if(amount===0){S.tempHp=0;S.tempSource='';S.agathys=false;render();return true}
+ if(S.tempHp>0 && S.tempSource && S.tempSource!==source){
+   const ok=confirm(`Tu as déjà ${S.tempHp} PV temp (${S.tempSource}). Remplacer par ${amount} PV temp (${source}) ?`);
+   if(!ok){log(`ℹ️ PV temporaires conservés : ${S.tempHp} (${S.tempSource}).`);return false}
+ }
+ S.tempHp=amount;S.tempSource=source;
+ if(source!=="Armure d’Agathys")S.agathys=false;
+ render();return true
+}
+function applyIncomingDamage(amount,source='dégâts'){
+ amount=Math.max(0,Number(amount)||0);if(!amount)return log('ℹ️ Aucun dégât à appliquer.');
+ push();
+ let left=amount,absorbed=0;
+ if(S.tempHp>0){absorbed=Math.min(S.tempHp,left);S.tempHp-=absorbed;left-=absorbed;if(S.tempHp===0){if(S.tempSource==="Armure d’Agathys")S.agathys=false;S.tempSource=''}}
+ if(left>0)S.hp=Math.max(0,S.hp-left);
+ render();log(`💥 ${source} : ${amount} dégâts • ${absorbed} absorbés par PV temp • ${left} sur PV → ${S.hp}/${S.maxHp}.`)
+}
+function concentrationSave(dmg){
+ dmg=Math.max(0,Number(dmg)||0);if(!S.conc)return log('ℹ️ Kentaro ne maintient actuellement aucun sort de concentration.');
+ const dc=Math.max(10,Math.floor(dmg/2));
+ const a=d(20)+3,b=d(20)+3,best=Math.max(a,b),ok=best>=dc;
+ if(!ok){push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`🧠 Concentration — dégâts ${dmg}, DD ${dc}\nJets avec avantage : ${a} / ${b} → ${best} ❌ ÉCHEC\n${old||'Le sort'} prend fin.`)}
+ else log(`🧠 Concentration — dégâts ${dmg}, DD ${dc}\nJets avec avantage : ${a} / ${b} → ${best} ✅ MAINTENUE (${S.concSpell}).`)
+}
+function startConcentration(name){
+ if(S.conc && S.concSpell && S.concSpell!==name)log(`⚠️ Concentration remplacée : ${S.concSpell} → ${name}.`);
+ S.conc=true;S.concSpell=name;S.shroud=(name==='Voile spirituel');
+}
+function ringUsed(){return (S.ring||[]).reduce((a,x)=>a+Number(x.level||0),0)}
+function renderRing(){
+ if(!Array.isArray(S.ring))S.ring=[];
+ const used=ringUsed(),free=5-used;q('#ringCount').textContent=`${used}/5 niveaux occupés`;q('#ringFree').textContent=`${free} niveau${free>1?'x':''} libre${free>1?'s':''}`;q('#ringFill').style.width=`${Math.min(100,used/5*100)}%`;
+ const list=q('#ringList');list.innerHTML='';if(!S.ring.length){list.innerHTML='<div class="meta">Anneau vide.</div>';return}
+ S.ring.forEach((sp,i)=>{const row=document.createElement('div');row.className='ring-spell';const info=document.createElement('div');info.innerHTML=`<div class="spellname">${sp.name}</div><div class="spellmeta">Emplacement N${sp.level} • occupe ${sp.level}/5</div>`;const cast=document.createElement('button');cast.textContent='Lancer';cast.className='btn-violet';cast.onclick=()=>{push();const gone=S.ring.splice(i,1)[0];render();log(`💍 ${gone.name} lancé depuis l’anneau (N${gone.level}) • ${gone.level} niveau${gone.level>1?'x':''} libéré${gone.level>1?'s':''}.`)};row.append(info,cast);list.appendChild(row)})
+}
+function ringSpellName(){const v=q('#ringSpell').value;return v==='__custom'?(q('#ringCustom').value.trim()||'Sort personnalisé'):v}
+function storeInRing(name,level,fromKentaro=false){
+ level=Number(level);const used=ringUsed();if(level<1||level>5)return log('❌ Le sort doit être stocké avec un emplacement de niveau 1 à 5.');if(used+level>5)return log(`❌ Anneau plein : ${used}/5 occupés.`);
+ if(fromKentaro){if(S.slots<1)return log('❌ Aucun emplacement de pacte N5 restant.');push();S.slots--;S.ring.push({name,level:5,caster:'Kentaro'});render();return log(`💍 ${name} stocké par Kentaro avec un slot N5 • anneau ${ringUsed()}/5.`)}
+ push();S.ring.push({name,level,caster:'Autre/manuel'});render();log(`💍 ${name} stocké avec un emplacement N${level} • anneau ${ringUsed()}/5.`)
+}
+function renderSlots(){const x=q('#slots');x.innerHTML='';for(let i=0;i<2;i++){const b=document.createElement('button');b.className='pip '+(i<S.slots?'':'off');b.title=i<S.slots?'Disponible':'Dépensé';b.onclick=()=>{push();S.slots=i<S.slots?Math.max(0,S.slots-1):Math.min(2,S.slots+1);render()};x.appendChild(b)}}
+function render(){
+ q('#hpView').textContent=S.hp;q('#hpInput').value=S.hp;q('#slotView').textContent=S.slots+'/2';
+ q('#tempHpView').textContent=S.tempHp||0;q('#tempHpSource').textContent=S.tempHp?(S.tempSource||'source inconnue'):'aucun';
+ q('#curseView').textContent=S.curse?'Active':(S.curseReady?'Prête':'Utilisée');q('#curseToggle').textContent='☠ Malédiction '+(S.curse?'ON':'OFF');q('#curseToggle').classList.toggle('on',S.curse);
+ q('#shroudToggle').textContent='◐ Voile spirituel '+(S.shroud?'ON':'OFF');q('#shroudToggle').classList.toggle('on',S.shroud);
+ q('#manualDice').textContent=S.manualDice?'🎲 Jets manuels':'🎲 Jets auto';q('#manualDice').classList.toggle('on',S.manualDice);
+ q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';
+ q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?`touché${S.solTarget?' → '+S.solTarget:''}`:'—'} • Sélhane : ${S.selHit?`touché${S.selTarget?' → '+S.selTarget:''}`:'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
+ q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
+ const hc=q('#hitConfirm');if(hc){hc.style.display=S.pendingHit?'block':'none';if(S.pendingHit)q('#hitConfirmText').textContent=`🎯 ${S.pendingHit.name} — jet total ${S.pendingHit.total}. La CA est vide : touché ou raté ?`;}
+ q('#concSpellView').textContent=S.conc?(S.concSpell||'Concentration active'):'Aucune';
+ q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
+ renderSlots();renderRing()
+}
+function useSlot(){if(S.slots<1){log('❌ Aucun emplacement de pacte restant.');return false}push();S.slots--;render();return true}
+function resolveHit(nat,total,crit){
+ const ac=Number(S.targetAC)||0;if(crit)return true;if(nat===1)return false;if(!ac)return true;return total>=ac
+}
+function blade(which,forceCrit=false){
+ const sun=which==='sun',name=sun?'☀ Solinar':'☾ Sélhane',adv=sealAdvantage();
+ let nat=20,detail='critique forcé',hitRoll=30;
+ if(!forceCrit){const rr=askNat(name,adv);if(!rr)return log('ℹ️ Jet annulé.');nat=rr.nat;detail=rr.detail;hitRoll=nat+10}
+ const cursed=curseApplies(),crit=forceCrit||nat===20||(cursed&&nat===19);
+ if(!S.targetAC&&!crit){
+   S.pendingHit={which,name,total:hitRoll,nat,crit:false,detail,target:S.currentTarget};
+   render();
+   return log(`${name}\nJet ${detail} +10 = ${hitRoll} → CA non renseignée : confirme TOUCHÉ ou RATÉ.`);
+ }
+ const hit=resolveHit(nat,hitRoll,crit);
+ if(!hit){if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}render();return log(`${name}\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}
+ const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,parts=[];
+ if(cursed){extra+=4;parts.push('+4 Malédiction')}
+ if(S.shroud){const r=roll(crit?4:2,8);extra+=r.total;parts.push(`+${r.total} Voile [${r.dice.join('+')}]`)}
+ const dmg=w.total+elem.total+extra;if(sun){S.solHit=true;S.solTarget=S.currentTarget}else{S.selHit=true;S.selTarget=S.currentTarget}
+ let sealText='';
+ if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
+   const r=d(8),p=d(8);S.seal=true;S.sealTarget=sun?S.solTarget:S.selTarget;S.sealExpiresAfterTurn=S.turn+1;sealText=`\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')
+ } else fx(sun?'sun':'moon');
+ S.lastCrit=crit;S.lastCritBlade=crit?(sun?'Solinar':'Sélhane'):'';
+ render();
+ const critText=crit?` — ✦ CRITIQUE${!forceCrit&&cursed&&nat===19?' (19 grâce à la Malédiction)':''}`:'';
+ log(`${name}${critText}\nJet ${detail} +10 = ${hitRoll} → TOUCHÉ${S.targetAC?` (CA ${S.targetAC})`:''}${adv?' • avantage Sceau':''}\nDégâts : ${dmg} (${w.dice.join('+')}+4 + ${elem.dice.join('+')} ${sun?'radiant':'psychique'}${parts.length?' '+parts.join(' '):''})${sealText}`)
+ if(crit && S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?'Solinar':'Sélhane'}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
+}
+function castSpellButton(b){
+ if(!useSlot())return;const name=b.dataset.spell;if(b.dataset.conc)startConcentration(name);
+ if(b.dataset.agathys){S.agathys=true;S.agathysDamage=25;setTempHp(25,"Armure d’Agathys")}
+ render();log(`✨ ${name} lancé avec un emplacement de pacte N5${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
+}
+qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
+q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#targetAC').oninput=e=>{S.targetAC=e.target.value;render()};q('#curseTarget').oninput=e=>{S.curseTarget=e.target.value;render()};
+q('#manualDice').onclick=()=>{push();S.manualDice=!S.manualDice;render();log(S.manualDice?'🎲 Mode jets manuels : le compagnon te demandera le résultat naturel du d20.':'🎲 Mode jets automatiques réactivé.')};
+q('#solinar').onclick=()=>blade('sun');q('#solinarCrit').onclick=()=>blade('sun',true);q('#selhane').onclick=()=>blade('moon');q('#selhaneCrit').onclick=()=>blade('moon',true);q('#thirdSun').onclick=()=>blade('sun');q('#thirdMoon').onclick=()=>blade('moon');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun');if(!S.selHit)return blade('moon');blade('sun')};
+function confirmPendingBlade(hit){
+ if(!S.pendingHit)return;
+ const p=S.pendingHit;S.pendingHit=null;
+ const sun=p.which==='sun',name=p.name,target=p.target||'';
+ if(!hit){
+   if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
+   render();log(`${name}\nConfirmation : RATÉ.`);return;
+ }
+ const cursed=curseAppliesTo(target),crit=false;
+ const w=roll(1,8,4),elem=roll(1,6);let extra=0,parts=[];
+ if(cursed){extra+=4;parts.push('Malédiction +4')}
+ if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
+ if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
+ if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
+   const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
+   extra+=se.total+me.total;parts.push(`Sceau +${se.total+me.total}`);fx('eclipse');
+ }
+ const total=w.total+elem.total+extra;
+ render();
+ log(`${name}\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);
+}
+q('#confirmHit').onclick=()=>confirmPendingBlade(true);
+q('#confirmMiss').onclick=()=>confirmPendingBlade(false);
+
+q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.lastCrit=false;S.lastCritBlade='';if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : suivi des touches réinitialisé.`)};
+q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
+q('#shroudToggle').onclick=()=>{push();if(!S.shroud){S.shroud=true;startConcentration('Voile spirituel');log('◐ Voile spirituel activé manuellement : +2d8 par touche.')}else{S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}log('◐ Voile spirituel désactivé.')}render()};
+q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);S.lastCrit=false;render();log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
+q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);S.lastCrit=false;render();log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
+q('#eldritch').onclick=()=>{fx('red');let lines=[],tot=0;const cursed=curseApplies();for(let i=1;i<=2;i++){const rr=askNat(`Décharge occulte — rayon ${i}`,false);if(!rr)continue;const a=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19),hit=resolveHit(rr.nat,a,crit);if(hit){const r=roll(crit?2:1,10,4+(cursed?4:0));tot+=r.total;lines.push(`Rayon ${i}: ${rr.detail}+8=${a} TOUCHÉ${crit?' CRITIQUE':''} • ${r.total} force${cursed?' (Malédiction +4)':''}`)}else lines.push(`Rayon ${i}: ${rr.detail}+8=${a} RATÉ`)}log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTotal des rayons touchés : ${tot}`)};
+q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
+q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
+q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
+qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
+q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys : la créature qui vient de toucher Kentaro au corps-à-corps subit ${S.agathysDamage} dégâts de froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
+q('#hexArmor').onclick=()=>{if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');const x=d(6),amt=Number(q('#incomingDamage').value)||0;if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)applyIncomingDamage(amt,'attaque de la cible maudite')}};
+q('#applyDamage').onclick=()=>applyIncomingDamage(Number(q('#incomingDamage').value)||0,'dégâts reçus');
+q('#lazarus').onclick=()=>{push();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
+q('#concSave').onclick=()=>concentrationSave(Number(q('#concDamageDef').value)||0);
+q('#autoConcSave').onclick=()=>concentrationSave(Number(q('#concDamage').value)||0);
+q('#dropConc').onclick=()=>{if(!S.conc)return;push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`◐ Concentration rompue : ${old}.`)};
+q('#bite').onclick=()=>{if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.')};
+q('#setTempManual').onclick=()=>{push();setTempHp(Number(q('#tempManual').value)||0,'Manuel');log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
+q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
+q('#stoneVision').onclick=()=>{if(!S.stoneReady)return log('❌ Vision de la Pierre déjà utilisée aujourd’hui.');push();S.stoneReady=false;log('👁 Vision de la Pierre activée : 12 s • rayon 18 m • avantage sur la prochaine attaque.')};
+q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').value==='__custom'?'block':'none'};q('#ringStoreManual').onclick=()=>storeInRing(ringSpellName(),Number(q('#ringLevel').value),false);q('#ringStoreKentaro').onclick=()=>storeInRing(ringSpellName(),5,true);q('#ringClear').onclick=()=>{if(!S.ring.length)return log('ℹ️ L’anneau est déjà vide.');push();S.ring=[];render();log('💍 Anneau vidé.')};
+q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.lastCrit=false;render();log('☕ Repos court : slots restaurés, Malédiction et Soif ténébreuse prêtes. Concentration et PV temporaires ne sont pas effacés automatiquement.')};
+q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
+q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
+q('#saveGame').onclick=()=>save(false);q('#loadGame').onclick=()=>load(false);q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
+q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
+q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>q('#kentaro-ribbon').classList.remove('show');
+render();load(true);
+})();
+</script>
+</body></html>
