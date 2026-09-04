@@ -38,7 +38,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 #combatToolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.note-red{color:#ff9da9}.note-blue{color:#9ed0ff}
 @media(max-width:760px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.two,.three,.combo{grid-template-columns:1fr}.wrap{padding:7px}.shell{padding:10px}}
 
-/* v4 — table-ready upgrades */
+/* iPad — table-ready upgrades */
 .resources{grid-template-columns:repeat(6,1fr)}
 .control-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
 .control-grid input,.control-grid select,.compact-input{
@@ -46,9 +46,6 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
-.strategy-bar{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}
-.strategy-hint{margin-top:8px;padding:9px;border:1px solid #4a4054;border-radius:9px;background:#121019;color:#ddd}
-.recommended{outline:2px solid #d9ae64!important;box-shadow:0 0 20px rgba(225,166,64,.23)!important}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
 .conc-banner strong{color:#d8c0ff}
@@ -62,7 +59,6 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 #fxOverlay.fx-eclipse{background:linear-gradient(90deg,rgba(255,123,25,.38),rgba(110,65,150,.22) 48%,rgba(59,149,255,.38));animation:fxEclipse .75s ease}
 @keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
-.crit-offer{border-color:#c59b54!important;box-shadow:0 0 18px rgba(225,166,64,.24)}
 .spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
 @media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
 @media(max-width:760px){.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
@@ -89,18 +85,16 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
 
 <section class="panel active" data-panel="combat">
-<div class="card golden"><div class="control-grid">
+<div class="card golden">
+<div class="control-grid">
 <div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
 <div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
 <div><span class="label-mini">Cible maudite</span><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"></div>
 <div><span class="label-mini">Mode de jets</span><button id="manualDice" class="toggle">🎲 Jets auto</button></div>
 </div>
-<div class="strategy-bar"><button id="strategyStandard">Standard</button><button id="strategyBoss" class="btn-gold">Boss</button><button id="strategySurvival" class="btn-red">Survie</button><button id="fullTurn" class="btn-violet">⚔ Résoudre le tour complet</button></div>
-<div id="strategyHint" class="strategy-hint">Standard : lames jumelles, Sceau, puis adaptation.</div>
 <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button><button id="sameTarget" class="toggle on">◎ Même cible ON</button><button id="newTurn">↻ Nouveau tour</button></div>
 <div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
 <div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
-<div id="critOffer" class="statusbox">Aucun critique en attente.</div>
 </div>
 
 <div class="grid two" style="margin-top:8px">
@@ -211,8 +205,7 @@ const S={
  solHit:false,selHit:false,seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,
  biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
  agathys:false,agathysDamage:25,
- spectreActive:false,spectreHp:22,spectreTemp:5,
- strategy:'standard'
+ spectreActive:false,spectreHp:22,spectreTemp:5
 };
 const undo=[];const SAVE='kentaro-eclipse-v4';
 let ribbonTimer=null,fxTimer=null;
@@ -297,7 +290,6 @@ function render(){
  q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';
  q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?'touché':'—'} • Sélhane : ${S.selHit?'touché':'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
- q('#critOffer').textContent=S.lastCrit?`✦ CRITIQUE en attente (${S.lastCritBlade}) — Châtiment occulte conseillé : 12d8 si tu veux le dépenser.`:'Aucun critique en attente.';q('#critOffer').classList.toggle('crit-offer',S.lastCrit);
  q('#concSpellView').textContent=S.conc?(S.concSpell||'Concentration active'):'Aucune';
  q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
  renderSlots();renderRing()
@@ -331,20 +323,10 @@ function castSpellButton(b){
  if(b.dataset.agathys){S.agathys=true;S.agathysDamage=25;setTempHp(25,"Armure d’Agathys")}
  render();log(`✨ ${name} lancé avec un emplacement de pacte N5${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
 }
-function setStrategy(mode){
- S.strategy=mode;qa('.card').forEach(c=>c.classList.remove('recommended'));
- let hint='';
- if(mode==='boss'){hint='Boss : Malédiction → Voile spirituel → Lames jumelles → chercher le Sceau → Châtiment sur critique.';['#agathysCard','#critOffer'].forEach(s=>q(s)?.classList.add('recommended'))}
- else if(mode==='survival'){hint='Survie : Armure d’Agathys / Tombeau de Lazarus, contrôle par Bannissement, mobilité, puis reprise du corps-à-corps.';['#agathysCard','#hexArmorCard'].forEach(s=>q(s)?.classList.add('recommended'))}
- else {hint='Standard : lames jumelles, Sceau, puis adaptation. Économise les slots si la cible ne justifie pas le setup.'}
- q('#strategyHint').textContent=hint;render()
-}
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
 q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#targetAC').oninput=e=>{S.targetAC=e.target.value;render()};q('#curseTarget').oninput=e=>{S.curseTarget=e.target.value;render()};
 q('#manualDice').onclick=()=>{push();S.manualDice=!S.manualDice;render();log(S.manualDice?'🎲 Mode jets manuels : le compagnon te demandera le résultat naturel du d20.':'🎲 Mode jets automatiques réactivé.')};
 q('#solinar').onclick=()=>blade('sun');q('#solinarCrit').onclick=()=>blade('sun',true);q('#selhane').onclick=()=>blade('moon');q('#selhaneCrit').onclick=()=>blade('moon',true);q('#thirdSun').onclick=()=>blade('sun');q('#thirdMoon').onclick=()=>blade('moon');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun');if(!S.selHit)return blade('moon');blade('sun')};
-q('#fullTurn').onclick=()=>{push();S.solHit=S.selHit=false;blade('sun');blade('moon');q('#thirdSmart').click()};
-q('#strategyStandard').onclick=()=>setStrategy('standard');q('#strategyBoss').onclick=()=>setStrategy('boss');q('#strategySurvival').onclick=()=>setStrategy('survival');
 q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.lastCrit=false;S.lastCritBlade='';if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : suivi des touches réinitialisé.`)};
 q('#sameTarget').onclick=()=>{push();S.sameTarget=!S.sameTarget;render()};
 q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
@@ -374,7 +356,7 @@ q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#h
 q('#saveGame').onclick=()=>save(false);q('#loadGame').onclick=()=>load(false);q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>q('#kentaro-ribbon').classList.remove('show');
-render();load(true);setStrategy(S.strategy||'standard');
+render();load(true);
 })();
 </script>
 </body></html>
