@@ -1,0 +1,45 @@
+name: Apply approved Kentaro preview
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-preview.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply approved UI cleanup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          reps=[
+            ('/* v4 — table-ready upgrades */','/* iPad — table-ready upgrades */'),
+            ('.strategy-bar{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}\n.strategy-hint{margin-top:8px;padding:9px;border:1px solid #4a4054;border-radius:9px;background:#121019;color:#ddd}\n.recommended{outline:2px solid #d9ae64!important;box-shadow:0 0 20px rgba(225,166,64,.23)!important}\n',''),
+            ('.crit-offer{border-color:#c59b54!important;box-shadow:0 0 18px rgba(225,166,64,.24)}\n',''),
+            ('<div class="card golden"><div class="control-grid">','<div class="card golden">\n<div class="control-grid">'),
+            ('<div class="strategy-bar"><button id="strategyStandard">Standard</button><button id="strategyBoss" class="btn-gold">Boss</button><button id="strategySurvival" class="btn-red">Survie</button><button id="fullTurn" class="btn-violet">⚔ Résoudre le tour complet</button></div>\n<div id="strategyHint" class="strategy-hint">Standard : lames jumelles, Sceau, puis adaptation.</div>\n',''),
+            ('<div id="critOffer" class="statusbox">Aucun critique en attente.</div>\n',''),
+            (" spectreActive:false,spectreHp:22,spectreTemp:5,\n strategy:'standard'\n"," spectreActive:false,spectreHp:22,spectreTemp:5\n"),
+            (" q('#critOffer').textContent=S.lastCrit?`✦ CRITIQUE en attente (${S.lastCritBlade}) — Châtiment occulte conseillé : 12d8 si tu veux le dépenser.`:'Aucun critique en attente.';q('#critOffer').classList.toggle('crit-offer',S.lastCrit);\n",''),
+            ("function setStrategy(mode){\n S.strategy=mode;qa('.card').forEach(c=>c.classList.remove('recommended'));\n let hint='';\n if(mode==='boss'){hint='Boss : Malédiction → Voile spirituel → Lames jumelles → chercher le Sceau → Châtiment sur critique.';['#agathysCard','#critOffer'].forEach(s=>q(s)?.classList.add('recommended'))}\n else if(mode==='survival'){hint='Survie : Armure d’Agathys / Tombeau de Lazarus, contrôle par Bannissement, mobilité, puis reprise du corps-à-corps.';['#agathysCard','#hexArmorCard'].forEach(s=>q(s)?.classList.add('recommended'))}\n else {hint='Standard : lames jumelles, Sceau, puis adaptation. Économise les slots si la cible ne justifie pas le setup.'}\n q('#strategyHint').textContent=hint;render()\n}\n",''),
+            ("q('#fullTurn').onclick=()=>{push();S.solHit=S.selHit=false;blade('sun');blade('moon');q('#thirdSmart').click()};\nq('#strategyStandard').onclick=()=>setStrategy('standard');q('#strategyBoss').onclick=()=>setStrategy('boss');q('#strategySurvival').onclick=()=>setStrategy('survival');\n",''),
+            ("render();load(true);setStrategy(S.strategy||'standard');","render();load(true);")
+          ]
+          for old,new in reps:
+              if old not in s:
+                  raise SystemExit('Expected pattern missing: '+old[:120])
+              s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit approved preview
+        run: |
+          git config user.name "bryantoualy-del"
+          git config user.email "bryantoualy@gmail.com"
+          git add index.html
+          git rm .github/workflows/apply-preview.yml
+          git commit -m "Use approved simplified Kentaro UI"
+          git push
