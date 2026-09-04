@@ -1,0 +1,56 @@
+-        <div class="row"><button id="confirmHit" class="btn-green">✅ Touché</button><button id="confirmMiss" class="btn-red">❌ Raté</button></div>
+-      </div>
+     </div>
+   </div>
+ 
+@@ -212,11 +208,21 @@
+ </div></article>
+ </div></section>
+ 
+-<div class="footer-actions"><button id="shortRest">☕ Repos court</button><button id="longRest">🌙 Repos long</button><button id="resetSave">Effacer sauvegarde</button></div>
+-<div id="saveStatus" class="meta" style="margin-top:8px">Sauvegarde locale : aucune modification enregistrée.</div>
+-<div id="combatToolbar"><button id="undoLast">↶ Annuler dernière action</button><button id="toggleHistory">Historique</button><button id="newCombat">Nouveau combat</button></div>
++<div class="utility-bar">
++  <div class="utility-group utility-rest">
++    <button id="shortRest">☕ Repos court</button>
++    <button id="longRest">🌙 Repos long</button>
++    <button id="newCombat">⚔ Nouveau combat</button>
++  </div>
++  <div class="utility-group utility-tools">
++    <button id="undoLast">↶ Annuler</button>
++    <button id="toggleHistory">Historique</button>
++    <button id="resetSave" class="utility-danger">Effacer sauvegarde</button>
++  </div>
++</div>
++<div id="saveStatus" class="meta save-status-compact">Sauvegarde locale : aucune modification enregistrée.</div>
+ <div id="historyPanel"><div id="log" class="log">Prêt. Que l’éclipse tombe.</div><div style="margin-top:7px"><button id="clearLog">Effacer journal</button></div></div>
+-<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div>
++<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div id="ribbonHitActions" class="ribbon-actions"><button id="confirmHit" class="btn-green">✅ Touché</button><button id="confirmMiss" class="btn-red">❌ Raté</button></div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div>
+ </main></div>
+ <script>
+ (()=>{
+@@ -246,7 +252,7 @@
+ }
+ function log(t){
+  const el=q('#log');el.textContent=(el.textContent==='Prêt. Que l’éclipse tombe.'?'':el.textContent+'\n\n')+t;el.scrollTop=el.scrollHeight;
+- q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');r.classList.add('show');clearTimeout(ribbonTimer);ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);save(true)
++ q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);save(true)
+ }
+ function cleanName(x){return (x||'').trim().toLowerCase()}
+ function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}
+@@ -344,7 +350,7 @@
+  q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';
+  q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?`touché${S.solTarget?' → '+S.solTarget:''}`:'—'} • Sélhane : ${S.selHit?`touché${S.selTarget?' → '+S.selTarget:''}`:'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
+  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
+- const hc=q('#hitConfirm');if(hc){hc.style.display=S.pendingHit?'block':'none';if(S.pendingHit)q('#hitConfirmText').textContent=`🎯 ${S.pendingHit.name} — jet total ${S.pendingHit.total}. La CA est vide : touché ou raté ?`;}
++ const rb=q('#kentaro-ribbon');if(rb)rb.classList.toggle('awaiting-hit',!!S.pendingHit);
+  q('#concSpellView').textContent=S.conc?(S.concSpell||'Concentration active'):'Aucune';
+  q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
+  renderEconomy();renderSlots();renderRing()
+@@ -414,8 +420,8 @@
+  render();
+  log(`${name}\nConfirmation : TOUCHÉ • ${total}${parts.length?` • ${parts.join(' • ')}`:''}`);
+ }
+-q('#confirmHit').onclick=()=>confirmPendingBlade(true);
+-q('#confirmMiss').onclick=()=>confirmPendingBlade(false);
++q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingBlade(true)};
