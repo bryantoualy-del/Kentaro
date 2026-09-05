@@ -120,6 +120,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
       <article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
       <article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
       <article class="card"><div class="action-title">🔴 Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><button id="eldritch">Lancer 2 rayons</button></article>
+      <article class="card"><div class="action-title">🩸 Soif ténébreuse</div><div class="meta">Morsure sur cible neutralisée ou empoignée • 1 perforant + 4 nécrotiques si alimentation • 4 PV temp • 1/repos court ou long.</div><button id="bite">Mordre / se nourrir</button></article>
     </div>
   </div>
 </div>
@@ -146,7 +147,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <section class="panel" data-panel="defense"><div class="grid two">
 <article class="card golden" id="incomingDamageCard">
   <div class="action-title">🛡 Dégâts reçus</div>
-  <div class="meta">Traitement automatique : PV temporaires → PV • Armure d’Agathys si l’attaque est au corps-à-corps • test de concentration si nécessaire.</div>
+  <div class="meta">Traitement automatique : PV temporaires → PV • Armure d’Agathys si CàC • test de concentration si nécessaire avec <b>avantage d’Esprit occulte</b> pris en compte automatiquement.</div>
   <div class="row">
     <input id="incomingDamage" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus">
     <label class="damage-check"><input id="incomingMelee" type="checkbox"> CàC</label>
@@ -156,9 +157,9 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </article>
 
 <article class="card"><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
-<article class="card"><div class="action-title">Esprit occulte</div><div class="meta">Avantage aux JS de Constitution pour maintenir la concentration. Utilise le test automatique ci-dessous.</div><div class="row"><input id="concDamageDef" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus"><button id="concSave">Tester concentration</button></div></article>
+
 <article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
-<article class="card"><div class="action-title">Soif ténébreuse</div><div class="meta">Morsure sur cible neutralisée ou empoignée • 1 perforant + 4 nécrotiques si alimentation • 4 PV temp • 1/repos court ou long.</div><button id="bite">Mordre / se nourrir</button></article>
+
 <article class="card"><div class="action-title">PV temporaires</div><div class="meta">Les PV temporaires ne se cumulent pas. Le compagnon te demande avant de remplacer une source existante.</div><div class="row"><input id="tempManual" class="compact-input" style="max-width:110px" type="number" min="0" placeholder="PV temp"><button id="setTempManual">Définir</button><button id="clearTemp">Effacer</button></div></article>
 </div></section>
 
@@ -499,7 +500,6 @@ qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
 q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
 q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
 q('#lazarus').onclick=()=>{if(!useReaction('Tombeau de Lazarus'))return render();push();render();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
-q('#concSave').onclick=()=>concentrationSave(Number(q('#concDamageDef').value)||0);
 q('#dropConc').onclick=()=>{if(!S.conc)return;push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`◐ Concentration rompue : ${old}.`)};
 q('#bite').onclick=()=>{if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.')};
 q('#setTempManual').onclick=()=>{push();setTempHp(Number(q('#tempManual').value)||0,'Manuel');log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
