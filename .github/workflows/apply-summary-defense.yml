@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/scripts/apply_summary_defense.py'
+      - '.github/workflows/apply-summary-defense.yml'
 permissions:
   contents: write
 jobs:
