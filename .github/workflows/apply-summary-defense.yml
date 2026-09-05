@@ -1,0 +1,24 @@
+name: Apply approved Kentaro preview
+on:
+  push:
+    paths:
+      - '.github/scripts/apply_summary_defense.py'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python .github/scripts/apply_summary_defense.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add turn summary and automatic defense damage handling" || exit 0
+          git push
