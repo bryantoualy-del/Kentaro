@@ -45,7 +45,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
-.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(3,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
+.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(4,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.damage-check{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 10px;border:1px solid #444b5e;border-radius:8px;background:#0b0d12;color:var(--ivory);font-size:13px}.damage-check input{width:18px;height:18px}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
@@ -60,6 +60,10 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 #fxOverlay.fx-eclipse{background:linear-gradient(90deg,rgba(255,123,25,.38),rgba(110,65,150,.22) 48%,rgba(59,149,255,.38));animation:fxEclipse .75s ease}
 @keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
+#fxOverlay.fx-synaptic{background:radial-gradient(circle at center,rgba(227,119,255,.34) 0,rgba(184,82,255,.28) 12%,rgba(103,43,176,.18) 28%,transparent 56%),repeating-radial-gradient(circle at center,rgba(212,144,255,.26) 0 6px,transparent 6px 20px),linear-gradient(135deg,rgba(162,56,255,.16),rgba(48,12,90,.08) 45%,rgba(255,94,203,.14));animation:fxSynaptic .72s ease-out}
+.shell.synaptic-hit{animation:shellSynaptic .42s linear}
+@keyframes fxSynaptic{0%{opacity:0;filter:blur(0)}12%{opacity:1;filter:blur(1px)}32%{opacity:.95;filter:blur(.4px)}52%{opacity:.78;filter:hue-rotate(14deg)}100%{opacity:0;filter:blur(0)}}
+@keyframes shellSynaptic{0%{transform:translateX(0)}15%{transform:translateX(-2px)}30%{transform:translateX(2px)}45%{transform:translateX(-1px)}60%{transform:translateX(1px)}75%{transform:translateX(-1px)}100%{transform:translateX(0)}}
 .spectre-layout{grid-template-columns:1.15fr .85fr}.spectre-summary{display:grid;gap:8px}.spectre-summary .statusbox{margin-top:0}.spectre-note{line-height:1.45}
 @media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.combat-layout{grid-template-columns:250px minmax(0,1fr)}.attack-grid{grid-template-columns:1fr}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
 @media(max-width:760px){.utility-bar{grid-template-columns:1fr}.utility-rest,.utility-tools{grid-template-columns:repeat(3,1fr)}.save-status-compact{text-align:center}.turn-economy{grid-template-columns:1fr 1fr}.turn-label{grid-column:1/-1}.turn-next{grid-column:1/-1}.combat-layout{grid-template-columns:1fr}.target-stack{position:static}.attack-toolbar{align-items:flex-start;flex-direction:column}.attack-toolbar .mode-inline{margin-left:0;width:100%;justify-content:space-between}.attack-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
@@ -88,6 +92,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <div id="ecoAction" class="eco free"><b>⚔ Action</b>Disponible</div>
   <div id="ecoBonus" class="eco free"><b>✦ Bonus</b>Disponible</div>
   <div id="ecoReaction" class="eco free"><b>↯ Réaction</b>Disponible</div>
+  <div id="ecoConc" class="eco free"><b>◐ Concentration</b>Aucune</div>
   <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
 </div>
 
@@ -127,10 +132,6 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </section>
 
 <section class="panel" data-panel="spells">
-<div class="conc-banner"><strong>◐ Concentration</strong> — <span id="concSpellView">Aucune</span>
-<div class="row"><button id="dropConc">Rompre la concentration</button></div>
-<div id="concInfo" class="meta">Le test est géré automatiquement dans Défense quand Kentaro reçoit des dégâts • Esprit occulte : avantage au JS CON (+3).</div></div>
-<div class="card golden"><div class="action-title">Emplacements de pacte</div><div id="slots"></div><div class="meta">Occultiste niv. 10 : 2 emplacements de pacte. Le bouton d’un sort consomme 1 slot.</div></div>
 <div class="grid two" style="margin-top:8px">
 <article class="card" id="agathysCard"><div class="action-title">Armure d’Agathys</div><div class="meta">Avec un slot de pacte N5 : 25 PV temporaires • tant qu’il en reste, une créature qui te touche au corps-à-corps subit 25 froid.</div><div class="row"><button data-spell="Armure d’Agathys" data-agathys="1">Lancer N5</button><button id="agathysHit">Je suis touché au CàC</button></div></article>
 <article class="card violet"><div class="action-title">Maléfice</div><div class="meta">Concentration • moins prioritaire avec cette construction.</div><button data-spell="Maléfice" data-conc="1">Lancer</button></article>
@@ -140,7 +141,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card"><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
 <article class="card"><div class="action-title">Ombre d’égarement</div><div class="meta">Sort connu niveau 4.</div><button data-spell="Ombre d’égarement">Lancer</button></article>
 <article class="card"><div class="action-title">Bannissement</div><div class="meta">JS CHA DD16 • neutraliser une cible quand le corps-à-corps est défavorable.</div><button data-spell="Bannissement" data-conc="1">Lancer</button></article>
-<article class="card violet"><div class="action-title">Perturbations synaptiques</div><div class="meta">N5 • meilleur choix multi-cible dans ton arbre de décision.</div><button data-spell="Perturbations synaptiques">Lancer</button></article>
+<article class="card violet"><div class="action-title">Perturbations synaptiques</div><div class="meta">N5 • JS INT DD16 • 8d6 psychiques • moitié des dégâts en cas de réussite. Le compagnon demande le nombre de cibles et comptabilise les dégâts totaux du tour.</div><button data-spell="Perturbations synaptiques">Lancer + dégâts</button></article>
 </div>
 </section>
 
@@ -257,6 +258,7 @@ function load(silent=true){try{const x=JSON.parse(localStorage.getItem(SAVE)||'n
 function fx(type){
  const o=q('#fxOverlay'); if(!o)return;
  o.className=''; void o.offsetWidth; o.className='fx-'+type;
+ if(type==='synaptic'){root.classList.remove('synaptic-hit');void root.offsetWidth;root.classList.add('synaptic-hit');clearTimeout(root._synTimer);root._synTimer=setTimeout(()=>root.classList.remove('synaptic-hit'),460)}
  clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',850);
 }
 function log(t){
@@ -366,8 +368,8 @@ function useAttackAction(){if(S.actionUsed&&S.actionKind!=='attack'){log(`❌ Ac
 function useMainAction(label,kind='action'){if(S.actionUsed){log(`❌ Action déjà utilisée : ${S.actionLabel||S.actionKind}.`);return false}if(kind==='spell'&&S.bonusSpell){log('❌ Un sort a déjà été lancé en action bonus ce tour : seule une incantation mineure d’1 action reste autorisée.');return false}S.actionUsed=true;S.actionKind=kind;S.actionLabel=label;return true}
 function useBonusAction(label,isSpell=false){if(S.bonusUsed){log(`❌ Action bonus déjà utilisée : ${S.bonusLabel}.`);return false}if(isSpell&&S.actionUsed&&S.actionKind==='spell'){log('❌ Tu as déjà lancé un sort de niveau avec ton Action : impossible de lancer aussi un sort en action bonus ce tour.');return false}S.bonusUsed=true;S.bonusLabel=label;S.bonusSpell=isSpell;return true}
 function useReaction(label){if(S.reactionUsed){log(`❌ Réaction déjà utilisée : ${S.reactionLabel}.`);return false}S.reactionUsed=true;S.reactionLabel=label;return true}
-function renderEconomy(){const td=q('#turnDamageView');if(td)td.textContent=S.turnDamage||0;const a=q('#ecoAction'),b=q('#ecoBonus'),r=q('#ecoReaction'),tv=q('#turnEconomyView');if(!a)return;if(tv)tv.textContent=S.turn;const actionTxt=S.actionUsed?(S.actionKind==='attack'?`${S.attackCount}/2 attaques`:(S.actionLabel||'Utilisée')):'Disponible';a.innerHTML=`<b>⚔ Action</b>${actionTxt}`;b.innerHTML=`<b>✦ Bonus</b>${S.bonusUsed?(S.bonusLabel||'Utilisée'):'Disponible'}`;r.innerHTML=`<b>↯ Réaction</b>${S.reactionUsed?(S.reactionLabel||'Utilisée'):'Disponible'}`;a.className='eco '+(S.actionUsed?'used':'free');b.className='eco '+(S.bonusUsed?'used':'free');r.className='eco '+(S.reactionUsed?'used':'free');const attackBlocked=(S.actionUsed&&S.actionKind!=='attack')||S.attackCount>=2;['solinar','solinarCrit','selhane','selhaneCrit'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=attackBlocked});['thirdSmart','thirdSun','thirdMoon'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=S.bonusUsed});const eb=q('#eldritch');if(eb)eb.disabled=!!S.actionUsed}
-function renderSlots(){const x=q('#slots');x.innerHTML='';for(let i=0;i<2;i++){const b=document.createElement('button');b.className='pip '+(i<S.slots?'':'off');b.title=i<S.slots?'Disponible':'Dépensé';b.onclick=()=>{push();S.slots=i<S.slots?Math.max(0,S.slots-1):Math.min(2,S.slots+1);render()};x.appendChild(b)}}
+function renderEconomy(){const td=q('#turnDamageView');if(td)td.textContent=S.turnDamage||0;const a=q('#ecoAction'),b=q('#ecoBonus'),r=q('#ecoReaction'),c=q('#ecoConc'),tv=q('#turnEconomyView');if(!a)return;if(tv)tv.textContent=S.turn;const actionTxt=S.actionUsed?(S.actionKind==='attack'?`${S.attackCount}/2 attaques`:(S.actionLabel||'Utilisée')):'Disponible';a.innerHTML=`<b>⚔ Action</b>${actionTxt}`;b.innerHTML=`<b>✦ Bonus</b>${S.bonusUsed?(S.bonusLabel||'Utilisée'):'Disponible'}`;r.innerHTML=`<b>↯ Réaction</b>${S.reactionUsed?(S.reactionLabel||'Utilisée'):'Disponible'}`;a.className='eco '+(S.actionUsed?'used':'free');b.className='eco '+(S.bonusUsed?'used':'free');r.className='eco '+(S.reactionUsed?'used':'free');if(c){c.innerHTML=`<b>◐ Concentration</b>${S.conc?(S.concSpell||'Active'):'Aucune'}`;c.className='eco '+(S.conc?'free':'used')}const attackBlocked=(S.actionUsed&&S.actionKind!=='attack')||S.attackCount>=2;['solinar','solinarCrit','selhane','selhaneCrit'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=attackBlocked});['thirdSmart','thirdSun','thirdMoon'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=S.bonusUsed});const eb=q('#eldritch');if(eb)eb.disabled=!!S.actionUsed}
+function renderSlots(){const x=q('#slots');if(!x)return;x.innerHTML='';for(let i=0;i<2;i++){const b=document.createElement('button');b.className='pip '+(i<S.slots?'':'off');b.title=i<S.slots?'Disponible':'Dépensé';b.onclick=()=>{push();S.slots=i<S.slots?Math.max(0,S.slots-1):Math.min(2,S.slots+1);render()};x.appendChild(b)}}
 function render(){
  q('#hpView').textContent=S.hp;q('#hpInput').value=S.hp;q('#slotView').textContent=S.slots+'/2';
  q('#tempHpView').textContent=S.tempHp||0;q('#tempHpSource').textContent=S.tempHp?(S.tempSource||'source inconnue'):'aucun';
@@ -413,8 +415,25 @@ function blade(which,forceCrit=false,mode='action'){
  log(`${name}${critText}\nJet ${detail} +10 = ${hitRoll} → TOUCHÉ${S.targetAC?` (CA ${S.targetAC})`:''}${adv?' • avantage Sceau':''}\nDégâts : ${dmg} (${w.dice.join('+')}+4 + ${elem.dice.join('+')} ${sun?'radiant':'psychique'}${parts.length?' '+parts.join(' '):''})${sealText}`)
  if(crit && S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?'Solinar':'Sélhane'}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
 }
+function castSynapticStatic(){
+ if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
+ if(!useMainAction('Perturbations synaptiques','spell'))return render();
+ const targetInput=prompt('Perturbations synaptiques — combien de cibles sont dans la zone ?','1');
+ if(targetInput===null){S.actionUsed=false;S.actionKind='';S.actionLabel='';render();return}
+ const targets=Math.max(1,parseInt(targetInput,10)||1);
+ const successInput=prompt(`Sur ${targets} cible${targets>1?'s':''}, combien réussissent le JS INT DD16 ?\n(Réussite = moitié des dégâts)`,'0');
+ if(successInput===null){S.actionUsed=false;S.actionKind='';S.actionLabel='';render();return}
+ const successes=Math.max(0,Math.min(targets,parseInt(successInput,10)||0));
+ push();if(!useSlot())return render();
+ const r=roll(8,6),failed=targets-successes,half=Math.floor(r.total/2),total=r.total*failed+half*successes;
+ addTurnDamage(total,`Perturbations synaptiques — ${targets} cible${targets>1?'s':''}`);
+ render();fx('synaptic');
+ log(`🧠 Perturbations synaptiques\nJet : ${r.total} psychiques (${r.dice.join('+')})\nCibles : ${targets}\nÉchec JS INT DD16 : ${failed} × ${r.total}\nRéussite : ${successes} × ${half}\n💥 Dégâts totaux comptabilisés : ${total}`);
+}
 function castSpellButton(b){
- const name=b.dataset.spell,bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name);
+ const name=b.dataset.spell;
+ if(name==='Perturbations synaptiques')return castSynapticStatic();
+ const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name);
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
  if(bonus){if(!useBonusAction(name,true))return render()}else{if(!useMainAction(name,'spell'))return render()}
  if(!useSlot())return;if(b.dataset.conc)startConcentration(name);
@@ -500,7 +519,7 @@ qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
 q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
 q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
 q('#lazarus').onclick=()=>{if(!useReaction('Tombeau de Lazarus'))return render();push();render();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
-q('#dropConc').onclick=()=>{if(!S.conc)return;push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`◐ Concentration rompue : ${old}.`)};
+
 q('#bite').onclick=()=>{if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.')};
 q('#setTempManual').onclick=()=>{push();setTempHp(Number(q('#tempManual').value)||0,'Manuel');log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
 q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
