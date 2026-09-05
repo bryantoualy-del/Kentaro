@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 p=Path('index.html')
 text=p.read_text(encoding='utf-8')
 
@@ -6,6 +7,11 @@ def rep(old,new,label):
     global text
     if old not in text: raise SystemExit('ANCHOR_MISSING:'+label)
     text=text.replace(old,new,1)
+
+def sub(pattern,repl,label,count=1):
+    global text
+    text,n=re.subn(pattern,repl,text,count=count,flags=re.S)
+    if n!=count: raise SystemExit(f'ANCHOR_MISSING:{label}:{n}')
 
 rep('<div class="turn-label"><b>Tour <span id="turnEconomyView">1</span></b></div>', '<div class="turn-label"><b>Tour <span id="turnEconomyView">1</span></b><span class="turn-damage">💥 <span id="turnDamageView">0</span> dégâts</span></div>', 'turn_label')
 rep('.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d}', '.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}', 'css')
@@ -15,8 +21,8 @@ rep("function renderEconomy(){", "function renderEconomy(){const td=q('#turnDama
 rep("const dmg=w.total+elem.total+extra;if(sun){S.solHit=true;S.solTarget=S.currentTarget}else{S.selHit=true;S.selTarget=S.currentTarget}", "const dmg=w.total+elem.total+extra;addTurnDamage(dmg,sun?'Solinar':'Sélhane');if(sun){S.solHit=true;S.solTarget=S.currentTarget}else{S.selHit=true;S.selTarget=S.currentTarget}", 'blade_auto')
 rep("sealText=`\\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')", "addTurnDamage(r+p,'Sceau d’Éclipse');sealText=`\\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')", 'seal')
 rep("const damage=w.total+elem.total+extra;\n const total=damage+sealDamage;", "const damage=w.total+elem.total+extra;\n addTurnDamage(damage,sun?'Solinar':'Sélhane');\n if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');\n const total=damage+sealDamage;", 'blade_confirm')
-rep("run.total+=r.total;\n   run.lines.push(`Rayon ${i} : Attaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''} • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);", "run.total+=r.total;\n   addTurnDamage(r.total,`Décharge occulte — rayon ${i}`);\n   run.lines.push(`Rayon ${i} : Attaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''} • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);", 'eb_auto')
-rep("run.total+=r.total;\n   run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → TOUCHÉ • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);", "run.total+=r.total;\n   addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);\n   run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → TOUCHÉ • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);", 'eb_confirm')
+sub(r"(run\.total\+=r\.total;\s*)(run\.lines\.push\(`Rayon \$\{i\}[^\n]*\);)", r"\1addTurnDamage(r.total,`Décharge occulte — rayon ${i}`);\n   \2", 'eb_auto')
+sub(r"(run\.total\+=r\.total;\s*)(run\.lines\.push\(`Rayon \$\{p\.ray\}[^\n]*\);)", r"\1addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);\n   \2", 'eb_confirm')
 rep("q('#newTurn').onclick=()=>{push();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){log(`✦ Le Sceau d’Éclipse sur ${S.sealTarget} expire.`);S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`↻ Tour ${S.turn} : Action, action bonus et réaction restaurées • suivi des touches réinitialisé.`)};", "q('#newTurn').onclick=()=>{push();const summary=endTurnSummary();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();resetTurnSummary();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`${summary}\\n\\n↻ Tour ${S.turn} : Action, action bonus et réaction restaurées.`)};", 'new_turn')
 
 p.write_text(text,encoding='utf-8')
