@@ -1,0 +1,25 @@
+from pathlib import Path
+
+p=Path('index.html')
+text=p.read_text(encoding='utf-8')
+
+old_css="""#fxOverlay.fx-occult{background:radial-gradient(circle at 50% 85%,rgba(255,110,72,.42),rgba(186,26,26,.34) 16%,rgba(84,8,16,.28) 34%,transparent 62%),linear-gradient(0deg,rgba(255,80,45,.28),rgba(18,3,6,.18) 48%,transparent 82%);animation:fxOccult .72s ease-out}\n@keyframes fxOccult{0%{opacity:0}12%{opacity:1}38%{opacity:.95}100%{opacity:0}}"""
+new_css="""#fxOverlay.fx-occult{background:radial-gradient(ellipse at 50% 115%,rgba(255,190,90,.92) 0%,rgba(255,75,30,.86) 18%,rgba(180,8,20,.70) 38%,rgba(35,0,5,.72) 62%,transparent 84%),radial-gradient(circle at 22% 92%,rgba(255,80,30,.66) 0 8%,transparent 24%),radial-gradient(circle at 78% 88%,rgba(255,50,22,.62) 0 7%,transparent 22%),linear-gradient(0deg,rgba(120,0,8,.72) 0%,rgba(22,0,4,.42) 56%,rgba(0,0,0,0) 88%);box-shadow:inset 0 -28vh 100px rgba(255,35,15,.34),inset 0 0 80px rgba(0,0,0,.62);animation:fxOccult .95s cubic-bezier(.2,.8,.2,1)}\n#fxOverlay.fx-occult-crit{background:radial-gradient(ellipse at 50% 118%,rgba(255,235,155,1) 0%,rgba(255,115,35,.98) 16%,rgba(220,0,18,.90) 38%,rgba(58,0,12,.86) 64%,transparent 88%),radial-gradient(circle at 18% 88%,rgba(255,125,40,.84) 0 10%,transparent 27%),radial-gradient(circle at 82% 90%,rgba(255,65,25,.82) 0 10%,transparent 27%),linear-gradient(0deg,rgba(170,0,12,.88) 0%,rgba(35,0,7,.58) 60%,rgba(0,0,0,0) 90%);box-shadow:inset 0 -34vh 140px rgba(255,40,15,.52),inset 0 0 120px rgba(80,0,10,.55);animation:fxOccultCrit 1.08s cubic-bezier(.16,.84,.2,1)}\n.shell.occult-hit{animation:shellOccult .58s linear}.shell.occult-crit-hit{animation:shellOccultCrit .68s linear}\n@keyframes fxOccult{0%{opacity:0;filter:brightness(.8) blur(2px)}10%{opacity:1;filter:brightness(1.5) blur(0)}26%{opacity:1;filter:brightness(1.22)}52%{opacity:.92;filter:brightness(1.05)}78%{opacity:.60}100%{opacity:0;filter:brightness(.9)}}\n@keyframes fxOccultCrit{0%{opacity:0;filter:brightness(.9) blur(2px)}8%{opacity:1;filter:brightness(1.95) blur(0)}22%{opacity:1;filter:brightness(1.45)}48%{opacity:.98;filter:brightness(1.18)}76%{opacity:.72}100%{opacity:0;filter:brightness(.95)}}\n@keyframes shellOccult{0%{transform:translate(0,0) scale(1)}16%{transform:translate(-3px,2px) scale(1.004)}32%{transform:translate(3px,-2px) scale(.998)}48%{transform:translate(-2px,1px) scale(1.003)}64%{transform:translate(2px,-1px) scale(1)}80%{transform:translate(-1px,1px)}100%{transform:translate(0,0) scale(1)}}\n@keyframes shellOccultCrit{0%{transform:translate(0,0) scale(1)}12%{transform:translate(-5px,3px) scale(1.007)}24%{transform:translate(5px,-3px) scale(.996)}36%{transform:translate(-4px,2px) scale(1.006)}50%{transform:translate(4px,-2px) scale(.998)}66%{transform:translate(-3px,1px)}82%{transform:translate(2px,-1px)}100%{transform:translate(0,0) scale(1)}}"""
+if old_css not in text:
+    raise SystemExit('old occult css anchor not found')
+text=text.replace(old_css,new_css,1)
+
+old_fx="""function fx(type){\n const o=q('#fxOverlay'); if(!o)return;\n o.className=''; void o.offsetWidth; o.className='fx-'+type;\n if(type==='synaptic'){const shell=q('#app');if(shell){shell.classList.remove('synaptic-hit');void shell.offsetWidth;shell.classList.add('synaptic-hit');clearTimeout(shell._synTimer);shell._synTimer=setTimeout(()=>shell.classList.remove('synaptic-hit'),460)}}\n clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',850);\n}"""
+new_fx="""function fx(type){\n const o=q('#fxOverlay'); if(!o)return;\n o.className=''; void o.offsetWidth; o.className='fx-'+type;\n if(type==='synaptic'){const shell=q('#app');if(shell){shell.classList.remove('synaptic-hit');void shell.offsetWidth;shell.classList.add('synaptic-hit');clearTimeout(shell._synTimer);shell._synTimer=setTimeout(()=>shell.classList.remove('synaptic-hit'),460)}}\n if(type==='occult'||type==='occult-crit'){const shell=q('#app');if(shell){const cls=type==='occult-crit'?'occult-crit-hit':'occult-hit';shell.classList.remove('occult-hit','occult-crit-hit');void shell.offsetWidth;shell.classList.add(cls);clearTimeout(shell._occTimer);shell._occTimer=setTimeout(()=>shell.classList.remove('occult-hit','occult-crit-hit'),720)}}\n clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',1150);\n}"""
+if old_fx not in text:
+    raise SystemExit('fx function anchor not found')
+text=text.replace(old_fx,new_fx,1)
+
+old_crit="q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};"
+new_crit="q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult-crit');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};"
+if old_crit not in text:
+    raise SystemExit('smite crit anchor not found')
+text=text.replace(old_crit,new_crit,1)
+
+p.write_text(text,encoding='utf-8')
+print('patched')
