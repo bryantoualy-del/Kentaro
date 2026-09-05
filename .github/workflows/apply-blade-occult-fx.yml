@@ -1,0 +1,20 @@
+name: Apply Kentaro blade and occult FX
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-blade-occult-fx.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: python patch_blade_occult.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Restore blade FX and add occult smite flames"
+          git push
