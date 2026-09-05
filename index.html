@@ -46,7 +46,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
 .combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(3,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
-.label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+.label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.damage-check{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 10px;border:1px solid #444b5e;border-radius:8px;background:#0b0d12;color:var(--ivory);font-size:13px}.damage-check input{width:18px;height:18px}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
 .conc-banner strong{color:#d8c0ff}
@@ -144,7 +144,25 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </section>
 
 <section class="panel" data-panel="defense"><div class="grid two">
-<article class="card" id="hexArmorCard"><div class="action-title">Armure des maléfices</div><div class="meta">Uniquement contre la <b>cible maudite</b> : sur 4–6 au d6, l’attaque qui t’a touché est annulée.</div><div class="row"><input id="incomingDamage" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts"><button id="hexArmor">Touché par la cible maudite</button><button id="applyDamage">Appliquer dégâts</button></div></article>
+<article class="card golden" id="incomingDamageCard">
+  <div class="action-title">🛡 Dégâts reçus</div>
+  <div class="meta">Traitement automatique : PV temporaires → PV • Armure d’Agathys si l’attaque est au corps-à-corps • test de concentration si nécessaire.</div>
+  <div class="row">
+    <input id="incomingDamage" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus">
+    <label class="damage-check"><input id="incomingMelee" type="checkbox"> Attaque au CàC</label>
+    <button id="applyDamage" class="btn-gold">Appliquer</button>
+  </div>
+  <div class="meta">Le DD de concentration est calculé automatiquement : max(10, moitié des dégâts).</div>
+</article>
+<article class="card" id="hexArmorCard">
+  <div class="action-title">Armure des maléfices</div>
+  <div class="meta">Uniquement contre la <b>cible maudite</b> : sur 4–6 au d6, l’attaque est annulée. Sinon, les dégâts sont traités automatiquement avec le même système.</div>
+  <div class="row">
+    <input id="hexIncomingDamage" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts">
+    <label class="damage-check"><input id="hexIncomingMelee" type="checkbox"> CàC</label>
+    <button id="hexArmor">Tester</button>
+  </div>
+</article>
 <article class="card"><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
 <article class="card"><div class="action-title">Esprit occulte</div><div class="meta">Avantage aux JS de Constitution pour maintenir la concentration. Utilise le test automatique ci-dessous.</div><div class="row"><input id="concDamageDef" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus"><button id="concSave">Tester concentration</button></div></article>
 <article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
@@ -279,13 +297,49 @@ function setTempHp(amount,source){
  if(source!=="Armure d’Agathys")S.agathys=false;
  render();return true
 }
-function applyIncomingDamage(amount,source='dégâts'){
- amount=Math.max(0,Number(amount)||0);if(!amount)return log('ℹ️ Aucun dégât à appliquer.');
+function rollConcentrationCheck(dmg){
+ dmg=Math.max(0,Number(dmg)||0);
+ if(!S.conc)return null;
+ const dc=Math.max(10,Math.floor(dmg/2));
+ const a=d(20)+3,b=d(20)+3,best=Math.max(a,b),ok=best>=dc;
+ const spell=S.concSpell||'Concentration';
+ if(!ok){S.conc=false;S.concSpell='';S.shroud=false}
+ return {dc,a,b,best,ok,spell};
+}
+function processIncomingDamage(amount,{source='dégâts reçus',melee=false}={}){
+ amount=Math.max(0,Number(amount)||0);
+ if(!amount)return log('ℹ️ Aucun dégât à appliquer.');
  push();
+ const agathysTriggers=!!(melee && S.agathys && S.tempHp>0 && S.tempSource==="Armure d’Agathys");
+ const agathysDamage=agathysTriggers?(S.agathysDamage||25):0;
  let left=amount,absorbed=0;
- if(S.tempHp>0){absorbed=Math.min(S.tempHp,left);S.tempHp-=absorbed;left-=absorbed;if(S.tempHp===0){if(S.tempSource==="Armure d’Agathys")S.agathys=false;S.tempSource=''}}
+ const tempBefore=S.tempHp||0;
+ const tempSourceBefore=S.tempSource||'';
+ if(S.tempHp>0){
+   absorbed=Math.min(S.tempHp,left);
+   S.tempHp-=absorbed;
+   left-=absorbed;
+   if(S.tempHp===0){if(S.tempSource==="Armure d’Agathys")S.agathys=false;S.tempSource=''}
+ }
+ const hpLoss=Math.min(S.hp,left);
  if(left>0)S.hp=Math.max(0,S.hp-left);
- render();log(`💥 ${source} : ${amount} dégâts • ${absorbed} absorbés par PV temp • ${left} sur PV → ${S.hp}/${S.maxHp}.`)
+ const conc=rollConcentrationCheck(amount);
+ render();
+ let lines=[
+   `🛡 ${source} : ${amount}`,
+   `PV temp : ${absorbed?`-${absorbed}${tempSourceBefore?` (${tempSourceBefore})`:''}`:'0'}${tempBefore?` • reste ${S.tempHp}`:''}`,
+   `PV perdus : ${hpLoss}`,
+   `PV restants : ${S.hp}/${S.maxHp}`
+ ];
+ if(agathysTriggers)lines.push(`❄ Armure d’Agathys : ${agathysDamage} dégâts de froid à l’attaquant`);
+ if(conc){
+   lines.push(`◐ Concentration DD ${conc.dc} : ${conc.a} / ${conc.b} → ${conc.best} ${conc.ok?'✅ MAINTENUE':'❌ PERDUE'}`);
+   if(!conc.ok)lines.push(`${conc.spell} prend fin.`);
+ }
+ log(lines.join('\n'));
+}
+function applyIncomingDamage(amount,source='dégâts reçus'){
+ processIncomingDamage(amount,{source,melee:false});
 }
 function concentrationSave(dmg){
  dmg=Math.max(0,Number(dmg)||0);if(!S.conc)return log('ℹ️ Kentaro ne maintient actuellement aucun sort de concentration.');
@@ -445,9 +499,16 @@ q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.sp
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
 qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
-q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys : la créature qui vient de toucher Kentaro au corps-à-corps subit ${S.agathysDamage} dégâts de froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
-q('#hexArmor').onclick=()=>{if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');if(!useReaction('Armure des maléfices'))return render();render();const x=d(6),amt=Number(q('#incomingDamage').value)||0;if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)applyIncomingDamage(amt,'attaque de la cible maudite')}};
-q('#applyDamage').onclick=()=>applyIncomingDamage(Number(q('#incomingDamage').value)||0,'dégâts reçus');
+q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « Attaque au CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
+q('#hexArmor').onclick=()=>{
+ if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');
+ if(!useReaction('Armure des maléfices'))return render();
+ render();
+ const x=d(6),amt=Number(q('#hexIncomingDamage').value)||0,melee=!!q('#hexIncomingMelee').checked;
+ if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);
+ else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)processIncomingDamage(amt,{source:'attaque de la cible maudite',melee});}
+};
+q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
 q('#lazarus').onclick=()=>{if(!useReaction('Tombeau de Lazarus'))return render();push();render();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
 q('#concSave').onclick=()=>concentrationSave(Number(q('#concDamageDef').value)||0);
 q('#autoConcSave').onclick=()=>concentrationSave(Number(q('#concDamage').value)||0);
