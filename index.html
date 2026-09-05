@@ -60,6 +60,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 #fxOverlay.fx-eclipse{background:linear-gradient(90deg,rgba(255,123,25,.38),rgba(110,65,150,.22) 48%,rgba(59,149,255,.38));animation:fxEclipse .75s ease}
 @keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 @keyframes fxEclipse{0%{opacity:0}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
+#fxOverlay.fx-occult{background:radial-gradient(circle at 50% 85%,rgba(255,110,72,.42),rgba(186,26,26,.34) 16%,rgba(84,8,16,.28) 34%,transparent 62%),linear-gradient(0deg,rgba(255,80,45,.28),rgba(18,3,6,.18) 48%,transparent 82%);animation:fxOccult .72s ease-out}
+@keyframes fxOccult{0%{opacity:0}12%{opacity:1}38%{opacity:.95}100%{opacity:0}}
 #fxOverlay.fx-synaptic{background:radial-gradient(circle at center,rgba(227,119,255,.34) 0,rgba(184,82,255,.28) 12%,rgba(103,43,176,.18) 28%,transparent 56%),repeating-radial-gradient(circle at center,rgba(212,144,255,.26) 0 6px,transparent 6px 20px),linear-gradient(135deg,rgba(162,56,255,.16),rgba(48,12,90,.08) 45%,rgba(255,94,203,.14));animation:fxSynaptic .72s ease-out}
 .shell.synaptic-hit{animation:shellSynaptic .42s linear}
 @keyframes fxSynaptic{0%{opacity:0;filter:blur(0)}12%{opacity:1;filter:blur(1px)}32%{opacity:.95;filter:blur(.4px)}52%{opacity:.78;filter:hue-rotate(14deg)}100%{opacity:0;filter:blur(0)}}
@@ -480,6 +482,8 @@ Attaque : ${p.total}`);return;
  if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
    const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
    sealDamage=se.total+me.total;fx('eclipse');
+ } else {
+   fx(sun?'sun':'moon');
  }
  const damage=w.total+elem.total+extra;
  addTurnDamage(damage,sun?'Solinar':'Sélhane');
@@ -527,8 +531,8 @@ q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(false)}
 q('#newTurn').onclick=()=>{push();const summary=endTurnSummary();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.lastCrit=false;S.lastCritBlade='';resetEconomy();resetTurnSummary();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`${summary}\n\n↻ Tour ${S.turn} : Action, action bonus et réaction restaurées.`)};
 q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');if(!S.curse&&!useBonusAction('Malédiction',false))return render();push();S.curse=!S.curse;if(S.curse){S.curseReady=false;log(`☠ Malédiction activée sur ${S.curseTarget} : action bonus consommée • +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
 q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
-q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);addTurnDamage(r.total,'Châtiment occulte');S.lastCrit=false;render();log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
-q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
+q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);addTurnDamage(r.total,'Châtiment occulte');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
+q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
 q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('red');continueEldritchRun()};
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
