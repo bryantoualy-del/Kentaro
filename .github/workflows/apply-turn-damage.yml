@@ -22,4 +22,4 @@ jobs:
           git diff --cached --quiet && exit 1
           git commit -m "Add turn damage tracking and summary"
           git push origin main
-# retry-3
+# retry-stable
