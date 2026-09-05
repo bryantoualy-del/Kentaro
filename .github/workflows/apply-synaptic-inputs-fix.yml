@@ -1,0 +1,20 @@
+name: Apply Synaptic Static inputs fix
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-synaptic-inputs-fix.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: python .github/scripts/apply_synaptic_inputs_fix.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add Synaptic Static inputs and fix journal FX"
+          git push
