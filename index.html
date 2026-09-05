@@ -127,8 +127,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 
 <section class="panel" data-panel="spells">
 <div class="conc-banner"><strong>◐ Concentration</strong> — <span id="concSpellView">Aucune</span>
-<div class="row"><input id="concDamage" class="compact-input" style="max-width:135px" type="number" min="0" placeholder="Dégâts reçus"><button id="autoConcSave" class="btn-violet">Tester concentration</button><button id="dropConc">Rompre</button></div>
-<div id="concInfo" class="meta">DD = max(10, moitié des dégâts) • Esprit occulte : avantage au JS CON (+3).</div></div>
+<div class="row"><button id="dropConc">Rompre la concentration</button></div>
+<div id="concInfo" class="meta">Le test est géré automatiquement dans Défense quand Kentaro reçoit des dégâts • Esprit occulte : avantage au JS CON (+3).</div></div>
 <div class="card golden"><div class="action-title">Emplacements de pacte</div><div id="slots"></div><div class="meta">Occultiste niv. 10 : 2 emplacements de pacte. Le bouton d’un sort consomme 1 slot.</div></div>
 <div class="grid two" style="margin-top:8px">
 <article class="card" id="agathysCard"><div class="action-title">Armure d’Agathys</div><div class="meta">Avec un slot de pacte N5 : 25 PV temporaires • tant qu’il en reste, une créature qui te touche au corps-à-corps subit 25 froid.</div><div class="row"><button data-spell="Armure d’Agathys" data-agathys="1">Lancer N5</button><button id="agathysHit">Je suis touché au CàC</button></div></article>
@@ -149,20 +149,12 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <div class="meta">Traitement automatique : PV temporaires → PV • Armure d’Agathys si l’attaque est au corps-à-corps • test de concentration si nécessaire.</div>
   <div class="row">
     <input id="incomingDamage" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus">
-    <label class="damage-check"><input id="incomingMelee" type="checkbox"> Attaque au CàC</label>
+    <label class="damage-check"><input id="incomingMelee" type="checkbox"> CàC</label>
     <button id="applyDamage" class="btn-gold">Appliquer</button>
   </div>
   <div class="meta">Le DD de concentration est calculé automatiquement : max(10, moitié des dégâts).</div>
 </article>
-<article class="card" id="hexArmorCard">
-  <div class="action-title">Armure des maléfices</div>
-  <div class="meta">Uniquement contre la <b>cible maudite</b> : sur 4–6 au d6, l’attaque est annulée. Sinon, les dégâts sont traités automatiquement avec le même système.</div>
-  <div class="row">
-    <input id="hexIncomingDamage" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts">
-    <label class="damage-check"><input id="hexIncomingMelee" type="checkbox"> CàC</label>
-    <button id="hexArmor">Tester</button>
-  </div>
-</article>
+
 <article class="card"><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
 <article class="card"><div class="action-title">Esprit occulte</div><div class="meta">Avantage aux JS de Constitution pour maintenir la concentration. Utilise le test automatique ci-dessous.</div><div class="row"><input id="concDamageDef" class="compact-input" style="max-width:130px" type="number" min="0" placeholder="Dégâts reçus"><button id="concSave">Tester concentration</button></div></article>
 <article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
@@ -504,19 +496,10 @@ q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.sp
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
 qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
-q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « Attaque au CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
-q('#hexArmor').onclick=()=>{
- if(!S.curse||!cleanName(S.curseTarget))return log('❌ Aucune cible maudite active.');
- if(!useReaction('Armure des maléfices'))return render();
- render();
- const x=d(6),amt=Number(q('#hexIncomingDamage').value)||0,melee=!!q('#hexIncomingMelee').checked;
- if(x>=4)log(`🛡 Armure des maléfices contre ${S.curseTarget} : d6=${x} → ATTAQUE ANNULÉE. Aucun dégât appliqué.`);
- else{log(`🛡 Armure des maléfices : d6=${x} → attaque non annulée.`);if(amt>0)processIncomingDamage(amt,{source:'attaque de la cible maudite',melee});}
-};
+q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
 q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
 q('#lazarus').onclick=()=>{if(!useReaction('Tombeau de Lazarus'))return render();push();render();if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
 q('#concSave').onclick=()=>concentrationSave(Number(q('#concDamageDef').value)||0);
-q('#autoConcSave').onclick=()=>concentrationSave(Number(q('#concDamage').value)||0);
 q('#dropConc').onclick=()=>{if(!S.conc)return;push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`◐ Concentration rompue : ${old}.`)};
 q('#bite').onclick=()=>{if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.')};
 q('#setTempManual').onclick=()=>{push();setTempHp(Number(q('#tempManual').value)||0,'Manuel');log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
