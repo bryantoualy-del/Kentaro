@@ -380,7 +380,6 @@ function render(){
  q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?`touché${S.solTarget?' → '+S.solTarget:''}`:'—'} • Sélhane : ${S.selHit?`touché${S.selTarget?' → '+S.selTarget:''}`:'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
  const rb=q('#kentaro-ribbon');if(rb)rb.classList.toggle('awaiting-hit',!!S.pendingHit);
- q('#concSpellView').textContent=S.conc?(S.concSpell||'Concentration active'):'Aucune';
  q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
  renderEconomy();renderSlots();renderRing()
 }
