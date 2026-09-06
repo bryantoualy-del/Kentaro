@@ -57,6 +57,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 #fxOverlay.fx-sun{background:radial-gradient(circle at center,rgba(255,127,31,.42),rgba(255,106,0,.12) 40%,transparent 72%);animation:fxPulse .48s ease}
 #fxOverlay.fx-moon{background:radial-gradient(circle at center,rgba(55,150,255,.42),rgba(68,80,255,.12) 40%,transparent 72%);animation:fxPulse .48s ease}
 #fxOverlay.fx-red{background:radial-gradient(circle at center,rgba(255,30,54,.52),rgba(130,0,20,.14) 45%,transparent 74%);animation:fxPulse .52s ease}
+#fxOverlay.fx-eldritch{background:radial-gradient(circle at 36% 34%,rgba(255,120,120,.98) 0 2.8%,rgba(255,40,52,.84) 2.9% 6.6%,rgba(140,0,14,.34) 6.7% 11%,transparent 14%),radial-gradient(circle at 64% 66%,rgba(255,120,120,.98) 0 2.8%,rgba(255,40,52,.84) 2.9% 6.6%,rgba(140,0,14,.34) 6.7% 11%,transparent 14%),linear-gradient(135deg,transparent 0 30%,rgba(255,24,40,.12) 36%,rgba(90,0,10,.18) 50%,rgba(255,24,40,.12) 64%,transparent 70%);animation:fxEldritch .66s ease-out}
+.shell.eldritch-hit{animation:shellEldritch .34s linear}
 #fxOverlay.fx-eclipse{
   background:
     radial-gradient(circle at 30% 50%, rgba(255,193,84,.42) 0 10%, transparent 26%),
@@ -82,7 +84,10 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   48%{transform:scale(1.004) translateX(-1px)}
   64%{transform:scale(1.001) translateX(1px)}
   100%{transform:scale(1) translateX(0)}
-}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}
+}
+@keyframes fxPulse{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+@keyframes fxEldritch{0%{opacity:0;filter:brightness(.9) blur(1px)}18%{opacity:1;filter:brightness(1.35) blur(0)}48%{opacity:.96;filter:brightness(1.12)}100%{opacity:0;filter:brightness(1)}}
+@keyframes shellEldritch{0%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1px)}100%{transform:translateX(0)}}
 #fxOverlay.fx-occult{background:radial-gradient(ellipse at 50% 115%,rgba(255,190,90,.92) 0%,rgba(255,75,30,.86) 18%,rgba(180,8,20,.70) 38%,rgba(35,0,5,.72) 62%,transparent 84%),radial-gradient(circle at 22% 92%,rgba(255,80,30,.66) 0 8%,transparent 24%),radial-gradient(circle at 78% 88%,rgba(255,50,22,.62) 0 7%,transparent 22%),linear-gradient(0deg,rgba(120,0,8,.72) 0%,rgba(22,0,4,.42) 56%,rgba(0,0,0,0) 88%);box-shadow:inset 0 -28vh 100px rgba(255,35,15,.34),inset 0 0 80px rgba(0,0,0,.62);animation:fxOccult .95s cubic-bezier(.2,.8,.2,1)}
 #fxOverlay.fx-occult-crit{background:radial-gradient(ellipse at 50% 118%,rgba(255,235,155,1) 0%,rgba(255,115,35,.98) 16%,rgba(220,0,18,.90) 38%,rgba(58,0,12,.86) 64%,transparent 88%),radial-gradient(circle at 18% 88%,rgba(255,125,40,.84) 0 10%,transparent 27%),radial-gradient(circle at 82% 90%,rgba(255,65,25,.82) 0 10%,transparent 27%),linear-gradient(0deg,rgba(170,0,12,.88) 0%,rgba(35,0,7,.58) 60%,rgba(0,0,0,0) 90%);box-shadow:inset 0 -34vh 140px rgba(255,40,15,.52),inset 0 0 120px rgba(80,0,10,.55);animation:fxOccultCrit 1.08s cubic-bezier(.16,.84,.2,1)}
 .shell.occult-hit{animation:shellOccult .58s linear}.shell.occult-crit-hit{animation:shellOccultCrit .68s linear}
@@ -304,6 +309,7 @@ function fx(type){
  if(type==='synaptic'){const shell=q('#app');if(shell){shell.classList.remove('synaptic-hit');void shell.offsetWidth;shell.classList.add('synaptic-hit');clearTimeout(shell._synTimer);shell._synTimer=setTimeout(()=>shell.classList.remove('synaptic-hit'),460)}}
  if(type==='eclipse'){const shell=q('#app');if(shell){shell.classList.remove('eclipse-hit');void shell.offsetWidth;shell.classList.add('eclipse-hit');clearTimeout(shell._eclipseTimer);shell._eclipseTimer=setTimeout(()=>shell.classList.remove('eclipse-hit'),700)}}
  if(type==='occult'||type==='occult-crit'){const shell=q('#app');if(shell){const cls=type==='occult-crit'?'occult-crit-hit':'occult-hit';shell.classList.remove('occult-hit','occult-crit-hit');void shell.offsetWidth;shell.classList.add(cls);clearTimeout(shell._occTimer);shell._occTimer=setTimeout(()=>shell.classList.remove('occult-hit','occult-crit-hit'),720)}}
+ if(type==='eldritch'){const shell=q('#app');if(shell){shell.classList.remove('eldritch-hit');void shell.offsetWidth;shell.classList.add('eldritch-hit');clearTimeout(shell._eldritchTimer);shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360)}}
  clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',1250);
 }
 function log(t){
@@ -530,7 +536,7 @@ TOTAL : ${total}`);
 function finishEldritchRun(){
  const run=S.eldritchRun;if(!run)return;
  const cursed=run.cursed,lines=run.lines||[],total=run.total||0;
- S.eldritchRun=null;S.pendingHit=null;render();fx('red');
+ S.eldritchRun=null;S.pendingHit=null;render();fx('eldritch');
  log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTOTAL : ${total} dégâts de force`);
 }
 function continueEldritchRun(){
@@ -563,7 +569,7 @@ q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Maléd
 q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
 q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);addTurnDamage(r.total,'Châtiment occulte');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
 q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult-crit');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
-q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('red');continueEldritchRun()};
+q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('eldritch');continueEldritchRun()};
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
