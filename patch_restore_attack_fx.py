@@ -55,3 +55,4 @@ if "}18%{opacity:1}55%{opacity:.75}100%{opacity:0}}" in s: raise SystemExit('mal
 
 p.write_text(s,encoding='utf-8')
 print('FX repaired')
+# retrigger
