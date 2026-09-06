@@ -309,58 +309,25 @@ function fx(type){
  if(type==='synaptic'){const shell=q('#app');if(shell){shell.classList.remove('synaptic-hit');void shell.offsetWidth;shell.classList.add('synaptic-hit');clearTimeout(shell._synTimer);shell._synTimer=setTimeout(()=>shell.classList.remove('synaptic-hit'),460)}}
  if(type==='eclipse'){const shell=q('#app');if(shell){shell.classList.remove('eclipse-hit');void shell.offsetWidth;shell.classList.add('eclipse-hit');clearTimeout(shell._eclipseTimer);shell._eclipseTimer=setTimeout(()=>shell.classList.remove('eclipse-hit'),700)}}
  if(type==='occult'||type==='occult-crit'){const shell=q('#app');if(shell){const cls=type==='occult-crit'?'occult-crit-hit':'occult-hit';shell.classList.remove('occult-hit','occult-crit-hit');void shell.offsetWidth;shell.classList.add(cls);clearTimeout(shell._occTimer);shell._occTimer=setTimeout(()=>shell.classList.remove('occult-hit','occult-crit-hit'),720)}}
- if(type==='eldritch-1'||type==='eldritch-2'){const shell=q('#app');if(shell){shell.classList.remove('eldritch-hit');void shell.offsetWidth;shell.classList.add('eldritch-hit');clearTimeout(shell._eldritchTimer);shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360)}}
+ if(type==='eldritch'){const shell=q('#app');if(shell){shell.classList.remove('eldritch-hit');void shell.offsetWidth;shell.classList.add('eldritch-hit');clearTimeout(shell._eldritchTimer);shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360)}}
  clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',1250);
 }
 function getRibbonTone(t){
  const x=(t||'').toLowerCase();
- const noRibbonKeys=[
-   'action déjà utilisée',
-   'action bonus déjà utilisée',
-   'réaction déjà utilisée',
-   'déjà effectué ses 2 attaques',
-   'action d’attaque déjà complète'
- ];
- const warnKeys=[
-   'renseigne d’abord',
-   'aucune cible',
-   'aucun dégât',
-   'anneau plein',
-   'anneau est déjà vide',
-   'rien à annuler',
-   'n’est pas actif',
-   'ne maintient actuellement aucun sort'
- ];
- const errKeys=[
-   '→ raté',
-   'confirmation : raté',
-   'concentration perdue',
-   '❌ échec',
-   ' prend fin.'
- ];
- if(noRibbonKeys.some(k=>x.includes(k)))return 'none';
+ const warnKeys=['déjà utilisée','déjà utilisé','déjà dépensée','déjà dépensé','aucun emplacement','aucune cible','aucun dégât','pas assez','plus de','plus d’',"plus d'",'non disponible','conservés','conservé','rien à annuler'];
+ const errKeys=['raté','perdue','perdu','échoue','échec','concentration rompue'];
  if(warnKeys.some(k=>x.includes(k)))return 'warn';
  if(errKeys.some(k=>x.includes(k)))return 'error';
  return 'success';
 }
 function log(t){
- const el=q('#log');el.textContent=(el.textContent==='Prêt. Que l’éclipse tombe.'?'':el.textContent+'
-
-')+t;el.scrollTop=el.scrollHeight;
+ const el=q('#log');el.textContent=(el.textContent==='Prêt. Que l’éclipse tombe.'?'':el.textContent+'\n\n')+t;el.scrollTop=el.scrollHeight;
  q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');
  r.classList.remove('tone-warn','tone-error');
  const tone=getRibbonTone(t);
- clearTimeout(ribbonTimer);
- if(tone==='none'){
-   r.classList.remove('show');
-   save(true);
-   return;
- }
  if(tone==='warn')r.classList.add('tone-warn');
  else if(tone==='error')r.classList.add('tone-error');
- r.classList.add('show');
- if(!S.pendingHit)ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);
- save(true)
+ r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);save(true)
 }
 function cleanName(x){return (x||'').trim().toLowerCase()}
 function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}
@@ -582,10 +549,7 @@ TOTAL : ${total}`);
 function finishEldritchRun(){
  const run=S.eldritchRun;if(!run)return;
  const cursed=run.cursed,lines=run.lines||[],total=run.total||0;
- const hits=run.hits||0;
- S.eldritchRun=null;S.pendingHit=null;render();
- if(hits===1)fx('eldritch-1');
- else if(hits>=2)fx('eldritch-2');
+ S.eldritchRun=null;S.pendingHit=null;render();fx('eldritch');
  log(`🔴 Décharge occulte${cursed?' • cible maudite':''}\n${lines.join('\n')}\nTOTAL : ${total} dégâts de force`);
 }
 function continueEldritchRun(){
@@ -599,15 +563,13 @@ function continueEldritchRun(){
    return log(`🔴 Décharge occulte — Rayon ${i}\nAttaque : ${rr.detail} +8 = ${attack}\nCA non renseignée : confirme TOUCHÉ ou RATÉ.`)
  }
  const hit=resolveHit(rr.nat,attack,crit);
- if(hit){const r=roll(crit?2:1,10,4+(run.cursed?4:0));run.total+=r.total;addTurnDamage(r.total,`Décharge occulte — rayon ${i}`);
-   run.hits=(run.hits||0)+1run.lines.push(`Rayon ${i} : Attaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''} • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`)}
+ if(hit){const r=roll(crit?2:1,10,4+(run.cursed?4:0));run.total+=r.total;addTurnDamage(r.total,`Décharge occulte — rayon ${i}`);run.lines.push(`Rayon ${i} : Attaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''} • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`)}
  else run.lines.push(`Rayon ${i} : Attaque ${attack} → RATÉ`);
  run.ray++;continueEldritchRun();
 }
 function confirmPendingEldritch(hit){
  const p=S.pendingHit,run=S.eldritchRun;if(!p||!run)return;S.pendingHit=null;
- if(hit){const r=roll(1,10,4+(run.cursed?4:0));run.total+=r.total;addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);
-   run.hits=(run.hits||0)+1run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → TOUCHÉ • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${r.total}${run.cursed?' • Malédiction +4':''}`)}
+ if(hit){const r=roll(1,10,4+(run.cursed?4:0));run.total+=r.total;addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → TOUCHÉ • Dégâts ${r.total}${run.cursed?' (Malédiction +4)':''}`);log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${r.total}${run.cursed?' • Malédiction +4':''}`)}
  else{run.lines.push(`Rayon ${p.ray} : Attaque ${p.total} → RATÉ`);log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`)}
  run.ray++;render();setTimeout(()=>continueEldritchRun(),80);
 }
@@ -620,7 +582,7 @@ q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Maléd
 q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
 q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);addTurnDamage(r.total,'Châtiment occulte');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
 q('#smiteCrit').onclick=()=>{if(!useSlot())return;const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult-crit');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
-q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies(),hits:0};render();continueEldritchRun()};
+q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('eldritch');continueEldritchRun()};
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;render();log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m.')};
 q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');const a=d(20)+8,r=roll(3,6);log(`👻 Spectre : ${a} pour toucher • ${r.total} nécrotiques (${r.dice.join('+')}).`)};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
