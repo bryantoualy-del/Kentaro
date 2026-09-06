@@ -4,39 +4,20 @@ import re
 p=Path('index.html')
 text=p.read_text(encoding='utf-8')
 
-# Guard: only patch the known clean version.
-if "q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('eldritch');continueEldritchRun()};" not in text:
-    raise SystemExit('Unexpected Eldritch handler; aborting')
-if 'Rayon 2 sur autre cible' in text or 'eldritch-1' in text:
-    raise SystemExit('Split FX patch already present; aborting')
+old_click="q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('eldritch');continueEldritchRun()};"
+if old_click not in text: raise SystemExit('Unexpected Eldritch handler; aborting')
+if 'Rayon 2 sur autre cible' in text or 'fx-eldritch-1' in text: raise SystemExit('Patch already present; aborting')
 
 old_card='<article class="card"><div class="action-title">🔴 Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><button id="eldritch">Lancer 2 rayons</button></article>'
 new_card='<article class="card"><div class="action-title">🔴 Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 2 rayons au niveau 10 • 1d10+4 force par rayon grâce à Décharge déchirante • contre la cible maudite : +4 dégâts par rayon et critique sur 19–20.</div><label class="damage-check"><input id="eldritchSplit" type="checkbox"> Rayon 2 sur autre cible</label><div id="eldritchSplitFields" class="row" style="display:none"><input id="eldritchTarget2" class="compact-input" style="flex:1" placeholder="Cible rayon 2"><input id="eldritchAC2" class="compact-input" style="max-width:110px" type="number" min="1" max="40" placeholder="CA 2"></div><div class="meta">Si la case n’est pas cochée, les 2 rayons visent la cible principale.</div><button id="eldritch">Lancer 2 rayons</button></article>'
 if old_card not in text: raise SystemExit('Eldritch card anchor missing')
 text=text.replace(old_card,new_card,1)
 
-old_css="""#fxOverlay.fx-eldritch{
-  background:
-    radial-gradient(circle at 36% 34%, rgba(255,120,120,.98) 0 2.8%, rgba(255,40,52,.84) 2.9% 6.6%, rgba(140,0,14,.34) 6.7% 11%, transparent 14%),
-    radial-gradient(circle at 64% 66%, rgba(255,120,120,.98) 0 2.8%, rgba(255,40,52,.84) 2.9% 6.6%, rgba(140,0,14,.34) 6.7% 11%, transparent 14%),
-    linear-gradient(135deg, transparent 0 30%, rgba(255,24,40,.12) 36%, rgba(90,0,10,.18) 50%, rgba(255,24,40,.12) 64%, transparent 70%);
-  animation:fxEldritch .66s ease-out;
-}
+new_css="""#fxOverlay.fx-eldritch-1{background:radial-gradient(circle at 50% 50%,rgba(255,130,130,.99) 0 3.1%,rgba(255,42,52,.88) 3.2% 7.1%,rgba(140,0,14,.34) 7.2% 12%,transparent 15%);animation:fxEldritch .66s ease-out}
+#fxOverlay.fx-eldritch-2{background:radial-gradient(circle at 36% 34%,rgba(255,120,120,.98) 0 2.8%,rgba(255,40,52,.84) 2.9% 6.6%,rgba(140,0,14,.34) 6.7% 11%,transparent 14%),radial-gradient(circle at 64% 66%,rgba(255,120,120,.98) 0 2.8%,rgba(255,40,52,.84) 2.9% 6.6%,rgba(140,0,14,.34) 6.7% 11%,transparent 14%),linear-gradient(135deg,transparent 0 30%,rgba(255,24,40,.12) 36%,rgba(90,0,10,.18) 50%,rgba(255,24,40,.12) 64%,transparent 70%);animation:fxEldritch .66s ease-out}
 .shell.eldritch-hit{animation:shellEldritch .34s linear}"""
-new_css="""#fxOverlay.fx-eldritch-1{
-  background:radial-gradient(circle at 50% 50%, rgba(255,130,130,.99) 0 3.1%, rgba(255,42,52,.88) 3.2% 7.1%, rgba(140,0,14,.34) 7.2% 12%, transparent 15%);
-  animation:fxEldritch .66s ease-out;
-}
-#fxOverlay.fx-eldritch-2{
-  background:
-    radial-gradient(circle at 36% 34%, rgba(255,120,120,.98) 0 2.8%, rgba(255,40,52,.84) 2.9% 6.6%, rgba(140,0,14,.34) 6.7% 11%, transparent 14%),
-    radial-gradient(circle at 64% 66%, rgba(255,120,120,.98) 0 2.8%, rgba(255,40,52,.84) 2.9% 6.6%, rgba(140,0,14,.34) 6.7% 11%, transparent 14%),
-    linear-gradient(135deg, transparent 0 30%, rgba(255,24,40,.12) 36%, rgba(90,0,10,.18) 50%, rgba(255,24,40,.12) 64%, transparent 70%);
-  animation:fxEldritch .66s ease-out;
-}
-.shell.eldritch-hit{animation:shellEldritch .34s linear}"""
-if old_css not in text: raise SystemExit('Eldritch CSS anchor missing')
-text=text.replace(old_css,new_css,1)
+text,n=re.subn(r"#fxOverlay\.fx-eldritch\{.*?\}\n\.shell\.eldritch-hit\{animation:shellEldritch \.34s linear\}",lambda m:new_css,text,count=1,flags=re.S)
+if n!=1: raise SystemExit('Eldritch CSS replacement failed')
 
 old_fx=""" if(type==='eldritch'){
    const shell=q('#app');
@@ -77,7 +58,6 @@ function eldritchRayContext(ray){
  return {target:baseTarget,label,ac:baseAC,cursed:curseAppliesTo(baseTarget)};
 }
 """
-if 'function finishEldritchRun(){' not in text: raise SystemExit('finish function missing')
 text=text.replace('function finishEldritchRun(){',helpers+'function finishEldritchRun(){',1)
 
 finish_new=r"""function finishEldritchRun(){
@@ -137,14 +117,10 @@ old_inputs="q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;rende
 if old_inputs not in text: raise SystemExit('input handlers missing')
 text=text.replace(old_inputs,old_inputs+"q('#eldritchSplit').onchange=()=>syncEldritchSplitUI();",1)
 
-old_click="q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],cursed:curseApplies()};render();fx('eldritch');continueEldritchRun()};"
 new_click="q('#eldritch').onclick=()=>{if(!useMainAction('Décharge occulte','cantrip'))return render();S.eldritchRun={ray:1,total:0,lines:[],hits:0};render();continueEldritchRun()};"
-if old_click not in text: raise SystemExit('click handler missing')
 text=text.replace(old_click,new_click,1)
 
-# Final validation before write.
-checks=['Rayon 2 sur autre cible','function eldritchRayContext(ray)','fx(\'eldritch-1\')','fx(\'eldritch-2\')','hits:0']
-for c in checks:
+for c in ['Rayon 2 sur autre cible','function eldritchRayContext(ray)',"fx('eldritch-1')","fx('eldritch-2')",'hits:0']:
     if c not in text: raise SystemExit('validation failed: '+c)
 if "fx('eldritch');continueEldritchRun()" in text: raise SystemExit('old immediate FX still present')
 
