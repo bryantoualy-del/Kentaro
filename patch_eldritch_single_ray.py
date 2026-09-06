@@ -94,3 +94,4 @@ for needle in ['Lancer rayon 1/2','Lancer rayon 2/2','function eldritchRay()','e
 
 p.write_text(text,encoding='utf-8')
 print('patched')
+# trigger
