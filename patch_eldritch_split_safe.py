@@ -19,20 +19,8 @@ new_css="""#fxOverlay.fx-eldritch-1{background:radial-gradient(circle at 50% 50%
 text,n=re.subn(r"#fxOverlay\.fx-eldritch\{.*?\}\n\.shell\.eldritch-hit\{animation:shellEldritch \.34s linear\}",lambda m:new_css,text,count=1,flags=re.S)
 if n!=1: raise SystemExit('Eldritch CSS replacement failed')
 
-old_fx=""" if(type==='eldritch'){
-   const shell=q('#app');
-   if(shell){
-     shell.classList.remove('eldritch-hit'); void shell.offsetWidth; shell.classList.add('eldritch-hit');
-     clearTimeout(shell._eldritchTimer); shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360);
-   }
- }"""
-new_fx=""" if(type==='eldritch-1'||type==='eldritch-2'){
-   const shell=q('#app');
-   if(shell){
-     shell.classList.remove('eldritch-hit'); void shell.offsetWidth; shell.classList.add('eldritch-hit');
-     clearTimeout(shell._eldritchTimer); shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360);
-   }
- }"""
+old_fx="if(type==='eldritch'){const shell=q('#app');if(shell){shell.classList.remove('eldritch-hit');void shell.offsetWidth;shell.classList.add('eldritch-hit');clearTimeout(shell._eldritchTimer);shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360)}}"
+new_fx="if(type==='eldritch-1'||type==='eldritch-2'){const shell=q('#app');if(shell){shell.classList.remove('eldritch-hit');void shell.offsetWidth;shell.classList.add('eldritch-hit');clearTimeout(shell._eldritchTimer);shell._eldritchTimer=setTimeout(()=>shell.classList.remove('eldritch-hit'),360)}}"
 if old_fx not in text: raise SystemExit('Eldritch FX branch missing')
 text=text.replace(old_fx,new_fx,1)
 
