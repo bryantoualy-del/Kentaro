@@ -1,0 +1,24 @@
+name: Apply Shroud Sober Glow
+on:
+  push:
+    paths:
+      - 'patch_shroud_sober_glow.py'
+      - '.github/workflows/apply-shroud-sober-glow.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python patch_shroud_sober_glow.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 1 || true
+          git commit -m "Use sober Spirit Shroud edge glow"
+          git push
