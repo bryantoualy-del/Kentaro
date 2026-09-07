@@ -1,0 +1,22 @@
+name: Apply Persistent Shroud FX
+on:
+  push:
+    paths:
+      - 'patch_persistent_shroud_fx.py'
+      - '.github/workflows/apply-persistent-shroud-fx.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python patch_persistent_shroud_fx.py
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Add persistent Spirit Shroud screen FX'
+          git push
