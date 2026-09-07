@@ -1,0 +1,22 @@
+name: Apply Short Rest Stop Shroud
+on:
+  push:
+    paths:
+      - 'patch_short_rest_stop_shroud.py'
+      - '.github/workflows/apply-short-rest-stop-shroud.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python patch_short_rest_stop_shroud.py
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Stop Spirit Shroud on short rest'
+          git push
