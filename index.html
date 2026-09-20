@@ -45,7 +45,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   width:100%;min-height:44px;background:#0b0d12;color:var(--ivory);
   border:1px solid #444b5e;border-radius:8px;padding:8px
 }
-.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(4,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
+.combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(5,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.damage-check{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 10px;border:1px solid #444b5e;border-radius:8px;background:#0b0d12;color:var(--ivory);font-size:13px}.damage-check input{width:18px;height:18px}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
@@ -117,6 +117,9 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 @media(max-width:1024px){.stats{grid-template-columns:repeat(3,1fr)}.resources{grid-template-columns:repeat(3,1fr)}.control-grid{grid-template-columns:repeat(2,1fr)}.combat-layout{grid-template-columns:250px minmax(0,1fr)}.attack-grid{grid-template-columns:1fr}.wrap{padding:9px}.shell{padding:12px}.tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;min-width:150px}}
 @media(max-width:760px){.utility-bar{grid-template-columns:1fr}.utility-rest,.utility-tools{grid-template-columns:repeat(3,1fr)}.save-status-compact{text-align:center}.turn-economy{grid-template-columns:1fr 1fr}.turn-label{grid-column:1/-1}.turn-next{grid-column:1/-1}.combat-layout{grid-template-columns:1fr}.target-stack{position:static}.attack-toolbar{align-items:flex-start;flex-direction:column}.attack-toolbar .mode-inline{margin-left:0;width:100%;justify-content:space-between}.attack-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,1fr)}.spectre-grid{grid-template-columns:repeat(2,1fr)}.resources{grid-template-columns:repeat(2,1fr)}.tab{min-width:132px}}
 
+/* Kentaro 2026 — modernisation conservatrice */
+.head{overflow:hidden}.head::before,.head::after{content:"";position:absolute;top:50%;width:84px;height:84px;transform:translateY(-50%);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.34;filter:drop-shadow(0 0 16px rgba(255,255,255,.08));pointer-events:none}.head::before{left:12px;background-image:url('assets/icons/01_Solinar.webp')}.head::after{right:12px;background-image:url('assets/icons/02_Selhane.webp')}.turn-economy{position:sticky;top:max(6px,env(safe-area-inset-top));z-index:35;padding:7px;border:1px solid rgba(83,73,65,.8);border-radius:12px;background:rgba(8,10,15,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 24px rgba(0,0,0,.25)}.tabs{top:82px}.art-card{position:relative;overflow:hidden;padding-right:88px;min-height:112px}.art-card .item-art{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 7px 12px rgba(0,0,0,.45));pointer-events:none}.blade-card{min-height:154px}.blade-card .item-art{width:92px;height:92px;opacity:.96}.art-pair{display:flex;gap:4px;position:absolute;right:6px;top:50%;transform:translateY(-50%)}.art-pair img{width:60px;height:74px;object-fit:contain;filter:drop-shadow(0 7px 12px rgba(0,0,0,.45))}.social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.social-wide{grid-column:1/-1}.social-input,.social-textarea{width:100%;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:9px;padding:9px}.social-textarea{min-height:110px;resize:vertical}.social-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c99f61;margin-bottom:6px}.journal-head{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}.journal-panel .log{display:block;max-height:520px;min-height:260px}.result-badge{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:9997;display:none;min-height:44px;border-radius:999px;padding:9px 14px;background:linear-gradient(90deg,#59331f,#322a45,#1d4266);border-color:#b98d4d;box-shadow:0 8px 26px rgba(0,0,0,.55);font-weight:800}.result-badge.show{display:block}.ribbon-actions.three-actions{grid-template-columns:1fr 1fr 1fr}.ribbon-actions.three-actions button{min-width:0}.eco.move{border-color:#4a556b}.memory-hint{font-size:12px;color:var(--muted);margin-top:6px} .seal-art{width:64px;height:64px;object-fit:contain;float:right;margin:-8px -2px 4px 8px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.45))}.relation-chip{display:inline-block;border:1px solid #5a4b43;border-radius:999px;padding:4px 8px;margin:2px;font-size:12px;background:#16131a}.social-tools{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.social-tool{padding:8px;border:1px solid #394154;border-radius:9px;background:#0c0e14}.identity-list{display:grid;gap:5px}.identity-list div{padding:6px 8px;border-left:2px solid #8f6b3b;background:#0d0f15;border-radius:4px}.journal-tab-glow{border-color:#9e7d4b!important}
+@media(max-width:760px){.head::before,.head::after{width:58px;height:58px;opacity:.22}.turn-economy{top:max(4px,env(safe-area-inset-top));grid-template-columns:1fr 1fr}.tabs{position:relative;top:auto}.social-grid{grid-template-columns:1fr}.social-wide{grid-column:auto}.art-card{padding-right:74px}.art-card .item-art{width:64px;height:64px}.blade-card .item-art{width:72px;height:72px}.social-tools{grid-template-columns:1fr}.result-badge{max-width:calc(100% - 24px)}}
 </style>
 </head>
 <body>
@@ -128,7 +131,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <div class="card center">CA<span class="big gold">18</span></div><div class="card center">PV<span id="hpView" class="big">103</span></div><div class="card center">Initiative<span class="big">+2</span></div><div class="card center">DD sorts<span class="big">16</span></div><div class="card center">Att. sort<span class="big">+8</span></div><div class="card center">Lames<span class="big gold">+10</span></div>
 </section>
 <section class="grid resources">
-<div class="card center">Slots de pacte<span id="slotView" class="big gold">2/2</span></div>
+<div class="card center">Slots de pacte<span id="slotView" class="big gold">2/2</span><div id="slots" class="slotrow" style="justify-content:center" aria-label="Emplacements de pacte"></div></div>
 <div class="card center">Malédiction<span id="curseView" class="big">Prête</span></div>
 <div class="card center">Châtiment occulte<span class="big">6d8</span></div>
 <div class="card center">Armure maléfices<span class="big">4–6</span><span class="meta">sur d6</span></div>
@@ -141,11 +144,12 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <div id="ecoAction" class="eco free"><b>⚔ Action</b>Disponible</div>
   <div id="ecoBonus" class="eco free"><b>✦ Bonus</b>Disponible</div>
   <div id="ecoReaction" class="eco free"><b>↯ Réaction</b>Disponible</div>
+  <div id="ecoMove" class="eco free move"><b>↗ Mouvement</b>Disponible</div>
   <div id="ecoConc" class="eco free"><b>◐ Concentration</b>Aucune</div>
   <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
 </div>
 
-<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Objets & traits</button><button class="tab" data-tab="spectre">👻 Spectre</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Équipement</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="social">♜ Social</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
 
 <section class="panel active" data-panel="combat">
 <div class="combat-layout">
@@ -159,7 +163,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
       </div>
       <div class="modebar"><button id="curseToggle" class="toggle">☠ Malédiction OFF</button><button id="shroudToggle" class="toggle">◐ Voile spirituel OFF</button></div>
       <div id="combatStatus" class="statusbox">Solinar : — • Sélhane : — • Sceau : en attente</div>
-      <div id="sealStatus" class="seal-banner">Sceau : aucune cible marquée.</div>
+      <div id="sealStatus" class="seal-banner"><img class="seal-art" src="assets/icons/09_Sceau_de_l_Eclipse.webp" alt="">Sceau : aucune cible marquée.</div>
     </div>
   </div>
 
@@ -169,8 +173,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
       <div class="mode-inline"><span class="label-mini">Mode de jets</span><button id="manualDice" class="toggle">🎲 Jets auto</button></div>
     </div>
     <div class="attack-grid">
-      <article class="card solar"><div class="action-title">☀ Solinar</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts radiants • JS CON 15 : aveuglé 1 tour selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="solinar">Attaquer</button><button id="solinarCrit">Forcer critique</button></div></article>
-      <article class="card lunar"><div class="action-title">☾ Sélhane</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts psychiques • JS SAG 15 : désavantage à la prochaine attaque selon l’effet de la lame. Critique auto sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="selhane">Attaquer</button><button id="selhaneCrit">Forcer critique</button></div></article>
+      <article class="card solar art-card blade-card"><img class="item-art" src="assets/icons/01_Solinar.webp" alt=""><div class="action-title">☀ Solinar</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts radiants • JS CON 15 : aveuglé 1 tour selon l’effet de la lame. Critique naturel sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="solinar">Attaquer</button></div></article>
+      <article class="card lunar art-card blade-card"><img class="item-art" src="assets/icons/02_Selhane.webp" alt=""><div class="action-title">☾ Sélhane</div><div class="meta">Épée longue éveillée • +10 toucher • dégâts psychiques • JS SAG 15 : désavantage à la prochaine attaque selon l’effet de la lame. Critique naturel sur 20, ou 19–20 si Malédiction active.</div><div class="row"><button id="selhane">Attaquer</button></div></article>
       <article class="card golden"><div class="action-title">✦ 3e attaque</div><div class="meta">Action bonus • si une lame a raté, réattaque avec elle pour tenter le Sceau ; sinon Solinar par défaut offensif.</div><div class="row"><button id="thirdSmart">Choix intelligent</button><button id="thirdSun" class="btn-sun">Solinar</button><button id="thirdMoon" class="btn-moon">Sélhane</button></div></article>
       <article class="card violet"><div class="action-title">☠ Châtiment occulte</div><div class="meta">À garder si possible pour un critique ou une cible prioritaire • 6d8 dégâts + cible à terre selon ta fiche.</div><div class="row"><button id="smite">Dépenser un slot</button><button id="smiteCrit">Critique : 12d8</button></div></article>
       <article class="card"><div class="action-title">🔴 Décharge occulte</div><div class="meta">Attaque à distance • +8 toucher • 1d10+4 force • jusqu’à 2 rayons par tour • contre la cible maudite : +4 dégâts et critique sur 19–20.</div><button id="eldritch">Lancer rayon 1/2</button></article>
@@ -187,7 +191,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card"><div class="action-title">Foulée brumeuse</div><div class="meta">Action bonus • mobilité.</div><button data-spell="Foulée brumeuse">Lancer</button></article>
 <article class="card"><div class="action-title">Invisibilité</div><div class="meta">Concentration.</div><button data-spell="Invisibilité" data-conc="1">Lancer</button></article>
 <article class="card violet"><div class="action-title">Voile spirituel</div><div class="meta">Concentration • setup de gros combat • avec un slot N5, ajoute 2d8 à chaque attaque qui touche.</div><button data-spell="Voile spirituel" data-conc="1" data-shroud="1">Lancer</button></article>
-<article class="card"><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/10_Porte_dimensionnelle.webp" alt=""><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
 <article class="card"><div class="action-title">Ombre d’égarement</div><div class="meta">Sort connu niveau 4.</div><button data-spell="Ombre d’égarement">Lancer</button></article>
 <article class="card"><div class="action-title">Bannissement</div><div class="meta">JS CHA DD16 • neutraliser une cible quand le corps-à-corps est défavorable.</div><button data-spell="Bannissement" data-conc="1">Lancer</button></article>
 <article class="card violet">
@@ -219,7 +223,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <div class="meta">Le DD de concentration est calculé automatiquement : max(10, moitié des dégâts).</div>
 </article>
 
-<article class="card"><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/06_Tombeau_de_Lazarus.webp" alt=""><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
 
 <article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
 
@@ -227,10 +231,10 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div></section>
 
 <section class="panel" data-panel="items"><div class="grid two">
-<article class="card golden"><div class="action-title">Solinar & Sélhane</div><div class="meta">Vestige de la Divergence • état éveillé • bonus d’arme +2 • finesse + légère pour Kentaro • les deux comptent comme armes de pacte.</div><div class="tag">Sceau d’éclipse</div><div class="tag">Parade crépusculaire +1 CA en main</div><div class="tag">Pas entre les rayons 1/repos court</div></article>
-<article class="card"><div class="action-title">Vision de la Pierre</div><div class="meta">1/jour • 12 s • voir à travers illusions et objets solides dans un rayon de 18 m • avantage sur la prochaine attaque.</div><button id="stoneVision">Activer</button></article>
-<article class="card violet">
-<div class="action-title">◉ Anneau de stockage de sorts</div>
+<article class="card golden art-card"><div class="art-pair"><img src="assets/icons/01_Solinar.webp" alt=""><img src="assets/icons/02_Selhane.webp" alt=""></div><div class="action-title">Solinar & Sélhane</div><div class="meta">Vestige de la Divergence • état éveillé • bonus d’arme +2 • finesse + légère pour Kentaro • les deux comptent comme armes de pacte.</div><div class="tag">Sceau d’éclipse</div><div class="tag">Parade crépusculaire +1 CA en main</div><div class="tag">Pas entre les rayons 1/repos court</div></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/08_Vision_de_la_Pierre.webp" alt=""><div class="action-title">Vision de la Pierre</div><div class="meta">1/jour • 12 s • voir à travers illusions et objets solides dans un rayon de 18 m • avantage sur la prochaine attaque.</div><button id="stoneVision">Activer</button></article>
+<article class="card violet art-card">
+<img class="item-art" src="assets/icons/04_Anneau_de_stockage.webp" alt=""><div class="action-title">◉ Anneau de stockage de sorts</div>
 <div class="meta">Capacité totale : <b>5 niveaux de sorts</b>. L’espace occupé dépend du <b>niveau de l’emplacement utilisé</b> pour stocker le sort.</div>
 <div class="ring-meter"><div id="ringFill" class="ring-fill"></div></div>
 <div class="statusbox"><b id="ringCount">0/5 niveaux occupés</b><br><span id="ringFree" class="meta">5 niveaux libres</span></div>
@@ -263,12 +267,12 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <div class="rule">Quand Kentaro stocke lui-même un sort avec son emplacement de pacte N5, il occupe <b>5/5</b> dans l’anneau, même si le sort est normalement de niveau inférieur. « Stocker / allié » permet de comptabiliser un sort placé par un autre lanceur avec un emplacement N1 à N5.</div>
 </article>
 <article class="card"><div class="action-title">Perle de pouvoir</div><div class="meta">Objet magique listé dans ton équipement.</div></article>
-<article class="card"><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur ta fiche.</div></article>
-<article class="card"><div class="action-title">Kane</div><div class="meta">Katana / épée longue familiale +1, transmise dans la famille Amane.</div></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/05_Bague_feuille_morte.webp" alt=""><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur ta fiche.</div></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/03_Kane_katana.webp" alt=""><div class="action-title">Kane</div><div class="meta">Relique familiale • katana / épée longue +1 transmis dans la famille Amane. À traiter comme un lien de mémoire et d’héritage, pas comme une simple arme secondaire.</div></article>
 </div></section>
 
 <section class="panel" data-panel="spectre"><div class="grid two spectre-layout">
-<article class="card" id="spectreCard"><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
+<article class="card art-card" id="spectreCard"><img class="item-art" src="assets/icons/07_Spectre_occult.webp" alt=""><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
 <div class="spectre-grid"><div class="spectre-stat">État<br><b id="spectreState">Inactif</b></div><div class="spectre-stat">PV<br><b id="spectreHp">22</b></div><div class="spectre-stat">PV temp<br><b id="spectreTemp">5</b></div><div class="spectre-stat">CA<br><b>12</b></div></div>
 <div class="row"><button id="spectreInvoke">Invoquer</button><button id="spectre">Attaquer</button><input id="spectreDmg" class="compact-input" style="max-width:120px" type="number" min="0" placeholder="Dégâts"><button id="spectreTake">Appliquer</button></div>
 <div class="rule spectre-note">Le bouton <b>Appliquer</b> retire d’abord les <b>PV temporaires</b> du spectre, puis ses <b>PV</b>. Quand ses PV tombent à 0, il repasse automatiquement à l’état <b>Inactif</b>.</div></article>
@@ -280,6 +284,60 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div></article>
 </div></section>
 
+
+<section class="panel" data-panel="social">
+  <div class="social-grid">
+    <article class="card">
+      <div class="social-kicker">Identité & comportement</div>
+      <div class="action-title">Kentaro hors combat</div>
+      <div class="identity-list" style="margin-top:9px">
+        <div><b>Loyal Neutre</b> • méfiant avant d’accorder sa confiance.</div>
+        <div><b>Grand Voyageur</b> • observe les coutumes locales avec fascination.</div>
+        <div><b>Souvenirs incomplets</b> • passé fragmenté, nostalgie de sa patrie.</div>
+        <div><b>Âmes fusionnées</b> • identité marquée par plusieurs héritages.</div>
+        <div><b>Nourriture & sang</b> • rapport inhabituel, à jouer comme un détail révélateur.</div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="social-kicker">Relations</div>
+      <div class="action-title">Liens importants</div>
+      <div style="margin:8px 0"><span class="relation-chip">Jemal Dormy</span><span class="relation-chip">Compagnie Créole</span><span class="relation-chip">Patrie / famille Amane</span></div>
+      <textarea id="socialRelations" class="social-textarea" placeholder="Dettes, promesses, évolution des relations…"></textarea>
+    </article>
+    <article class="card">
+      <div class="social-kicker">Charme prédateur</div>
+      <div class="action-title">Préparer l’approche</div>
+      <div class="meta">Rappel de jeu : nécessite une conversation préalable d’environ 1 minute. Le compagnon suit seulement la préparation ; il n’invente pas de règle supplémentaire.</div>
+      <input id="charmTarget" class="social-input" style="margin-top:9px" placeholder="Interlocuteur / cible">
+      <div class="row"><button id="prepareCharm" class="btn-red">Préparer l’avantage</button><button id="resetCharm">Réinitialiser</button></div>
+      <div id="charmStatus" class="statusbox">Aucune approche préparée.</div>
+    </article>
+    <article class="card">
+      <div class="social-kicker">Outils sociaux</div>
+      <div class="action-title">Infiltration & voyage</div>
+      <div class="social-tools" style="margin-top:9px">
+        <div class="social-tool"><b>Bague d’échange de visages</b><br><span class="meta">Identité, infiltration, faux-semblants.</span></div>
+        <div class="social-tool"><b>Ocarina</b><br><span class="meta">Objet personnel et marqueur culturel.</span></div>
+        <div class="social-tool"><b>Langues</b><br><span class="meta">Consulter la fiche pour le détail.</span></div>
+        <div class="social-tool"><b>Cartes de la patrie</b><br><span class="meta">Voyage, mémoire, nostalgie.</span></div>
+      </div>
+    </article>
+    <article class="card social-wide">
+      <div class="social-kicker">Mémoire / registre</div>
+      <div class="action-title">Ce que Kentaro ne doit pas oublier</div>
+      <textarea id="socialNotes" class="social-textarea" placeholder="Noms rencontrés, promesses, dettes, souvenirs récupérés, pistes sur la patrie…"></textarea>
+      <div class="memory-hint">Enregistré automatiquement sur cet appareil.</div>
+    </article>
+  </div>
+</section>
+
+<section class="panel journal-panel" data-panel="journal">
+  <article class="card">
+    <div class="journal-head"><div><div class="social-kicker">Journal complet</div><div class="action-title">Historique de session</div></div><button id="clearLog">Effacer journal</button></div>
+    <div id="log" class="log">Prêt. Que l’éclipse tombe.</div>
+  </article>
+</section>
+
 <div class="utility-bar">
   <div class="utility-group utility-rest">
     <button id="shortRest">☕ Repos court</button>
@@ -288,13 +346,12 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   </div>
   <div class="utility-group utility-tools">
     <button id="undoLast">↶ Annuler</button>
-    <button id="toggleHistory">Historique</button>
+    <button id="toggleHistory">☷ Journal</button>
     <button id="resetSave" class="utility-danger">Effacer sauvegarde</button>
   </div>
 </div>
 <div id="saveStatus" class="meta save-status-compact">Sauvegarde locale : aucune modification enregistrée.</div>
-<div id="historyPanel"><div id="log" class="log">Prêt. Que l’éclipse tombe.</div><div style="margin-top:7px"><button id="clearLog">Effacer journal</button></div></div>
-<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div id="ribbonHitActions" class="ribbon-actions"><button id="confirmHit" class="btn-green">✅ Touché</button><button id="confirmMiss" class="btn-red">❌ Raté</button></div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div>
+<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div id="ribbonHitActions" class="ribbon-actions three-actions"><button id="confirmHit" class="btn-green">✅ Oui</button><button id="confirmMiss" class="btn-red">❌ Non</button><button id="confirmCancel">↶ Annuler</button></div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div><button id="lastBadge" class="result-badge">✦ Dernier résultat</button>
 </main></div>
 <script>
 (()=>{
@@ -308,10 +365,11 @@ const S={
  biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
  agathys:false,agathysDamage:25,
  spectreActive:false,spectreHp:22,spectreTemp:5,
- actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchRun:null,eldritchCount:0
+ actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchRun:null,eldritchCount:0,
+ socialNotes:'',socialRelations:'',charmTarget:'',charmPrepared:false,journal:[]
 };
 const undo=[];const SAVE='kentaro-eclipse-v4';
-let ribbonTimer=null,fxTimer=null;
+let ribbonTimer=null,fxTimer=null,pendingBefore=null;
 function snap(){return JSON.parse(JSON.stringify(S))}
 function push(){undo.push(snap());if(undo.length>40)undo.shift()}
 function restore(x){Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,x);render()}
@@ -337,13 +395,14 @@ function getRibbonTone(t){
  return 'success';
 }
 function log(t){
- const el=q('#log');el.textContent=(el.textContent==='Prêt. Que l’éclipse tombe.'?'':el.textContent+'\n\n')+t;el.scrollTop=el.scrollHeight;
+ if(!Array.isArray(S.journal))S.journal=[];S.journal.push(String(t));if(S.journal.length>300)S.journal=S.journal.slice(-300);
+ const el=q('#log');if(el){el.textContent=S.journal.join('\n\n')||'Prêt. Que l’éclipse tombe.';el.scrollTop=el.scrollHeight}
  q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');
  r.classList.remove('tone-warn','tone-error');
  const tone=getRibbonTone(t);
  if(tone==='warn')r.classList.add('tone-warn');
  else if(tone==='error')r.classList.add('tone-error');
- r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>r.classList.remove('show'),7000);save(true)
+ const badge=q('#lastBadge');if(badge)badge.classList.remove('show');r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>{r.classList.remove('show');if(badge)badge.classList.add('show')},7000);save(true)
 }
 function cleanName(x){return (x||'').trim().toLowerCase()}
 function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}
@@ -448,7 +507,7 @@ function useAttackAction(){if(S.actionUsed&&S.actionKind!=='attack'){log(`❌ Ac
 function useMainAction(label,kind='action'){if(S.actionUsed){log(`❌ Action déjà utilisée : ${S.actionLabel||S.actionKind}.`);return false}if(kind==='spell'&&S.bonusSpell){log('❌ Un sort a déjà été lancé en action bonus ce tour : seule une incantation mineure d’1 action reste autorisée.');return false}S.actionUsed=true;S.actionKind=kind;S.actionLabel=label;return true}
 function useBonusAction(label,isSpell=false){if(S.bonusUsed){log(`❌ Action bonus déjà utilisée : ${S.bonusLabel}.`);return false}if(isSpell&&S.actionUsed&&S.actionKind==='spell'){log('❌ Tu as déjà lancé un sort de niveau avec ton Action : impossible de lancer aussi un sort en action bonus ce tour.');return false}S.bonusUsed=true;S.bonusLabel=label;S.bonusSpell=isSpell;return true}
 function useReaction(label){if(S.reactionUsed){log(`❌ Réaction déjà utilisée : ${S.reactionLabel}.`);return false}S.reactionUsed=true;S.reactionLabel=label;return true}
-function renderEconomy(){const td=q('#turnDamageView');if(td)td.textContent=S.turnDamage||0;const a=q('#ecoAction'),b=q('#ecoBonus'),r=q('#ecoReaction'),c=q('#ecoConc'),tv=q('#turnEconomyView');if(!a)return;if(tv)tv.textContent=S.turn;const actionTxt=S.actionUsed?(S.actionKind==='attack'?`${S.attackCount}/2 attaques`:(S.actionLabel||'Utilisée')):'Disponible';a.innerHTML=`<b>⚔ Action</b>${actionTxt}`;b.innerHTML=`<b>✦ Bonus</b>${S.bonusUsed?(S.bonusLabel||'Utilisée'):'Disponible'}`;r.innerHTML=`<b>↯ Réaction</b>${S.reactionUsed?(S.reactionLabel||'Utilisée'):'Disponible'}`;a.className='eco '+(S.actionUsed?'used':'free');b.className='eco '+(S.bonusUsed?'used':'free');r.className='eco '+(S.reactionUsed?'used':'free');if(c){c.innerHTML=`<b>◐ Concentration</b>${S.conc?(S.concSpell||'Active'):'Aucune'}`;c.className='eco '+(S.conc?'free':'used')}const attackBlocked=(S.actionUsed&&S.actionKind!=='attack')||S.attackCount>=2;['solinar','solinarCrit','selhane','selhaneCrit'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=attackBlocked});['thirdSmart','thirdSun','thirdMoon'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=S.bonusUsed});const eb=q('#eldritch');if(eb){const n=S.eldritchCount||0;const otherAction=S.actionUsed&&!(S.actionKind==='cantrip'&&S.actionLabel==='Décharge occulte');eb.disabled=otherAction||n>=2||!!S.pendingHit;eb.textContent=n===0?'Lancer rayon 1/2':(n===1?'Lancer rayon 2/2':'2/2 rayons lancés')}}
+function renderEconomy(){const td=q('#turnDamageView');if(td)td.textContent=S.turnDamage||0;const a=q('#ecoAction'),b=q('#ecoBonus'),r=q('#ecoReaction'),m=q('#ecoMove'),c=q('#ecoConc'),tv=q('#turnEconomyView');if(!a)return;if(tv)tv.textContent=S.turn;const actionTxt=S.actionUsed?(S.actionKind==='attack'?`${S.attackCount}/2 attaques`:(S.actionLabel||'Utilisée')):'Disponible';a.innerHTML=`<b>⚔ Action</b>${actionTxt}`;b.innerHTML=`<b>✦ Bonus</b>${S.bonusUsed?(S.bonusLabel||'Utilisée'):'Disponible'}`;r.innerHTML=`<b>↯ Réaction</b>${S.reactionUsed?(S.reactionLabel||'Utilisée'):'Disponible'}`;a.className='eco '+(S.actionUsed?'used':'free');b.className='eco '+(S.bonusUsed?'used':'free');r.className='eco '+(S.reactionUsed?'used':'free');if(m){m.innerHTML='<b>↗ Mouvement</b>Disponible';m.className='eco free move'}if(c){c.innerHTML=`<b>◐ Concentration</b>${S.conc?(S.concSpell||'Active'):'Aucune'}`;c.className='eco '+(S.conc?'free':'used')}const attackBlocked=(S.actionUsed&&S.actionKind!=='attack')||S.attackCount>=2||!!S.pendingHit;['solinar','selhane'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=attackBlocked});['thirdSmart','thirdSun','thirdMoon'].forEach(id=>{const x=q('#'+id);if(x)x.disabled=S.bonusUsed||!!S.pendingHit});const eb=q('#eldritch');if(eb){const n=S.eldritchCount||0;const otherAction=S.actionUsed&&!(S.actionKind==='cantrip'&&S.actionLabel==='Décharge occulte');eb.disabled=otherAction||n>=2||!!S.pendingHit;eb.textContent=n===0?'Lancer rayon 1/2':(n===1?'Lancer rayon 2/2':'2/2 rayons lancés')}}
 function renderSlots(){const x=q('#slots');if(!x)return;x.innerHTML='';for(let i=0;i<2;i++){const b=document.createElement('button');b.className='pip '+(i<S.slots?'':'off');b.title=i<S.slots?'Disponible':'Dépensé';b.onclick=()=>{push();S.slots=i<S.slots?Math.max(0,S.slots-1):Math.min(2,S.slots+1);render()};x.appendChild(b)}}
 function render(){
  q('#hpView').textContent=S.hp;q('#hpInput').value=S.hp;q('#slotView').textContent=S.slots+'/2';
@@ -461,38 +520,27 @@ function render(){
  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
  const rb=q('#kentaro-ribbon');if(rb)rb.classList.toggle('awaiting-hit',!!S.pendingHit);
  q('#spectreState').textContent=S.spectreActive?'Actif':'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
+ const sn=q('#socialNotes'),sr=q('#socialRelations'),ct=q('#charmTarget'),cs=q('#charmStatus'),jl=q('#log');if(sn&&sn!==document.activeElement)sn.value=S.socialNotes||'';if(sr&&sr!==document.activeElement)sr.value=S.socialRelations||'';if(ct&&ct!==document.activeElement)ct.value=S.charmTarget||'';if(cs)cs.textContent=S.charmPrepared?`Approche préparée${S.charmTarget?' pour '+S.charmTarget:''} • avantage prêt à être utilisé selon la capacité.`:'Aucune approche préparée.';if(jl)jl.textContent=Array.isArray(S.journal)&&S.journal.length?S.journal.join('\n\n'):'Prêt. Que l’éclipse tombe.';
  renderEconomy();renderSlots();renderRing()
 }
 function useSlot(){if(S.slots<1){log('❌ Aucun emplacement de pacte restant.');return false}push();S.slots--;render();return true}
 function resolveHit(nat,total,crit){
  const ac=Number(S.targetAC)||0;if(crit)return true;if(nat===1)return false;if(!ac)return true;return total>=ac
 }
-function blade(which,forceCrit=false,mode='action'){
+function blade(which,mode='action'){
+ const before=snap();
  if(mode==='action'){if(!useAttackAction())return render()}else if(mode==='bonus'){if(!useBonusAction('3e attaque',false))return render()}
  const sun=which==='sun',name=sun?'☀ Solinar':'☾ Sélhane',adv=sealAdvantage();
- let nat=20,detail='critique forcé',hitRoll=30;
- if(!forceCrit){const rr=askNat(name,adv);if(!rr)return log('ℹ️ Jet annulé.');nat=rr.nat;detail=rr.detail;hitRoll=nat+10}
- const cursed=curseApplies(),crit=forceCrit||nat===20||(cursed&&nat===19);
- if(!S.targetAC&&!crit){
-   S.pendingHit={kind:'blade',which,name,total:hitRoll,nat,crit:false,detail,target:S.currentTarget};
-   render();
-   return log(`${name}\nJet ${detail} +10 = ${hitRoll} → CA non renseignée : confirme TOUCHÉ ou RATÉ.`);
+ const rr=askNat(name,adv);if(!rr){restore(before);return log('ℹ️ Jet annulé.')}
+ const nat=rr.nat,hitRoll=nat+10,cursed=curseApplies(),crit=nat===20||(cursed&&nat===19);
+ if(nat===1){
+   if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
+   render();return log(`${name}\nJet ${rr.detail} +10 = ${hitRoll} → ÉCHEC AUTOMATIQUE (1 naturel).`);
  }
- const hit=resolveHit(nat,hitRoll,crit);
- if(!hit){if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}render();return log(`${name}\nJet ${detail} +10 = ${hitRoll} → RATÉ${S.targetAC?` contre CA ${S.targetAC}`:''}.`)}
- const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,parts=[];
- if(cursed){extra+=4;parts.push('+4 Malédiction')}
- if(S.shroud){const r=roll(crit?4:2,8);extra+=r.total;parts.push(`+${r.total} Voile [${r.dice.join('+')}]`)}
- const dmg=w.total+elem.total+extra;addTurnDamage(dmg,sun?'Solinar':'Sélhane');if(sun){S.solHit=true;S.solTarget=S.currentTarget}else{S.selHit=true;S.selTarget=S.currentTarget}
- let sealText='';
- if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
-   const r=d(8),p=d(8);S.seal=true;S.sealTarget=sun?S.solTarget:S.selTarget;S.sealExpiresAfterTurn=S.turn+1;addTurnDamage(r+p,'Sceau d’Éclipse');sealText=`\n✦ SCEAU D’ÉCLIPSE : +${r} radiant +${p} psychique = +${r+p} • avantage jusqu’à fin tour ${S.sealExpiresAfterTurn}`;fx('eclipse')
- } else fx(sun?'sun':'moon');
- S.lastCrit=crit;S.lastCritBlade=crit?(sun?'Solinar':'Sélhane'):'';
+ pendingBefore=before;
+ S.pendingHit={kind:'blade',which,name,total:hitRoll,nat,crit,detail:rr.detail,target:S.currentTarget,cursed};
  render();
- const critText=crit?` — ✦ CRITIQUE${!forceCrit&&cursed&&nat===19?' (19 grâce à la Malédiction)':''}`:'';
- log(`${name}${critText}\nJet ${detail} +10 = ${hitRoll} → TOUCHÉ${S.targetAC?` (CA ${S.targetAC})`:''}${adv?' • avantage Sceau':''}\nDégâts : ${dmg} (${w.dice.join('+')}+4 + ${elem.dice.join('+')} ${sun?'radiant':'psychique'}${parts.length?' '+parts.join(' '):''})${sealText}`)
- if(crit && S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?'Solinar':'Sélhane'}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
+ log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
 }
 function castSynapticStatic(){
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
@@ -528,77 +576,53 @@ function castSpellButton(b){
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
 q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#targetAC').oninput=e=>{S.targetAC=e.target.value;render()};q('#curseTarget').oninput=e=>{S.curseTarget=e.target.value;render()};
 q('#manualDice').onclick=()=>{push();S.manualDice=!S.manualDice;render();log(S.manualDice?'🎲 Mode jets manuels : le compagnon te demandera le résultat naturel du d20.':'🎲 Mode jets automatiques réactivé.')};
-q('#solinar').onclick=()=>blade('sun');q('#solinarCrit').onclick=()=>blade('sun',true);q('#selhane').onclick=()=>blade('moon');q('#selhaneCrit').onclick=()=>blade('moon',true);q('#thirdSun').onclick=()=>blade('sun',false,'bonus');q('#thirdMoon').onclick=()=>blade('moon',false,'bonus');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun',false,'bonus');if(!S.selHit)return blade('moon',false,'bonus');blade('sun',false,'bonus')};
+q('#solinar').onclick=()=>blade('sun');q('#selhane').onclick=()=>blade('moon');q('#thirdSun').onclick=()=>blade('sun','bonus');q('#thirdMoon').onclick=()=>blade('moon','bonus');q('#thirdSmart').onclick=()=>{if(!S.solHit)return blade('sun','bonus');if(!S.selHit)return blade('moon','bonus');blade('sun','bonus')};
 function confirmPendingBlade(hit){
  if(!S.pendingHit)return;
- const p=S.pendingHit;S.pendingHit=null;
+ const p=S.pendingHit;S.pendingHit=null;pendingBefore=null;
  const sun=p.which==='sun',name=p.name,target=p.target||'';
  if(!hit){
    if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
-   render();log(`${name}
-Confirmation : RATÉ
-Attaque : ${p.total}`);return;
+   render();return log(`${name}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
  }
- const cursed=curseAppliesTo(target),crit=false;
- const w=roll(1,8,4),elem=roll(1,6);let extra=0,sealDamage=0,parts=[];
+ const cursed=curseAppliesTo(target),crit=!!p.crit;
+ const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,sealDamage=0,parts=[];
  if(cursed){extra+=4;parts.push('Malédiction +4')}
- if(S.shroud){const sh=roll(2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
+ if(S.shroud){const sh=roll(crit?4:2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
  if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
  if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
    const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
    sealDamage=se.total+me.total;fx('eclipse');
- } else {
-   fx(sun?'sun':'moon');
- }
+ } else fx(sun?'sun':'moon');
  const damage=w.total+elem.total+extra;
- addTurnDamage(damage,sun?'Solinar':'Sélhane');
- if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
- const total=damage+sealDamage;
+ addTurnDamage(damage,sun?'Solinar':'Sélhane');if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
+ S.lastCrit=crit;S.lastCritBlade=crit?(sun?'Solinar':'Sélhane'):'';
  render();
- log(`${name}
-Confirmation : TOUCHÉ
-Attaque : ${p.total}
-Dégâts : ${damage}${parts.length?` • ${parts.join(' • ')}`:''}${sealDamage?`
-Sceau d’Éclipse : +${sealDamage}`:''}
-TOTAL : ${total}`);
+ log(`${name}${crit?" — ✦ CRITIQUE":""}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${damage}${parts.length?` • ${parts.join(" • ")}`:""}${sealDamage?`\n✦ Sceau d’Éclipse : +${sealDamage}`:""}\nTOTAL : ${damage+sealDamage}`);
+ if(crit&&S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?"Solinar":"Sélhane"}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
 }
 function eldritchRay(){
  if((S.eldritchCount||0)>=2)return log('❌ Décharge occulte : les 2 rayons du tour ont déjà été lancés.');
- if((S.eldritchCount||0)===0){
-   if(!useMainAction('Décharge occulte','cantrip'))return render();
- }else if(!(S.actionKind==='cantrip'&&S.actionLabel==='Décharge occulte')){
-   return log('❌ Décharge occulte n’est plus disponible ce tour.');
- }
+ const before=snap();
+ if((S.eldritchCount||0)===0){if(!useMainAction('Décharge occulte','cantrip'))return render()}
+ else if(!(S.actionKind==='cantrip'&&S.actionLabel==='Décharge occulte'))return log('❌ Décharge occulte n’est plus disponible ce tour.');
  const ray=(S.eldritchCount||0)+1,cursed=curseApplies(),rr=askNat(`Décharge occulte — rayon ${ray}`,false);
- if(!rr)return log('ℹ️ Jet annulé.');
+ if(!rr){restore(before);return log('ℹ️ Jet annulé.')}
  const attack=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19);
- if(!S.targetAC&&!crit){
-   S.pendingHit={kind:'eldritch',ray,total:attack,nat:rr.nat,detail:rr.detail,crit:false,cursed};
-   render();
-   return log(`🔴 Décharge occulte — Rayon ${ray}\nAttaque : ${rr.detail} +8 = ${attack}\nCA non renseignée : confirme TOUCHÉ ou RATÉ.`);
- }
- const hit=resolveHit(rr.nat,attack,crit);
- S.eldritchCount=ray;
- if(hit){
-   const r=roll(crit?2:1,10,4+(cursed?4:0));
-   addTurnDamage(r.total,`Décharge occulte — rayon ${ray}`);
-   fx('eldritch');
-   render();
-   return log(`🔴 Décharge occulte — Rayon ${ray}\nAttaque ${attack} → TOUCHÉ${crit?' CRITIQUE':''}\nDégâts : ${r.total}${cursed?' • Malédiction +4':''}`);
- }
- render();
- log(`🔴 Décharge occulte — Rayon ${ray}\nAttaque ${attack} → RATÉ`);
+ if(rr.nat===1){S.eldritchCount=ray;render();return log(`🔴 Décharge occulte — Rayon ${ray}\n1 naturel → ÉCHEC AUTOMATIQUE.`)}
+ pendingBefore=before;S.pendingHit={kind:'eldritch',ray,total:attack,nat:rr.nat,detail:rr.detail,crit,cursed,target:S.currentTarget};
+ render();log(`🔴 Décharge occulte — Rayon ${ray}${crit?" — ✦ CRITIQUE":""}\nAttaque : ${rr.detail} +8 = ${attack}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
 }
 function confirmPendingEldritch(hit){
  const p=S.pendingHit;if(!p)return;
- S.pendingHit=null;
+ S.pendingHit=null;pendingBefore=null;
  S.eldritchCount=Math.max(S.eldritchCount||0,p.ray||1);
  if(hit){
-   const r=roll(1,10,4+(p.cursed?4:0));
+   const r=roll(p.crit?2:1,10,4+(p.cursed?4:0));
    addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);
    fx('eldritch');
    render();
-   return log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${r.total}${p.cursed?' • Malédiction +4':''}`);
+   return log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : TOUCHÉ${p.crit?' • CRITIQUE':''}\nAttaque : ${p.total}\nDégâts : ${r.total}${p.cursed?' • Malédiction +4':''}`);
  }
  render();
  log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
@@ -606,8 +630,9 @@ function confirmPendingEldritch(hit){
 function confirmPendingAttack(hit){if(!S.pendingHit)return;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);return confirmPendingBlade(hit)}
 q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(true)};
 q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(false)};
+q('#confirmCancel').onclick=(e)=>{e.stopPropagation();if(!S.pendingHit)return;const before=pendingBefore;S.pendingHit=null;pendingBefore=null;if(before)restore(before);log('↶ Attaque annulée : économie d’action et état du tour restaurés.')};
 
-q('#newTurn').onclick=()=>{push();const summary=endTurnSummary();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';resetEconomy();resetTurnSummary();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`${summary}\n\n↻ Tour ${S.turn} : Action, action bonus et réaction restaurées.`)};
+q('#newTurn').onclick=()=>{if(S.pendingHit)return log('⚠️ Confirme ou annule d’abord l’attaque en cours.');push();const summary=endTurnSummary();S.turn++;S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';resetEconomy();resetTurnSummary();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){S.sealTarget='';S.sealExpiresAfterTurn=0}render();log(`${summary}\n\n↻ Tour ${S.turn} : Action, action bonus et réaction restaurées.`)};
 q('#curseToggle').onclick=()=>{if(!S.curse&&!S.curseReady)return log('❌ Malédiction déjà utilisée depuis le dernier repos court.');if(!S.curse&&!cleanName(S.curseTarget))return log('❌ Renseigne d’abord le nom de la cible maudite.');if(!S.curse&&!useBonusAction('Malédiction',false))return render();push();S.curse=!S.curse;if(S.curse){S.curseReady=false;fx('curse');log(`☠ Malédiction activée sur ${S.curseTarget} : action bonus consommée • +4 dégâts et critique 19–20 uniquement contre cette cible.`)}else log('☠ Malédiction désactivée.');render()};
 q('#shroudToggle').onclick=()=>{if(!S.shroud){if(S.slots<1)return log('❌ Impossible d’activer Voile spirituel : aucun emplacement de pacte N5 restant.');if(!useBonusAction('Voile spirituel',true))return render();push();if(!useSlot())return render();S.shroud=true;startConcentration('Voile spirituel');render();fx('shroud');log('◐ Voile spirituel activé : action bonus consommée • 1 emplacement de pacte N5 dépensé • concentration • +2d8 par touche.');}else{push();S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}render();log('◐ Voile spirituel désactivé. Aucun slot supplémentaire n’est consommé.');}};
 q('#smite').onclick=()=>{if(!useSlot())return;const r=roll(6,8);addTurnDamage(r.total,'Châtiment occulte');S.lastCrit=false;render();fx('occult');log(`☠ Châtiment occulte : ${r.total} dégâts (${r.dice.join('+')}) • cible à terre selon l’effet.`)};
@@ -629,9 +654,10 @@ q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').val
 q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');};
 q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
 q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
-q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{q('#historyPanel').classList.toggle('open');q('#toggleHistory').textContent=q('#historyPanel').classList.contains('open')?'Masquer historique':'Historique'};
+q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{const t=q('.tab[data-tab="journal"]');if(t)t.click()};
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;resetEconomy();resetTurnSummary();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
-q('#clearLog').onclick=()=>{q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show')};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit)q('#kentaro-ribbon').classList.remove('show')};
+q('#clearLog').onclick=()=>{push();S.journal=[];q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.remove('show');save(true)};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit){q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.add('show')}};q('#lastBadge').onclick=()=>{q('#lastBadge').classList.remove('show');q('#kentaro-ribbon').classList.add('show')};
+q('#socialNotes').oninput=e=>{S.socialNotes=e.target.value;save(true)};q('#socialRelations').oninput=e=>{S.socialRelations=e.target.value;save(true)};q('#charmTarget').oninput=e=>{S.charmTarget=e.target.value;save(true)};q('#prepareCharm').onclick=()=>{push();S.charmTarget=q('#charmTarget').value.trim();S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};q('#resetCharm').onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
 render();load(true);
 })();
 </script>
