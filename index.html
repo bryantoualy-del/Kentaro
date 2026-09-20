@@ -376,7 +376,14 @@ function restore(x){Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,x);re
 function save(silent=true){try{localStorage.setItem(SAVE,JSON.stringify(S));q('#saveStatus').textContent='Sauvegarde locale : état enregistré sur cet appareil.';if(!silent)log('💾 Partie sauvegardée.')}catch(e){if(!silent)log('❌ Sauvegarde locale indisponible.')}}
 function load(silent=true){try{const x=JSON.parse(localStorage.getItem(SAVE)||'null');if(x){Object.assign(S,x);render();if(!silent)log('↩ Sauvegarde chargée.')}}catch(e){}}
 function fx(type){
- if(window.KentaroFX?.play)window.KentaroFX.play(type);
+ const stage=q('#kentaroFxStage');
+ if(stage){
+   clearTimeout(stage._fxTimer);stage.className='';void stage.offsetWidth;
+   stage.className=type==='eclipse'?'play fx-eclipse':'play kind-'+type;
+   stage.dataset.lastFx=type;
+   const stageDuration=type==='door'?2200:type==='lazarus'?1500:type==='sun'||type==='moon'?1050:1100;
+   stage._fxTimer=setTimeout(()=>stage.className='',stageDuration);
+ }
  const o=q('#fxOverlay'); if(!o)return;
  o.className=''; void o.offsetWidth; o.className='fx-'+type;
  if(type==='synaptic'){const shell=q('#app');if(shell){shell.classList.remove('synaptic-hit');void shell.offsetWidth;shell.classList.add('synaptic-hit');clearTimeout(shell._synTimer);shell._synTimer=setTimeout(()=>shell.classList.remove('synaptic-hit'),460)}}
