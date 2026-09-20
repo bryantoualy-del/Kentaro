@@ -582,8 +582,8 @@ function castSpellButton(b){
  undo.push(before);if(undo.length>40)undo.shift();
  if(!useSlot())return;if(b.dataset.conc)startConcentration(name);
  if(b.dataset.agathys){S.agathys=true;S.agathysDamage=25;setTempHp(25,"Armure d’Agathys")}
- const fxBySpell={'Porte dimensionnelle':'door','Perturbations synaptiques':'synaptic','Ombre d’égarement':'shadow','Voile spirituel':'shroud'};
- if(fxBySpell[name])fx(fxBySpell[name]);
+ const fxBySpell={'Armure d’Agathys':'agathys','Maléfice':'hex','Foulée brumeuse':'misty','Invisibilité':'invisible','Voile spirituel':'shroud','Porte dimensionnelle':'door','Ombre d’égarement':'shadow','Bannissement':'banish','Perturbations synaptiques':'synaptic'};
+ fx(fxBySpell[name]||'spell');
  render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
 }
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
@@ -676,8 +676,8 @@ render();load(true);
 })();
 </script>
 <script src="kentaro-modern-ui.js?v=5"></script>
-<script src="kentaro-icons.js?v=1"></script>
+<script src="kentaro-icons.js?v=2"></script>
 <script src="kentaro-social.js?v=2"></script>
 <script src="kentaro-journal.js?v=2"></script>
-<script src="kentaro-fx.js?v=4"></script>
+<script src="kentaro-fx.js?v=5"></script>
 </body></html>
