@@ -304,7 +304,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
     <input id="inventoryEditIcon" type="hidden" value="generic">
     <label>Nom<input id="inventoryEditName" required maxlength="80" placeholder="Nom de l’objet"></label>
     <div class="inventory-editor-grid"><label>Catégorie<select id="inventoryEditCategory"><option value="heritage">Héritage</option><option value="social">Outil social</option><option value="travel">Voyage</option><option value="memory">Mémoire</option><option value="consumable">Consommable</option><option value="misc">Divers</option></select></label><label>Quantité<input id="inventoryEditQty" type="number" min="0" max="99" value="1"></label></div>
-    <fieldset class="inventory-icon-field"><legend>Icône</legend><div id="inventoryIconPicker" class="inventory-icon-picker" role="radiogroup" aria-label="Choisir une icône"></div></fieldset>
+    <fieldset class="inventory-icon-field"><legend>Icône</legend><div id="inventoryIconPicker" class="inventory-icon-picker" role="radiogroup" aria-label="Choisir une icône"></div><div class="inventory-icon-tools"><button id="inventoryIconUpload" type="button">＋ Importer une icône</button><button id="inventoryIconRemove" class="utility-danger" type="button" hidden>Supprimer l’icône</button><input id="inventoryIconFile" type="file" accept="image/png,image/jpeg,image/webp" hidden><small>PNG, JPEG ou WebP • converti en WebP 256 × 256 • image entière conservée</small></div></fieldset>
     <label>Notes<textarea id="inventoryEditNotes" maxlength="500" placeholder="Usage, provenance, promesse ou détail à retenir…"></textarea></label>
     <div class="inventory-editor-actions"><button type="button" id="inventoryCancel">Annuler</button><button id="inventorySave" value="default" class="btn-gold">Enregistrer</button></div>
   </form>
@@ -736,7 +736,7 @@ render();load(true);
 </script>
 <script src="kentaro-modern-ui.js?v=8"></script>
 <script src="kentaro-icons.js?v=3"></script>
-<script src="kentaro-inventory.js?v=3"></script>
+<script src="kentaro-inventory.js?v=4"></script>
 <script src="kentaro-social.js?v=3"></script>
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-fx.js?v=8"></script>
