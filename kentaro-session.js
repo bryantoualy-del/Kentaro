@@ -6,7 +6,7 @@ const nowTitle=()=>`Session du ${new Date().toLocaleDateString('fr-FR')}`;
 const blank=start=>({id:`session-${Date.now()}`,title:nowTitle(),startedAt:new Date().toISOString(),startIndex:start,notes:'',highlights:[]});
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1)return x}catch(_){}return{version:1,active:blank(0),archives:[]}}
 let data=load();if(!data.active)data.active=blank(0);if(!Array.isArray(data.archives))data.archives=[];
-const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));document.dispatchEvent(new CustomEvent('kentaro-session-updated'))};
 const journal=()=>Array.isArray(api.state.journal)?api.state.journal.map(String):[];
 const activeEntries=()=>journal().slice(Math.min(data.active.startIndex||0,journal().length));
 function social(){try{const s=JSON.parse(localStorage.getItem('kentaro-social-v2'))||{};return{relations:Array.isArray(s.relations)?s.relations:[],memories:Array.isArray(s.memories)?s.memories:[]}}catch(_){return{relations:[],memories:[]}}}
@@ -55,6 +55,7 @@ function download(text,name){const a=document.createElement('a');a.href=URL.crea
 function showSummary(){const text=summary(data.active);preview.hidden=false;preview.querySelector('pre').textContent=text;preview.scrollIntoView({behavior:'smooth',block:'nearest'});return text}
 title.oninput=()=>{data.active.title=title.value;save()};notes.oninput=()=>{data.active.notes=notes.value;save()};
 $('#addMark').onclick=()=>{const text=markText.value.trim();if(!text)return;data.active.highlights.push({type:$('#markType').value,text,createdAt:new Date().toISOString()});markText.value='';save();render()};
+document.addEventListener('kentaro-session-add',e=>{const x=e.detail||{},text=String(x.text||'').trim();if(!text)return;data.active.highlights.push({type:String(x.type||'Événement'),text,createdAt:new Date().toISOString()});save();render()});
 markText.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#addMark').click()}};
 $('#markList').onclick=e=>{const b=e.target.closest('[data-remove]');if(!b)return;data.active.highlights.splice(Number(b.dataset.remove),1);save();render()};
 $('#makeSummary').onclick=showSummary;$('#copySummary').onclick=e=>copy(preview.querySelector('pre').textContent,e.currentTarget);$('#copyAI').onclick=e=>copy(aiPacket(),e.currentTarget);$('#exportSummary').onclick=()=>download(showSummary(),`${(data.active.title||'session-kentaro').replace(/[^a-z0-9à-ÿ]+/gi,'-').toLowerCase()}.md`);
