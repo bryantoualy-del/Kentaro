@@ -27,6 +27,7 @@ const style=d.createElement('style');style.id='kentaro-inventory-style';style.te
 @media(min-width:768px) and (max-width:1100px){.inventory-blades,.inventory-ring{grid-column:span 7}.inventory-vision,.inventory-minor-stack{grid-column:span 5}}
 @media(prefers-reduced-motion:reduce){.inventory-chevron{transition:none}}
 `;d.head.appendChild(style);
+let editorIconKey='generic';
 
 function freshState(){const items={};defaults.forEach(x=>items[x.id]={qty:1,notes:''});return{version:2,view:'linked',items,custom:[],customIcons:[]}}
 function normalize(){
@@ -75,16 +76,16 @@ function render(){
 }
 function openEditor(id=''){
  const dialog=$('#inventoryEditor'),form=$('#inventoryForm');if(!dialog||!form)return;
- form.reset();$('#inventoryEditId').value=id;$('#inventoryEditorTitle').textContent=id?'Modifier l’objet':'Ajouter un objet';$('#inventoryEditQty').value='1';$('#inventoryEditIcon').value='generic';
- if(id){const found=findItem(id);if(!found||found.fixed)return;$('#inventoryEditName').value=found.entry.name||'';$('#inventoryEditCategory').value=found.entry.category||'misc';$('#inventoryEditQty').value=Math.max(0,Number(found.entry.qty)||0);$('#inventoryEditNotes').value=found.entry.notes||'';$('#inventoryEditIcon').value=getIconChoice(found.entry.iconKey).key}
+ form.reset();$('#inventoryEditId').value=id;$('#inventoryEditorTitle').textContent=id?'Modifier l’objet':'Ajouter un objet';$('#inventoryEditQty').value='1';editorIconKey='generic';$('#inventoryEditIcon').value=editorIconKey;
+ if(id){const found=findItem(id);if(!found||found.fixed)return;$('#inventoryEditName').value=found.entry.name||'';$('#inventoryEditCategory').value=found.entry.category||'misc';$('#inventoryEditQty').value=Math.max(0,Number(found.entry.qty)||0);$('#inventoryEditNotes').value=found.entry.notes||'';editorIconKey=getIconChoice(found.entry.iconKey).key;$('#inventoryEditIcon').value=editorIconKey}
  renderIconPicker();
  if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
  setTimeout(()=>$('#inventoryEditName')?.focus(),30);
 }
 function renderIconPicker(){
- const picker=$('#inventoryIconPicker');if(!picker)return;const selected=getIconChoice($('#inventoryEditIcon')?.value).key;
+ const picker=$('#inventoryIconPicker');if(!picker)return;const selected=getIconChoice(editorIconKey).key;
  picker.innerHTML=allIconChoices().map(icon=>`<button type="button" class="inventory-icon-choice${icon.key===selected?' selected':''}${icon.custom?' custom':''}" data-icon-key="${esc(icon.key)}" role="radio" aria-checked="${icon.key===selected}">${icon.icon?`<img src="${esc(icon.icon)}" alt="">`:`<span class="icon-glyph">${esc(icon.glyph)}</span>`}<small>${esc(icon.label)}</small></button>`).join('');
- picker.querySelectorAll('[data-icon-key]').forEach(button=>button.addEventListener('click',()=>{$('#inventoryEditIcon').value=button.dataset.iconKey;renderIconPicker()}));
+ picker.querySelectorAll('[data-icon-key]').forEach(button=>button.addEventListener('click',()=>{editorIconKey=button.dataset.iconKey;$('#inventoryEditIcon').value=editorIconKey;renderIconPicker()}));
  const remove=$('#inventoryIconRemove');if(remove)remove.hidden=!getIconChoice(selected).custom;
 }
 function loadImage(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Cette image ne peut pas être lue.'))};img.src=url})}
@@ -95,12 +96,12 @@ async function importCustomIcon(file){
  if(normalize().customIcons.length>=20)throw new Error('La limite est de 20 icônes personnelles. Supprime une ancienne icône avant de continuer.');
  const img=await loadImage(file);let dataUrl=canvasIcon(img,256,.84);if(dataUrl.length>180000)dataUrl=canvasIcon(img,192,.72);if(dataUrl.length>180000)throw new Error('L’image reste trop lourde après compression. Choisis un fichier plus simple.');
  const key=`local-${Date.now().toString(36)}`,label=(file.name.replace(/\.[^.]+$/,'').trim()||'Icône personnelle').slice(0,36);
- api.push();normalize().customIcons.push({key,label,dataUrl});$('#inventoryEditIcon').value=key;api.save(true);renderIconPicker();api.log(`✦ Icône « ${label} » ajoutée au catalogue local et incluse dans les prochains exports.`);
+ api.push();normalize().customIcons.push({key,label,dataUrl});editorIconKey=key;$('#inventoryEditIcon').value=key;api.save(true);renderIconPicker();api.log(`✦ Icône « ${label} » ajoutée au catalogue local et incluse dans les prochains exports.`);
 }
 function removeSelectedCustomIcon(){
- const key=$('#inventoryEditIcon').value,icon=getIconChoice(key);if(!icon.custom)return;
+ const key=editorIconKey,icon=getIconChoice(key);if(!icon.custom)return;
  if(!confirm(`Supprimer l’icône « ${icon.label} » du catalogue ? Les objets qui l’utilisent reprendront l’icône Éclipse.`))return;
- api.push();const inv=normalize();inv.customIcons=inv.customIcons.filter(x=>x.key!==key);inv.custom.forEach(item=>{if(item.iconKey===key)item.iconKey='generic'});$('#inventoryEditIcon').value='generic';api.save(true);renderIconPicker();api.log(`✦ Icône « ${icon.label} » supprimée du catalogue local.`);
+ api.push();const inv=normalize();inv.customIcons=inv.customIcons.filter(x=>x.key!==key);inv.custom.forEach(item=>{if(item.iconKey===key)item.iconKey='generic'});editorIconKey='generic';$('#inventoryEditIcon').value=editorIconKey;api.save(true);renderIconPicker();api.log(`✦ Icône « ${icon.label} » supprimée du catalogue local.`);
 }
 function exportInventory(){
  const payload={kind:'kentaro-inventory',version:2,exportedAt:new Date().toISOString(),inventory:JSON.parse(JSON.stringify(normalize()))};
@@ -133,7 +134,7 @@ $('#inventoryEditor .inventory-close')?.addEventListener('click',e=>{e.preventDe
 $('#inventoryCancel')?.addEventListener('click',()=>$('#inventoryEditor').close());
 $('#inventoryForm')?.addEventListener('submit',e=>{
  e.preventDefault();const id=$('#inventoryEditId').value,name=$('#inventoryEditName').value.trim();if(!name)return;
- const data={name,category:$('#inventoryEditCategory').value,qty:Math.max(0,Math.min(99,Number($('#inventoryEditQty').value)||0)),notes:$('#inventoryEditNotes').value.trim(),iconKey:getIconChoice($('#inventoryEditIcon').value).key};
+ const data={name,category:$('#inventoryEditCategory').value,qty:Math.max(0,Math.min(99,Number($('#inventoryEditQty').value)||0)),notes:$('#inventoryEditNotes').value.trim(),iconKey:getIconChoice(editorIconKey).key};
  if(id){const found=findItem(id);if(!found||found.fixed)return;commit(`⌁ ${name} mis à jour dans l’inventaire.`,()=>Object.assign(found.entry,data))}
  else{const newId=`custom-${Date.now().toString(36)}`;commit(`⌁ ${name} ajouté à l’inventaire.`,()=>normalize().custom.push({id:newId,description:'Objet ajouté au registre de Kentaro.',...data}))}
  $('#inventoryEditor').close();
