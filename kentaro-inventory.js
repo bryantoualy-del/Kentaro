@@ -27,9 +27,9 @@ const style=d.createElement('style');style.id='kentaro-inventory-style';style.te
 @media(min-width:768px) and (max-width:1100px){.inventory-blades,.inventory-ring{grid-column:span 7}.inventory-vision,.inventory-minor-stack{grid-column:span 5}}
 @media(prefers-reduced-motion:reduce){.inventory-chevron{transition:none}}
 `;d.head.appendChild(style);
-let editorIconKey='generic';
+let editorIconKey='generic',editorFixed=false,editorOriginal=null;
 
-function freshState(){const items={};defaults.forEach(x=>items[x.id]={qty:1,notes:''});return{version:2,view:'linked',items,custom:[],customIcons:[]}}
+function freshState(){const items={};defaults.forEach(x=>items[x.id]={qty:1,notes:'',iconKey:'original'});return{version:3,view:'linked',items,custom:[],customIcons:[]}}
 function normalize(){
  const s=api.state;
  if(!s.inventory||typeof s.inventory!=='object')s.inventory=freshState();
@@ -37,14 +37,18 @@ function normalize(){
  defaults.forEach(x=>{if(!s.inventory.items[x.id])s.inventory.items[x.id]={qty:1,notes:''}});
  if(!Array.isArray(s.inventory.custom))s.inventory.custom=[];
  if(!Array.isArray(s.inventory.customIcons))s.inventory.customIcons=[];
- s.inventory.version=2;
+ s.inventory.version=3;
  if(!['linked','objects'].includes(s.inventory.view))s.inventory.view='linked';
  return s.inventory;
 }
 const esc=x=>String(x??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const allIconChoices=()=>iconChoices.concat((api.state.inventory?.customIcons||[]).map(x=>({key:x.key,label:x.label,icon:x.dataUrl,custom:true})));
 const getIconChoice=key=>allIconChoices().find(x=>x.key===key)||iconChoices[0];
-const allItems=()=>defaults.map(x=>({...x,...normalize().items[x.id],fixed:true})).concat(normalize().custom.map(x=>{const visual=getIconChoice(x.iconKey);return{...x,icon:visual.icon||'',glyph:visual.glyph||'✦',fixed:false}}));
+function fixedVisual(base,entry){
+ if(!entry.iconKey||entry.iconKey==='original')return{icon:base.icon||'',glyph:base.glyph||'✦'};
+ const visual=getIconChoice(entry.iconKey);return{icon:visual.icon||'',glyph:visual.glyph||'✦'};
+}
+const allItems=()=>defaults.map(x=>{const entry=normalize().items[x.id],visual=fixedVisual(x,entry);return{...x,...entry,...visual,fixed:true}}).concat(normalize().custom.map(x=>{const visual=getIconChoice(x.iconKey);return{...x,icon:visual.icon||'',glyph:visual.glyph||'✦',fixed:false}}));
 function setView(view,persist=true){
  const inv=normalize();inv.view=view;
  $$('[data-inventory-view]').forEach(b=>{const on=b.dataset.inventoryView===view;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
@@ -59,7 +63,7 @@ function renderObjects(){
  const items=allItems().filter(x=>(category==='all'||x.category===category)&&(!term||`${x.name} ${x.description||''} ${x.notes||''}`.toLowerCase().includes(term)));
  const owned=allItems().filter(x=>Number(x.qty)>0).length,count=$('#inventoryObjectCount');if(count)count.textContent=`${owned} objet${owned>1?'s':''} recensé${owned>1?'s':''}`;
  if(!items.length){list.innerHTML='<div class="inventory-empty">Aucun objet ne correspond à cette recherche.</div>';return}
- list.innerHTML=items.map(x=>`<details class="inventory-object" data-inventory-id="${esc(x.id)}"><summary><span class="inventory-object-icon">${x.icon?`<img src="${esc(x.icon)}" alt="">`:esc(x.glyph||'✦')}</span><span class="inventory-object-name"><b>${esc(x.name)}</b><small>${esc(categories[x.category]||'Divers')}</small></span><span class="inventory-qty">× ${Math.max(0,Number(x.qty)||0)}</span><span class="inventory-chevron">⌄</span></summary><div class="inventory-object-body"><p>${esc(x.description||'Objet ajouté au registre de Kentaro.')}</p><div class="inventory-object-actions"><span class="qty-label">Quantité : <b>${Math.max(0,Number(x.qty)||0)}</b></span><button type="button" data-inventory-dec aria-label="Retirer une unité">−</button><button type="button" data-inventory-inc aria-label="Ajouter une unité">＋</button>${x.fixed?'':`<button type="button" data-inventory-edit>Modifier</button><button type="button" data-inventory-delete class="utility-danger">Supprimer</button>`}</div><textarea class="inventory-note" maxlength="500" placeholder="Note personnelle, usage ou provenance…">${esc(x.notes||'')}</textarea></div></details>`).join('');
+ list.innerHTML=items.map(x=>`<details class="inventory-object" data-inventory-id="${esc(x.id)}"><summary><span class="inventory-object-icon">${x.icon?`<img src="${esc(x.icon)}" alt="">`:esc(x.glyph||'✦')}</span><span class="inventory-object-name"><b>${esc(x.name)}</b><small>${esc(categories[x.category]||'Divers')}</small></span><span class="inventory-qty">× ${Math.max(0,Number(x.qty)||0)}</span><span class="inventory-chevron">⌄</span></summary><div class="inventory-object-body"><p>${esc(x.description||'Objet ajouté au registre de Kentaro.')}</p><div class="inventory-object-actions"><span class="qty-label">Quantité : <b>${Math.max(0,Number(x.qty)||0)}</b></span><button type="button" data-inventory-dec aria-label="Retirer une unité">−</button><button type="button" data-inventory-inc aria-label="Ajouter une unité">＋</button><button type="button" data-inventory-edit>${x.fixed?'Modifier l’apparence':'Modifier'}</button>${x.fixed?'':`<button type="button" data-inventory-delete class="utility-danger">Supprimer</button>`}</div><textarea class="inventory-note" maxlength="500" placeholder="Note personnelle, usage ou provenance…">${esc(x.notes||'')}</textarea></div></details>`).join('');
  $$('.inventory-object').forEach(card=>{
   const id=card.dataset.inventoryId;
   card.querySelector('[data-inventory-dec]')?.addEventListener('click',()=>{const found=findItem(id);if(!found)return;commit(`⌁ Inventaire : ${found.base.name} • quantité ${Math.max(0,(Number(found.entry.qty)||0)-1)}.`,()=>found.entry.qty=Math.max(0,(Number(found.entry.qty)||0)-1))});
@@ -76,17 +80,18 @@ function render(){
 }
 function openEditor(id=''){
  const dialog=$('#inventoryEditor'),form=$('#inventoryForm');if(!dialog||!form)return;
- form.reset();$('#inventoryEditId').value=id;$('#inventoryEditorTitle').textContent=id?'Modifier l’objet':'Ajouter un objet';$('#inventoryEditQty').value='1';editorIconKey='generic';$('#inventoryEditIcon').value=editorIconKey;
- if(id){const found=findItem(id);if(!found||found.fixed)return;$('#inventoryEditName').value=found.entry.name||'';$('#inventoryEditCategory').value=found.entry.category||'misc';$('#inventoryEditQty').value=Math.max(0,Number(found.entry.qty)||0);$('#inventoryEditNotes').value=found.entry.notes||'';editorIconKey=getIconChoice(found.entry.iconKey).key;$('#inventoryEditIcon').value=editorIconKey}
+ form.reset();$('#inventoryEditId').value=id;$('#inventoryEditorTitle').textContent=id?'Modifier l’objet':'Ajouter un objet';$('#inventoryEditQty').value='1';editorIconKey='generic';editorFixed=false;editorOriginal=null;$('#inventoryEditIcon').value=editorIconKey;
+ const nameInput=$('#inventoryEditName'),categoryInput=$('#inventoryEditCategory');nameInput.disabled=false;categoryInput.disabled=false;
+ if(id){const found=findItem(id);if(!found)return;editorFixed=found.fixed;editorOriginal=found.fixed?{icon:found.base.icon||'',glyph:found.base.glyph||'✦'}:null;nameInput.value=found.fixed?found.base.name:(found.entry.name||'');categoryInput.value=found.fixed?found.base.category:(found.entry.category||'misc');nameInput.disabled=found.fixed;categoryInput.disabled=found.fixed;$('#inventoryEditQty').value=Math.max(0,Number(found.entry.qty)||0);$('#inventoryEditNotes').value=found.entry.notes||'';editorIconKey=found.fixed?(found.entry.iconKey||'original'):getIconChoice(found.entry.iconKey).key;$('#inventoryEditIcon').value=editorIconKey}
  renderIconPicker();
  if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
  setTimeout(()=>$('#inventoryEditName')?.focus(),30);
 }
 function renderIconPicker(){
- const picker=$('#inventoryIconPicker');if(!picker)return;const selected=getIconChoice(editorIconKey).key;
- picker.innerHTML=allIconChoices().map(icon=>`<button type="button" class="inventory-icon-choice${icon.key===selected?' selected':''}${icon.custom?' custom':''}" data-icon-key="${esc(icon.key)}" role="radio" aria-checked="${icon.key===selected}">${icon.icon?`<img src="${esc(icon.icon)}" alt="">`:`<span class="icon-glyph">${esc(icon.glyph)}</span>`}<small>${esc(icon.label)}</small></button>`).join('');
+ const picker=$('#inventoryIconPicker');if(!picker)return;const choices=editorFixed?[{key:'original',label:'Origine',...(editorOriginal||{glyph:'✦'})},...allIconChoices()]:allIconChoices();const selected=editorFixed&&editorIconKey==='original'?'original':getIconChoice(editorIconKey).key;
+ picker.innerHTML=choices.map(icon=>`<button type="button" class="inventory-icon-choice${icon.key===selected?' selected':''}${icon.custom?' custom':''}" data-icon-key="${esc(icon.key)}" role="radio" aria-checked="${icon.key===selected}">${icon.icon?`<img src="${esc(icon.icon)}" alt="">`:`<span class="icon-glyph">${esc(icon.glyph)}</span>`}<small>${esc(icon.label)}</small></button>`).join('');
  picker.querySelectorAll('[data-icon-key]').forEach(button=>button.addEventListener('click',()=>{editorIconKey=button.dataset.iconKey;$('#inventoryEditIcon').value=editorIconKey;renderIconPicker()}));
- const remove=$('#inventoryIconRemove');if(remove)remove.hidden=!getIconChoice(selected).custom;
+ const remove=$('#inventoryIconRemove');if(remove)remove.hidden=selected==='original'||!getIconChoice(selected).custom;
 }
 function loadImage(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Cette image ne peut pas être lue.'))};img.src=url})}
 function canvasIcon(img,size,quality){const canvas=d.createElement('canvas');canvas.width=canvas.height=size;const ctx=canvas.getContext('2d'),pad=Math.round(size*.07),scale=Math.min((size-pad*2)/img.naturalWidth,(size-pad*2)/img.naturalHeight),w=img.naturalWidth*scale,h=img.naturalHeight*scale;ctx.clearRect(0,0,size,size);ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);return canvas.toDataURL('image/webp',quality)}
@@ -100,11 +105,11 @@ async function importCustomIcon(file){
 }
 function removeSelectedCustomIcon(){
  const key=editorIconKey,icon=getIconChoice(key);if(!icon.custom)return;
- if(!confirm(`Supprimer l’icône « ${icon.label} » du catalogue ? Les objets qui l’utilisent reprendront l’icône Éclipse.`))return;
- api.push();const inv=normalize();inv.customIcons=inv.customIcons.filter(x=>x.key!==key);inv.custom.forEach(item=>{if(item.iconKey===key)item.iconKey='generic'});editorIconKey='generic';$('#inventoryEditIcon').value=editorIconKey;api.save(true);renderIconPicker();api.log(`✦ Icône « ${icon.label} » supprimée du catalogue local.`);
+ if(!confirm(`Supprimer l’icône « ${icon.label} » du catalogue ? Les objets qui l’utilisent reprendront leur icône par défaut.`))return;
+ api.push();const inv=normalize();inv.customIcons=inv.customIcons.filter(x=>x.key!==key);inv.custom.forEach(item=>{if(item.iconKey===key)item.iconKey='generic'});Object.values(inv.items).forEach(item=>{if(item.iconKey===key)item.iconKey='original'});editorIconKey=editorFixed?'original':'generic';$('#inventoryEditIcon').value=editorIconKey;api.save(true);renderIconPicker();api.render();api.log(`✦ Icône « ${icon.label} » supprimée du catalogue local.`);
 }
 function exportInventory(){
- const payload={kind:'kentaro-inventory',version:2,exportedAt:new Date().toISOString(),inventory:JSON.parse(JSON.stringify(normalize()))};
+ const payload={kind:'kentaro-inventory',version:3,exportedAt:new Date().toISOString(),inventory:JSON.parse(JSON.stringify(normalize()))};
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=d.createElement('a');
  link.href=url;link.download=`kentaro-inventaire-${new Date().toISOString().slice(0,10)}.json`;d.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  api.log('↓ Inventaire exporté : objets, quantités et notes sont réunis dans le fichier JSON.');
@@ -113,9 +118,10 @@ function cleanImportedInventory(raw){
  const source=raw?.kind==='kentaro-inventory'?raw.inventory:raw?.inventory||raw;
  if(!source||typeof source!=='object'||!source.items||!Array.isArray(source.custom))throw new Error('Format d’inventaire non reconnu.');
  const clean=freshState();clean.view=['linked','objects'].includes(source.view)?source.view:'objects';
- defaults.forEach(item=>{const value=source.items[item.id]||{};clean.items[item.id]={qty:Math.max(0,Math.min(99,Number(value.qty)||0)),notes:String(value.notes||'').slice(0,500)}});
  clean.customIcons=(Array.isArray(source.customIcons)?source.customIcons:[]).slice(0,20).map((icon,index)=>({key:`local-import-${Date.now().toString(36)}-${index}`,sourceKey:String(icon?.key||''),label:String(icon?.label||'Icône personnelle').slice(0,36),dataUrl:String(icon?.dataUrl||'')})).filter(icon=>/^data:image\/(png|jpeg|webp);base64,/i.test(icon.dataUrl)&&icon.dataUrl.length<=180000);
  const importedKeys=new Map(clean.customIcons.map(icon=>[icon.sourceKey,icon.key])),staticKeys=new Set(iconChoices.map(icon=>icon.key));clean.customIcons.forEach(icon=>delete icon.sourceKey);
+ const importedIconKey=value=>{const requested=String(value||'original');return requested==='original'?'original':(staticKeys.has(requested)?requested:(importedKeys.get(requested)||'original'))};
+ defaults.forEach(item=>{const value=source.items[item.id]||{};clean.items[item.id]={qty:Math.max(0,Math.min(99,Number(value.qty)||0)),notes:String(value.notes||'').slice(0,500),iconKey:importedIconKey(value.iconKey)}});
  clean.custom=source.custom.slice(0,200).map((item,index)=>{const requested=String(item?.iconKey||'generic'),iconKey=staticKeys.has(requested)?requested:(importedKeys.get(requested)||'generic');return{id:`import-${Date.now().toString(36)}-${index}`,name:String(item?.name||'').trim().slice(0,80),category:categories[item?.category]?item.category:'misc',qty:Math.max(0,Math.min(99,Number(item?.qty)||0)),notes:String(item?.notes||'').slice(0,500),iconKey,description:String(item?.description||'Objet importé dans le registre de Kentaro.').slice(0,300)}}).filter(item=>item.name);
  return clean;
 }
@@ -133,9 +139,10 @@ $('#inventoryIconUpload')?.addEventListener('click',()=>$('#inventoryIconFile')?
 $('#inventoryEditor .inventory-close')?.addEventListener('click',e=>{e.preventDefault();$('#inventoryEditor').close()});
 $('#inventoryCancel')?.addEventListener('click',()=>$('#inventoryEditor').close());
 $('#inventoryForm')?.addEventListener('submit',e=>{
- e.preventDefault();const id=$('#inventoryEditId').value,name=$('#inventoryEditName').value.trim();if(!name)return;
- const data={name,category:$('#inventoryEditCategory').value,qty:Math.max(0,Math.min(99,Number($('#inventoryEditQty').value)||0)),notes:$('#inventoryEditNotes').value.trim(),iconKey:getIconChoice(editorIconKey).key};
- if(id){const found=findItem(id);if(!found||found.fixed)return;commit(`⌁ ${name} mis à jour dans l’inventaire.`,()=>Object.assign(found.entry,data))}
+ e.preventDefault();const id=$('#inventoryEditId').value,found=id?findItem(id):null,name=found?.fixed?found.base.name:$('#inventoryEditName').value.trim();if(!name)return;
+ const selectedIcon=editorFixed&&editorIconKey==='original'?'original':getIconChoice(editorIconKey).key;
+ const data={name,category:found?.fixed?found.base.category:$('#inventoryEditCategory').value,qty:Math.max(0,Math.min(99,Number($('#inventoryEditQty').value)||0)),notes:$('#inventoryEditNotes').value.trim(),iconKey:selectedIcon};
+ if(id){if(!found)return;commit(`⌁ ${name} mis à jour dans l’inventaire.`,()=>found.fixed?Object.assign(found.entry,{qty:data.qty,notes:data.notes,iconKey:data.iconKey}):Object.assign(found.entry,data))}
  else{const newId=`custom-${Date.now().toString(36)}`;commit(`⌁ ${name} ajouté à l’inventaire.`,()=>normalize().custom.push({id:newId,description:'Objet ajouté au registre de Kentaro.',...data}))}
  $('#inventoryEditor').close();
 });
