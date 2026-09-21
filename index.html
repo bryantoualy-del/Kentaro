@@ -291,6 +291,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
     <label class="inventory-search"><span>⌕</span><input id="inventorySearch" type="search" placeholder="Rechercher un objet…" autocomplete="off"></label>
     <select id="inventoryCategory" aria-label="Filtrer les objets"><option value="all">Toutes les catégories</option><option value="heritage">Héritage</option><option value="social">Outils sociaux</option><option value="travel">Voyage</option><option value="memory">Mémoire</option><option value="consumable">Consommables</option><option value="misc">Divers</option></select>
     <button id="inventoryAdd" class="btn-gold" type="button">＋ Ajouter</button>
+    <div class="inventory-transfer"><button id="inventoryExport" type="button">↓ Exporter</button><button id="inventoryImport" type="button">↑ Importer</button><input id="inventoryImportFile" type="file" accept="application/json,.json" hidden></div>
   </div>
   <div class="inventory-summary"><b id="inventoryObjectCount">0 objet</b><span>Les détails et quantités sont enregistrés sur cet appareil.</span></div>
   <div id="inventoryObjectList" class="inventory-object-list"></div>
@@ -733,7 +734,7 @@ render();load(true);
 </script>
 <script src="kentaro-modern-ui.js?v=8"></script>
 <script src="kentaro-icons.js?v=3"></script>
-<script src="kentaro-inventory.js?v=1"></script>
+<script src="kentaro-inventory.js?v=2"></script>
 <script src="kentaro-social.js?v=3"></script>
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-fx.js?v=8"></script>
