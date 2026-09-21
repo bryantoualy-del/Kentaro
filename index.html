@@ -203,7 +203,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/13_Foulee_brumeuse.webp" alt="" aria-hidden="true"><div class="action-title">Foulée brumeuse</div><div class="meta">Action bonus • mobilité.</div><button data-spell="Foulée brumeuse">Lancer</button></article>
 <article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/14_Invisibilite.webp" alt="" aria-hidden="true"><div class="action-title">Invisibilité</div><div class="meta">Concentration.</div><button data-spell="Invisibilité" data-conc="1">Lancer</button></article>
 <article class="card violet art-card spell-art-card"><img class="item-art" src="assets/icons/15_Voile_spirituel.webp" alt="" aria-hidden="true"><div class="action-title">Voile spirituel</div><div class="meta">Concentration • setup de gros combat • avec un slot N5, ajoute 2d8 à chaque attaque qui touche.</div><button data-spell="Voile spirituel" data-conc="1" data-shroud="1">Lancer</button></article>
-<article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/10_Porte_dimensionnelle.webp?v=2" alt="" aria-hidden="true"><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
+<article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/10_Porte_dimensionnelle.webp?v=3" alt="" aria-hidden="true"><div class="action-title">Porte dimensionnelle</div><div class="meta">Téléportation longue portée.</div><button data-spell="Porte dimensionnelle">Lancer</button></article>
 <article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/16_Ombre_egarement.webp" alt="" aria-hidden="true"><div class="action-title">Ombre d’égarement</div><div class="meta">Sort connu niveau 4.</div><button data-spell="Ombre d’égarement">Lancer</button></article>
 <article class="card art-card spell-art-card"><img class="item-art" src="assets/icons/17_Bannissement.webp" alt="" aria-hidden="true"><div class="action-title">Bannissement</div><div class="meta">JS CHA DD16 • neutraliser une cible quand le corps-à-corps est défavorable.</div><button data-spell="Bannissement" data-conc="1">Lancer</button></article>
 <article class="card violet art-card spell-art-card synaptic-card"><img class="item-art" src="assets/icons/18_Perturbations_synaptiques.webp" alt="" aria-hidden="true">
@@ -235,7 +235,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <div class="meta">Le DD de concentration est calculé automatiquement : max(10, moitié des dégâts).</div>
 </article>
 
-<article class="card art-card"><img class="item-art" src="assets/icons/06_Tombeau_de_Lazarus.webp?v=2" alt=""><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
+<article class="card art-card"><img class="item-art" src="assets/icons/06_Tombeau_de_Lazarus.webp?v=3" alt=""><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
 
 <article class="card"><div class="action-title">Résistances & vulnérabilité</div><div class="meta"><span class="tag">Résistance nécrotique</span><span class="tag">Avantage poison/maladies</span><span class="tag note-red">Vulnérabilité radiant</span></div></article>
 
@@ -323,7 +323,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </section>
 
 <section class="panel" data-panel="spectre"><div class="grid two spectre-layout">
-<article class="card art-card" id="spectreCard"><img class="item-art" src="assets/icons/07_Spectre_occult.webp?v=2" alt=""><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
+<article class="card art-card" id="spectreCard"><img class="item-art" src="assets/icons/07_Spectre_occult.webp?v=3" alt=""><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
 <div class="spectre-grid"><div class="spectre-stat">État<br><b id="spectreState">Inactif</b></div><div class="spectre-stat">PV<br><b id="spectreHp">22</b></div><div class="spectre-stat">PV temp<br><b id="spectreTemp">5</b></div><div class="spectre-stat">CA<br><b>12</b></div></div>
 <div id="spectreTurnbar" class="spectre-turnbar" hidden>
   <div class="spectre-turn-title"><small>Présence maudite</small><b id="spectreTurnState">En attente de Kentaro</b></div>
@@ -747,8 +747,9 @@ render();load(true);
 </script>
 <script src="kentaro-modern-ui.js?v=8"></script>
 <script src="kentaro-icons.js?v=3"></script>
-<script src="kentaro-inventory.js?v=8"></script>
-<script src="kentaro-social.js?v=3"></script>
+<script src="kentaro-inventory.js?v=9"></script>
+<script src="kentaro-social.js?v=4"></script>
 <script src="kentaro-journal.js?v=2"></script>
-<script src="kentaro-fx.js?v=8"></script>
+<script src="kentaro-session.js?v=1"></script>
+<script src="kentaro-fx.js?v=9"></script>
 </body></html>

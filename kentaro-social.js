@@ -11,7 +11,7 @@ const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
 const record=t=>window.KentaroAPI?.log?.(`♜ Social — ${t}`);
 const social=$('[data-panel="social"]'); if(!social)return;
 social.innerHTML=`<div class="memory-shell">
- <section class="memory-hero memory-fractured"><div><span>Mémoire fracturée</span><h2>Un homme revenu d’entre les morts</h2><p>Jemal Dormy, les enfants, les âmes fusionnées : les souvenirs de Kentaro reviennent par fragments, parfois dans une voix qui n’est pas la sienne.</p></div><img src="assets/icons/06_Tombeau_de_Lazarus.webp?v=2" alt="" aria-hidden="true"></section>
+ <section class="memory-hero memory-fractured"><div><span>Mémoire fracturée</span><h2>Un homme revenu d’entre les morts</h2><p>Jemal Dormy, les enfants, les âmes fusionnées : les souvenirs de Kentaro reviennent par fragments, parfois dans une voix qui n’est pas la sienne.</p></div><img src="assets/icons/06_Tombeau_de_Lazarus.webp?v=3" alt="" aria-hidden="true"></section>
  <div class="memory-columns">
   <article class="memory-card"><span>Identité</span><h3>Kentaro Amane</h3><div class="identity-pills"><b>Grand Voyageur</b><b>Loyal Neutre</b><b>Dhampir</b><b>Méfiant</b></div><p>Entre l’ombre et la lumière, il avance en observateur fasciné des coutumes et des êtres.</p></article>
   <article class="memory-card illustrated"><div><span>Héritage Amane</span><h3>Kane · patrie · famille</h3><p>Le katana, les cartes et les lettres sont des ancres : ils relient Kentaro à ce qu’il fut avant la fracture.</p></div><img src="assets/icons/03_Kane_katana.webp?v=2" alt="" aria-hidden="true"></article>

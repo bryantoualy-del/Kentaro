@@ -6,7 +6,7 @@ const categories={heritage:'Héritage',social:'Outil social',travel:'Voyage',mem
 const iconChoices=[
  {key:'generic',label:'Éclipse',glyph:'✦'},{key:'kane',label:'Kane',icon:'assets/icons/03_Kane_katana.webp?v=2'},{key:'solinar',label:'Solinar',icon:'assets/icons/01_Solinar.webp?v=2'},{key:'selhane',label:'Sélhane',icon:'assets/icons/02_Selhane.webp?v=2'},
  {key:'storage-ring',label:'Anneau',icon:'assets/icons/04_Anneau_de_stockage.webp?v=2'},{key:'leaf-ring',label:'Feuille',icon:'assets/icons/05_Bague_feuille_morte.webp'},{key:'stone',label:'Vision',icon:'assets/icons/08_Vision_de_la_Pierre.webp?v=2'},{key:'seal',label:'Sceau',icon:'assets/icons/09_Sceau_de_l_Eclipse.webp?v=2'},
- {key:'spectre',label:'Spectre',icon:'assets/icons/07_Spectre_occult.webp?v=2'},{key:'door',label:'Porte',icon:'assets/icons/10_Porte_dimensionnelle.webp?v=2'},{key:'blood',label:'Sang',glyph:'♦'},{key:'letter',label:'Lettre',glyph:'✉'},
+ {key:'spectre',label:'Spectre',icon:'assets/icons/07_Spectre_occult.webp?v=3'},{key:'door',label:'Porte',icon:'assets/icons/10_Porte_dimensionnelle.webp?v=3'},{key:'blood',label:'Sang',glyph:'♦'},{key:'letter',label:'Lettre',glyph:'✉'},
  {key:'music',label:'Ocarina',glyph:'♪'},{key:'travel',label:'Voyage',glyph:'◇'},{key:'mask',label:'Masque',glyph:'◒'},{key:'memory',label:'Mémoire',glyph:'✥'},{key:'heart',label:'Cœur',glyph:'♡'}
 ];
 const defaults=[
