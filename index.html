@@ -369,13 +369,13 @@ const S={
  socialNotes:'',socialRelations:'',charmTarget:'',charmPrepared:false,journal:[]
 };
 const undo=[];const SAVE='kentaro-eclipse-v4';
-let ribbonTimer=null,fxTimer=null,pendingBefore=null;
+let ribbonTimer=null,fxTimer=null,pendingBefore=null,fxSequenceId=0;
 function snap(){return JSON.parse(JSON.stringify(S))}
 function push(){undo.push(snap());if(undo.length>40)undo.shift()}
 function restore(x){Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,x);render()}
 function save(silent=true){try{localStorage.setItem(SAVE,JSON.stringify(S));q('#saveStatus').textContent='Sauvegarde locale : état enregistré sur cet appareil.';if(!silent)log('💾 Partie sauvegardée.')}catch(e){if(!silent)log('❌ Sauvegarde locale indisponible.')}}
 function load(silent=true){try{const x=JSON.parse(localStorage.getItem(SAVE)||'null');if(x){Object.assign(S,x);render();if(!silent)log('↩ Sauvegarde chargée.')}}catch(e){}}
-function fx(type){
+function runFx(type){
  const stage=q('#kentaroFxStage');
  if(stage){
    clearTimeout(stage._fxTimer);stage.className='';void stage.offsetWidth;
@@ -393,6 +393,13 @@ function fx(type){
  if(type==='curse'){const shell=q('#app');if(shell){shell.classList.remove('curse-hit');void shell.offsetWidth;shell.classList.add('curse-hit');clearTimeout(shell._curseTimer);shell._curseTimer=setTimeout(()=>shell.classList.remove('curse-hit'),420)}}
  if(type==='shroud'){const shell=q('#app');if(shell){shell.classList.remove('shroud-hit');void shell.offsetWidth;shell.classList.add('shroud-hit');clearTimeout(shell._shroudTimer);shell._shroudTimer=setTimeout(()=>shell.classList.remove('shroud-hit'),520)}}
  clearTimeout(fxTimer);fxTimer=setTimeout(()=>o.className='',1250);
+}
+function fx(type){fxSequenceId++;runFx(type)}
+function bladeEclipseFx(blade){
+ const sequence=++fxSequenceId;
+ runFx(blade);
+ setTimeout(()=>{if(sequence===fxSequenceId)runFx('seal-'+blade)},560);
+ setTimeout(()=>{if(sequence===fxSequenceId)runFx('eclipse')},780);
 }
 function getRibbonTone(t){
  const x=(t||'').toLowerCase();
@@ -605,7 +612,7 @@ function confirmPendingBlade(hit){
  if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
  if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
    const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
-   sealDamage=se.total+me.total;fx('eclipse');
+   sealDamage=se.total+me.total;bladeEclipseFx(sun?'sun':'moon');
  } else fx(sun?'sun':'moon');
  const damage=w.total+elem.total+extra;
  addTurnDamage(damage,sun?'Solinar':'Sélhane');if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
@@ -679,5 +686,5 @@ render();load(true);
 <script src="kentaro-icons.js?v=3"></script>
 <script src="kentaro-social.js?v=2"></script>
 <script src="kentaro-journal.js?v=2"></script>
-<script src="kentaro-fx.js?v=5"></script>
+<script src="kentaro-fx.js?v=6"></script>
 </body></html>
