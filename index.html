@@ -150,7 +150,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
 </div>
 
-<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Équipement</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="social">♜ Social</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Inventaire</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="social">♜ Social</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
 
 <section class="panel active" data-panel="combat">
 <div class="combat-layout">
@@ -231,10 +231,22 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <article class="card"><div class="action-title">PV temporaires</div><div class="meta">Les PV temporaires ne se cumulent pas. Le compagnon te demande avant de remplacer une source existante.</div><div class="row"><input id="tempManual" class="compact-input" style="max-width:110px" type="number" min="0" placeholder="PV temp"><button id="setTempManual">Définir</button><button id="clearTemp">Effacer</button></div></article>
 </div></section>
 
-<section class="panel" data-panel="items"><div class="grid two">
-<article class="card golden art-card"><div class="art-pair"><img src="assets/icons/01_Solinar.webp?v=2" alt=""><img src="assets/icons/02_Selhane.webp?v=2" alt=""></div><div class="action-title">Solinar & Sélhane</div><div class="meta">Vestige de la Divergence • état éveillé • bonus d’arme +2 • finesse + légère pour Kentaro • les deux comptent comme armes de pacte.</div><div class="tag">Sceau d’éclipse</div><div class="tag">Parade crépusculaire +1 CA en main</div><div class="tag">Pas entre les rayons 1/repos court</div></article>
-<article class="card art-card"><img class="item-art" src="assets/icons/08_Vision_de_la_Pierre.webp?v=2" alt=""><div class="action-title">Vision de la Pierre</div><div class="meta">1/jour • 12 s • voir à travers illusions et objets solides dans un rayon de 18 m • avantage sur la prochaine attaque.</div><button id="stoneVision">Activer</button></article>
-<article class="card violet art-card">
+<section class="panel inventory-panel" data-panel="items">
+<div class="inventory-switch" role="tablist" aria-label="Vues de l’inventaire">
+  <button class="inventory-switch-btn active" type="button" role="tab" aria-selected="true" data-inventory-view="linked"><span>✦</span><b>Équipé & lié</b><small>Reliques actives</small></button>
+  <button class="inventory-switch-btn" type="button" role="tab" aria-selected="false" data-inventory-view="objects"><span>⌁</span><b>Objets & souvenirs</b><small>Sac et héritage</small></button>
+</div>
+
+<div class="inventory-view active" data-inventory-pane="linked">
+<div class="loadout-strip">
+  <div><small>Armes de pacte</small><b>Solinar · Sélhane</b></div>
+  <div><small>Reliques actives</small><b>Vision · Anneaux</b></div>
+  <div><small>Stockage arcanique</small><b id="inventoryRingSummary">0 / 5 niveaux</b></div>
+</div>
+<div class="inventory-linked-grid">
+<article class="card golden art-card inventory-blades"><div class="art-pair"><img src="assets/icons/01_Solinar.webp?v=2" alt="Solinar"><img src="assets/icons/02_Selhane.webp?v=2" alt="Sélhane"></div><div class="inventory-card-kicker">Armes de pacte · liées</div><div class="action-title">Solinar & Sélhane</div><div class="meta">Vestige de la Divergence • état éveillé • bonus d’arme +2 • finesse + légère pour Kentaro • les deux comptent comme armes de pacte.</div><div class="tag">Sceau d’éclipse</div><div class="tag">Parade crépusculaire +1 CA en main</div><div class="tag">Pas entre les rayons 1/repos court</div></article>
+<article class="card art-card inventory-vision"><img class="item-art" src="assets/icons/08_Vision_de_la_Pierre.webp?v=2" alt="Vision de la Pierre"><div class="inventory-card-kicker">Don occulte · 1/jour</div><div class="action-title">Vision de la Pierre</div><div class="meta">12 s • voir à travers illusions et objets solides dans un rayon de 18 m • avantage sur la prochaine attaque.</div><button id="stoneVision">Activer</button></article>
+<article class="card violet art-card inventory-ring">
 <img class="item-art" src="assets/icons/04_Anneau_de_stockage.webp?v=2" alt=""><div class="action-title">◉ Anneau de stockage de sorts</div>
 <div class="meta">Capacité totale : <b>5 niveaux de sorts</b>. L’espace occupé dépend du <b>niveau de l’emplacement utilisé</b> pour stocker le sort.</div>
 <div class="ring-meter"><div id="ringFill" class="ring-fill"></div></div>
@@ -267,10 +279,34 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <div id="ringList" class="ring-list"></div>
 <div class="rule">Quand Kentaro stocke lui-même un sort avec son emplacement de pacte N5, il occupe <b>5/5</b> dans l’anneau, même si le sort est normalement de niveau inférieur. « Stocker / allié » permet de comptabiliser un sort placé par un autre lanceur avec un emplacement N1 à N5.</div>
 </article>
-<article class="card"><div class="action-title">Perle de pouvoir</div><div class="meta">Objet magique listé dans ton équipement.</div></article>
-<article class="card art-card"><img class="item-art" src="assets/icons/05_Bague_feuille_morte.webp" alt=""><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur ta fiche.</div></article>
-<article class="card art-card"><img class="item-art" src="assets/icons/03_Kane_katana.webp?v=2" alt=""><div class="action-title">Kane</div><div class="meta">Relique familiale • katana / épée longue +1 transmis dans la famille Amane. À traiter comme un lien de mémoire et d’héritage, pas comme une simple arme secondaire.</div></article>
-</div></section>
+<div class="inventory-minor-stack">
+  <article class="card inventory-minor"><span class="inventory-rune">◉</span><div><div class="inventory-card-kicker">Ressource magique</div><div class="action-title">Perle de pouvoir</div><div class="meta">Objet magique conservé à portée.</div></div></article>
+  <article class="card inventory-minor"><img src="assets/icons/05_Bague_feuille_morte.webp" alt="Bague de feuille morte"><div><div class="inventory-card-kicker">Anneau · lié</div><div class="action-title">Bague de feuille morte</div><div class="meta">Objet lié listé sur la fiche de Kentaro.</div></div></article>
+</div>
+</div>
+</div>
+
+<div class="inventory-view" data-inventory-pane="objects" hidden>
+  <div class="inventory-toolbar">
+    <label class="inventory-search"><span>⌕</span><input id="inventorySearch" type="search" placeholder="Rechercher un objet…" autocomplete="off"></label>
+    <select id="inventoryCategory" aria-label="Filtrer les objets"><option value="all">Toutes les catégories</option><option value="heritage">Héritage</option><option value="social">Outils sociaux</option><option value="travel">Voyage</option><option value="memory">Mémoire</option><option value="consumable">Consommables</option><option value="misc">Divers</option></select>
+    <button id="inventoryAdd" class="btn-gold" type="button">＋ Ajouter</button>
+  </div>
+  <div class="inventory-summary"><b id="inventoryObjectCount">0 objet</b><span>Les détails et quantités sont enregistrés sur cet appareil.</span></div>
+  <div id="inventoryObjectList" class="inventory-object-list"></div>
+</div>
+
+<dialog id="inventoryEditor" class="inventory-editor">
+  <form method="dialog" id="inventoryForm">
+    <div class="inventory-editor-head"><div><div class="inventory-card-kicker">Registre du voyageur</div><h3 id="inventoryEditorTitle">Ajouter un objet</h3></div><button type="button" value="cancel" class="inventory-close" aria-label="Fermer">×</button></div>
+    <input id="inventoryEditId" type="hidden">
+    <label>Nom<input id="inventoryEditName" required maxlength="80" placeholder="Nom de l’objet"></label>
+    <div class="inventory-editor-grid"><label>Catégorie<select id="inventoryEditCategory"><option value="heritage">Héritage</option><option value="social">Outil social</option><option value="travel">Voyage</option><option value="memory">Mémoire</option><option value="consumable">Consommable</option><option value="misc">Divers</option></select></label><label>Quantité<input id="inventoryEditQty" type="number" min="0" max="99" value="1"></label></div>
+    <label>Notes<textarea id="inventoryEditNotes" maxlength="500" placeholder="Usage, provenance, promesse ou détail à retenir…"></textarea></label>
+    <div class="inventory-editor-actions"><button type="button" id="inventoryCancel">Annuler</button><button id="inventorySave" value="default" class="btn-gold">Enregistrer</button></div>
+  </form>
+</dialog>
+</section>
 
 <section class="panel" data-panel="spectre"><div class="grid two spectre-layout">
 <article class="card art-card" id="spectreCard"><img class="item-art" src="assets/icons/07_Spectre_occult.webp?v=2" alt=""><div class="action-title">👻 Spectre maudit</div><div class="meta">Onglet dédié pour une lecture plus confortable sur iPad. Suivi rapide de l’état du spectre, de ses PV et des dégâts qu’il subit.</div>
@@ -369,7 +405,7 @@ const S={
  slots:2,curse:false,curseReady:true,curseTarget:'',currentTarget:'',targetAC:'',
  shroud:false,conc:false,concSpell:'',
  solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,
- biteReady:true,stoneReady:true,ring:[],manualDice:false,lastCrit:false,lastCritBlade:'',
+ biteReady:true,stoneReady:true,ring:[],inventory:null,manualDice:false,lastCrit:false,lastCritBlade:'',
  agathys:false,agathysDamage:25,
  spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,
  actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchRun:null,eldritchCount:0,
@@ -546,7 +582,7 @@ function render(){
  q('#spectreState').textContent=S.spectreActive?(S.turnPhase==='spectre'?'Tour en cours':'Actif'):'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
  const stb=q('#spectreTurnbar'),sta=q('#spectreActionCell'),stm=q('#spectreMoveCell'),ste=q('#spectreEndTurn'),sts=q('#spectreTurnState'),sat=q('#spectre');if(stb){stb.hidden=!S.spectreActive;stb.classList.toggle('active',S.turnPhase==='spectre')}if(sts)sts.textContent=S.turnPhase==='spectre'?`Tour ${S.turn} · à lui d’agir`:'En attente de Kentaro';if(sta){sta.classList.toggle('used',!!S.spectreActionUsed);sta.disabled=S.turnPhase!=='spectre'||S.spectreActionUsed;sta.querySelector('b').textContent=S.spectreActionUsed?'Utilisée':'Disponible'}if(stm){stm.classList.toggle('used',!!S.spectreMoveUsed);stm.disabled=S.turnPhase!=='spectre'||S.spectreMoveUsed;stm.querySelector('b').textContent=S.spectreMoveUsed?'Utilisé':'Vol 15 m'}if(sat)sat.disabled=!S.spectreActive||S.turnPhase!=='spectre'||S.spectreActionUsed||!!S.pendingHit;if(ste)ste.disabled=S.turnPhase!=='spectre';if(app)app.classList.toggle('spectre-phase',S.turnPhase==='spectre');const nt=q('#newTurn');if(nt)nt.textContent=S.spectreActive&&S.turnPhase==='kentaro'?'👻 Passer au Spectre':S.turnPhase==='spectre'?'↻ Finir le Spectre':'↻ Nouveau tour';
  const sn=q('#socialNotes'),sr=q('#socialRelations'),ct=q('#charmTarget'),cs=q('#charmStatus'),jl=q('#log');if(sn&&sn!==document.activeElement)sn.value=S.socialNotes||'';if(sr&&sr!==document.activeElement)sr.value=S.socialRelations||'';if(ct&&ct!==document.activeElement)ct.value=S.charmTarget||'';if(cs)cs.textContent=S.charmPrepared?`Approche préparée${S.charmTarget?' pour '+S.charmTarget:''} • avantage prêt à être utilisé selon la capacité.`:'Aucune approche préparée.';if(jl)jl.textContent=Array.isArray(S.journal)&&S.journal.length?S.journal.join('\n\n'):'Prêt. Que l’éclipse tombe.';
- renderEconomy();renderSlots();renderRing()
+ renderEconomy();renderSlots();renderRing();if(typeof window.KentaroInventoryRender==='function')window.KentaroInventoryRender()
 }
 function useSlot(){if(S.slots<1){log('❌ Aucun emplacement de pacte restant.');return false}S.slots--;render();return true}
 function resolveHit(nat,total,crit){
@@ -691,12 +727,13 @@ q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').text
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;S.turnPhase='kentaro';resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{push();S.journal=[];q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.remove('show');save(true)};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit){q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.add('show')}};q('#lastBadge').onclick=()=>{q('#lastBadge').classList.remove('show');q('#kentaro-ribbon').classList.add('show')};
 q('#socialNotes').oninput=e=>{S.socialNotes=e.target.value;save(true)};q('#socialRelations').oninput=e=>{S.socialRelations=e.target.value;save(true)};q('#charmTarget').oninput=e=>{S.charmTarget=e.target.value;save(true)};q('#prepareCharm').onclick=()=>{push();S.charmTarget=q('#charmTarget').value.trim();S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};q('#resetCharm').onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
-window.KentaroAPI={state:S,log,save,render,snapshot:snap,undo:()=>q('#undoLast').click()};
+window.KentaroAPI={state:S,log,save,render,snapshot:snap,push,restore,undo:()=>q('#undoLast').click()};
 render();load(true);
 })();
 </script>
-<script src="kentaro-modern-ui.js?v=7"></script>
+<script src="kentaro-modern-ui.js?v=8"></script>
 <script src="kentaro-icons.js?v=3"></script>
+<script src="kentaro-inventory.js?v=1"></script>
 <script src="kentaro-social.js?v=3"></script>
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-fx.js?v=8"></script>
