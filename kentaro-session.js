@@ -240,7 +240,7 @@ async function buildObsidianPackage(session=data.active){
 async function exportObsidian(session=data.active,mode='download'){
  const pkg=await buildObsidianPackage(session),file=new File([pkg.blob],pkg.name,{type:'application/zip'});
  if(mode==='share'&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
-  try{await navigator.share({title:`Session Kentaro — ${session.title}`,text:'Importer cette session dans le coffre Obsidian DND.',files:[file]});api.log(`↓ Session partagée pour Obsidian : ${session.title}.`);notify(`Paquet partagé · ${pkg.count} fichiers ✓`);return}catch(error){if(error?.name==='AbortError')return}
+  try{await navigator.share({files:[file]});api.log(`↓ Session partagée pour Obsidian : ${session.title}.`);notify(`Paquet partagé · ${pkg.count} fichiers ✓`);return}catch(error){if(error?.name==='AbortError')return}
  }
  downloadBlob(pkg.blob,pkg.name);api.log(`↓ Session exportée pour Obsidian : ${session.title}.`);notify(`ZIP prêt · ${pkg.count} fichiers ✓`)
 }

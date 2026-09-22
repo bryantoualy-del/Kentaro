@@ -15,7 +15,7 @@ Le bouton **Partager vers Obsidian** ouvre directement la feuille de partage d�
 Créer dans l’application Raccourcis un raccourci nommé **Importer session Kentaro** :
 
 1. Dans les détails, activer **Afficher dans la feuille de partage**.
-2. Limiter l’entrée aux fichiers.
+2. Toucher le type d’entrée affiché en bleu et ne conserver que **Fichiers**. Ne pas laisser `Apps et 18 de plus`, du texte, des URL ou d’autres types.
 3. Ajouter **Extraire l’archive** en utilisant l’entrée du raccourci.
 4. Vérifier que le dossier extrait contient `_kentaro-import.json`. Si ce fichier manque, arrêter avec le message `Ce ZIP n’est pas un export Kentaro compatible`.
 5. Pour chacun des quatre dossiers sous `Contenu`, récupérer son contenu et enregistrer ses fichiers dans le dossier homonyme du coffre Obsidian `DND` :
