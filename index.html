@@ -58,6 +58,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 }
 .combat-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;align-items:stretch}.target-stack{display:grid;gap:10px;position:sticky;top:92px;height:100%}.target-card{height:100%;display:flex;flex-direction:column}.target-card #sealStatus{margin-top:auto}.attack-column{display:grid;gap:8px}.attack-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #394154;border-radius:10px;background:#0c0e14}.attack-toolbar .mode-inline{display:flex;align-items:center;gap:8px;margin-left:auto}.attack-toolbar .label-mini{margin:0}.attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.target-fields{display:grid;grid-template-columns:1fr;gap:9px;margin-top:10px}.target-card .modebar{display:grid;grid-template-columns:1fr;gap:7px}.target-card .row,.target-card .modebar{margin-top:9px}.target-card .statusbox,.target-card .seal-banner{margin-top:9px}.turn-economy{display:grid;grid-template-columns:auto repeat(5,1fr) auto;gap:7px;align-items:stretch;margin-top:10px}.turn-label{display:flex;align-items:center;justify-content:center;min-width:78px;min-height:54px;padding:7px 10px;border:1px solid #5b4a35;border-radius:9px;background:linear-gradient(180deg,#201a13,#12100d);color:#f0c36d;flex-direction:column;gap:3px}.turn-damage{font-size:11px;color:#ffd9a0;white-space:nowrap}.turn-next{min-height:54px;white-space:nowrap;padding:7px 14px;border-color:#6b5b38;background:linear-gradient(180deg,#3a3020,#211a11);color:#f0d08b;font-weight:bold}.eco{padding:7px 8px;border:1px solid #394154;border-radius:9px;background:#0c0e14;text-align:center;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;line-height:1.15}.eco b{display:block;font-size:13px;margin-bottom:4px;line-height:1}.eco.used{opacity:.55;border-color:#63404a}.eco.free{border-color:#42664f}button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
 .label-mini{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.damage-check{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 10px;border:1px solid #444b5e;border-radius:8px;background:#0b0d12;color:var(--ivory);font-size:13px}.damage-check input{width:18px;height:18px}
+.damage-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.damage-quick button{flex:1 1 72px;min-height:40px;border-color:#67434b;background:#21151a;color:#e7b7bd}.damage-preview{margin-top:8px;padding:9px 10px;border:1px solid #353c4e;border-radius:9px;background:#0b0d12;color:var(--muted);font-size:12px;line-height:1.45}.damage-preview strong{color:#e8c88b}.damage-preview.result{border-color:#76533d;background:#17120f;color:#eadbc3}
 .temp-source{font-size:11px;color:#cbb9df}
 .conc-banner{border:1px solid #5f4e77;background:linear-gradient(90deg,#171220,#111a28);padding:10px;border-radius:11px;margin-top:8px}
 .conc-banner strong{color:#d8c0ff}
@@ -232,7 +233,8 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
     <label class="damage-check"><input id="incomingMelee" type="checkbox"> CàC</label>
     <button id="applyDamage" class="btn-gold">Appliquer</button>
   </div>
-  <div class="meta">Le DD de concentration est calculé automatiquement : max(10, moitié des dégâts).</div>
+  <div class="damage-quick" aria-label="Dégâts rapides"><button type="button" data-quick-damage="5">−5 PV</button><button type="button" data-quick-damage="10">−10 PV</button><button type="button" data-quick-damage="20">−20 PV</button></div>
+  <div id="damagePreview" class="damage-preview">Saisis les dégâts pour afficher leur répartition avant de les appliquer.</div>
 </article>
 
 <article class="card art-card"><img class="item-art" src="assets/icons/06_Tombeau_de_Lazarus.webp?v=3" alt=""><div class="action-title">Tombeau de Lazarus</div><div class="meta">Réaction • 100 PV temporaires • monolithe d’ambre • inactif 1 tour selon ta fiche.</div><button id="lazarus">Activer</button></article>
@@ -511,6 +513,17 @@ function rollConcentrationCheck(dmg){
  if(!ok){S.conc=false;S.concSpell='';S.shroud=false}
  return {dc,a,b,best,ok,spell};
 }
+function updateDamagePreview(){
+ const field=q('#incomingDamage'),box=q('#damagePreview');if(!field||!box)return;
+ const amount=Math.max(0,Number(field.value)||0),melee=!!q('#incomingMelee')?.checked;
+ box.className='damage-preview';
+ if(!amount){box.textContent='Saisis les dégâts pour afficher leur répartition avant de les appliquer.';return}
+ const absorbed=Math.min(S.tempHp||0,amount),hpLoss=Math.min(S.hp,Math.max(0,amount-absorbed));
+ const parts=[`${absorbed} sur les PV temporaires`,`${hpLoss} sur les PV`];
+ if(melee&&S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")parts.push(`${S.agathysDamage||25} froid renvoyés par Agathys`);
+ if(S.conc)parts.push(`concentration DD ${Math.max(10,Math.floor(amount/2))} avec avantage`);
+ box.innerHTML=`<strong>Aperçu :</strong> ${parts.join(' • ')}`;
+}
 function processIncomingDamage(amount,{source='dégâts reçus',melee=false}={}){
  amount=Math.max(0,Number(amount)||0);
  if(!amount)return log('ℹ️ Aucun dégât à appliquer.');
@@ -542,6 +555,7 @@ function processIncomingDamage(amount,{source='dégâts reçus',melee=false}={})
    if(!conc.ok)lines.push(`${conc.spell} prend fin.`);
  }
  log(lines.join('\n'));
+ const box=q('#damagePreview');if(box){const details=[`${absorbed} PV temp absorbés`,`${hpLoss} PV perdus`,`${S.hp}/${S.maxHp} PV restants`];if(agathysTriggers)details.push(`${agathysDamage} froid renvoyés`);if(conc)details.push(`concentration ${conc.ok?'maintenue':'perdue'} (DD ${conc.dc})`);box.className='damage-preview result';box.innerHTML=`<strong>Appliqué :</strong> ${details.join(' • ')}`}
 }
 function applyIncomingDamage(amount,source='dégâts reçus'){
  processIncomingDamage(amount,{source,melee:false});
@@ -725,7 +739,9 @@ q('#spectreActionCell').onclick=()=>q('#spectre').click();q('#spectreMoveCell').
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
 qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
 q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
+q('#incomingDamage').oninput=updateDamagePreview;q('#incomingMelee').onchange=updateDamagePreview;
 q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
+qa('[data-quick-damage]').forEach(button=>button.onclick=()=>{const amount=Number(button.dataset.quickDamage)||0;q('#incomingDamage').value=amount;updateDamagePreview();processIncomingDamage(amount,{source:`dégâts rapides (${amount})`,melee:!!q('#incomingMelee').checked})});
 q('#lazarus').onclick=()=>{const before=snap();if(!useReaction('Tombeau de Lazarus'))return render();undo.push(before);render();fx('lazarus');if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.')};
 
 q('#bite').onclick=()=>{if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.')};
@@ -750,5 +766,6 @@ render();load(true);
 <script src="kentaro-social.js?v=6"></script>
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-session.js?v=3"></script>
+<script src="kentaro-backup.js?v=1"></script>
 <script src="kentaro-fx.js?v=11"></script>
 </body></html>
