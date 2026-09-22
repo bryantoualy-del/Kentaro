@@ -1,21 +1,21 @@
 (()=>{
 'use strict';
 const api=window.KentaroAPI,panel=document.querySelector('[data-panel="journal"]');if(!api||!panel)return;
-const KEYS=['kentaro-eclipse-v4','kentaro-social-v2','kentaro-session-v1'];
+const KEYS=['kentaro-eclipse-v4','kentaro-social-v2','kentaro-session-v1','kentaro-session-v2'];
 const RECOVERY='kentaro-backup-recovery-v1',KIND='kentaro-complete-backup';
 const capture=()=>Object.fromEntries(KEYS.map(key=>[key,localStorage.getItem(key)]));
 function payload(storage=capture()){return{kind:KIND,version:1,app:'Kentaro — Porteur de l’Éclipse',exportedAt:new Date().toISOString(),storage}}
 function validate(data){
  if(!data||data.kind!==KIND||data.version!==1||!data.storage||typeof data.storage!=='object')throw new Error('Ce fichier n’est pas une sauvegarde complète de Kentaro.');
- for(const key of KEYS){const value=data.storage[key];if(value!==null&&typeof value!=='string')throw new Error(`Donnée invalide : ${key}.`);if(typeof value==='string'){const parsed=JSON.parse(value);if(!parsed||typeof parsed!=='object')throw new Error(`Donnée illisible : ${key}.`)}}
+ for(const key of KEYS){const value=data.storage[key];if(value!==null&&value!==undefined&&typeof value!=='string')throw new Error(`Donnée invalide : ${key}.`);if(typeof value==='string'){const parsed=JSON.parse(value);if(!parsed||typeof parsed!=='object')throw new Error(`Donnée illisible : ${key}.`)}}
  return data.storage;
 }
 function apply(storage){for(const key of KEYS){const value=storage[key];if(value===null||value===undefined)localStorage.removeItem(key);else localStorage.setItem(key,value)}}
 function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 const desk=document.createElement('article');desk.className='backup-desk';desk.innerHTML=`
- <div class="backup-copy"><span>Sauvegarde complète</span><b>Emporter tout Kentaro</b><small>Combat, journal, inventaire et icônes importées, Social et sessions archivées.</small></div>
+ <div class="backup-copy"><span>Sauvegarde complète</span><b>Emporter tout Kentaro</b><small>Combat, inventaire, journaux, carnet et sessions archivées. Les portraits voyagent dans les ZIP Obsidian.</small></div>
  <div class="backup-actions"><button id="backupExport" type="button">Exporter</button><button id="backupImport" type="button">Importer</button><button id="backupRollback" class="backup-rollback" type="button" hidden>Annuler la restauration</button><input id="backupFile" type="file" accept="application/json,.json" hidden></div>`;
-const session=panel.querySelector('.session-desk'),first=panel.querySelector('.card');if(session)session.after(desk);else panel.insertBefore(desk,first);
+const mechanical=panel.querySelector('[data-journal-pane="mechanical"]'),first=panel.querySelector('.card');if(mechanical)mechanical.appendChild(desk);else panel.insertBefore(desk,first);
 const file=desk.querySelector('#backupFile'),rollback=desk.querySelector('#backupRollback');rollback.hidden=!localStorage.getItem(RECOVERY);
 function flash(button,text){const old=button.textContent;button.textContent=text;setTimeout(()=>button.textContent=old,1400)}
 desk.querySelector('#backupExport').onclick=e=>{api.save(true);api.log('↓ Sauvegarde complète exportée.');const stamp=new Date().toISOString().slice(0,10);download(JSON.stringify(payload(),null,2),`kentaro-sauvegarde-complete-${stamp}.json`);flash(e.currentTarget,'Exportée ✓')};

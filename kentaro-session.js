@@ -1,69 +1,242 @@
 (()=>{
 'use strict';
 const api=window.KentaroAPI,panel=document.querySelector('[data-panel="journal"]');if(!api||!panel)return;
-const KEY='kentaro-session-v1',esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const nowTitle=()=>`Session du ${new Date().toLocaleDateString('fr-FR')}`;
-const blank=start=>({id:`session-${Date.now()}`,title:nowTitle(),startedAt:new Date().toISOString(),startIndex:start,notes:'',highlights:[]});
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1)return x}catch(_){}return{version:1,active:blank(0),archives:[]}}
-let data=load();if(!data.active)data.active=blank(0);if(!Array.isArray(data.archives))data.archives=[];
-const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));document.dispatchEvent(new CustomEvent('kentaro-session-updated'))};
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const KEY='kentaro-session-v2',LEGACY_SESSION='kentaro-session-v1',LEGACY_SOCIAL='kentaro-social-v2';
+const DB_NAME='kentaro-session-media-v1',DB_STORE='assets';
+const TYPES=['Événement','PNJ','Lieu','Indice','Décision','Promesse','Objectif','Butin','Mémoire'];
+const PERSON_CATEGORIES=['Allié','Compagnon','Contact','Rival','Ennemi','Inconnu'];
+const SOCIAL_ACTIONS=[
+ ['Charme prédateur','Influence préparée après une minute de conversation.'],
+ ['Bague d’échange de visages','Identité empruntée ou couverture utilisée.'],
+ ['Masque d’Aen','Identité dissimulée et faux-semblant préparé.'],
+ ['Ocarina','Musique utilisée pour créer un lien ou raviver un souvenir.'],
+ ['Langues & coutumes','Usage culturel ou langue mobilisée.'],
+ ['Cartes du voyageur','Route, récit ou piste vers la patrie étudiée.']
+];
+const uid=()=>crypto.randomUUID?.()||`${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+const isoDate=()=>new Date().toISOString().slice(0,10);
+const localDate=value=>new Date(value||Date.now()).toLocaleDateString('fr-FR');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone=x=>JSON.parse(JSON.stringify(x));
 const journal=()=>Array.isArray(api.state.journal)?api.state.journal.map(String):[];
-const activeEntries=()=>journal().slice(Math.min(data.active.startIndex||0,journal().length));
-function social(){try{const s=JSON.parse(localStorage.getItem('kentaro-social-v2'))||{};return{relations:Array.isArray(s.relations)?s.relations:[],memories:Array.isArray(s.memories)?s.memories:[]}}catch(_){return{relations:[],memories:[]}}}
-function socialLines(s=social()){
- const rel=s.relations.filter(x=>x?.name).slice(0,12).map(x=>`- **${x.name}** (${x.category||'relation'}${x.status?` · ${x.status}`:''})${x.promise?` — Promesse : ${x.promise}`:''}${x.debt?` — Dette : ${x.debt}`:''}${x.goal?` — Objectif : ${x.goal}`:''}`);
- const mem=s.memories.filter(x=>x?.title||x?.text||x?.notes).sort((a,b)=>Number(!!b.important)-Number(!!a.important)).slice(0,12).map(x=>`- ${x.important?'★ ':''}**${x.title||x.type||'Mémoire'}** — ${x.text||x.notes||x.body||''}`);
- return [...rel,...mem];
+const blank=start=>({id:`session-${uid()}`,title:`Session du ${new Date().toLocaleDateString('fr-FR')}`,date:isoDate(),startedAt:new Date().toISOString(),startIndex:start,notes:'',entries:[],peopleTouched:[]});
+
+function read(key,fallback=null){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch(_){return fallback}}
+function migrate(){
+ const old=read(LEGACY_SESSION),social=read(LEGACY_SOCIAL,{}),people=(Array.isArray(social?.relations)?social.relations:[]).map(x=>({id:x.id||uid(),name:x.name||'',category:x.category||'Inconnu',status:x.status||'',note:x.note||'',debt:x.debt||'',promise:x.promise||'',goal:x.goal||'',exportCard:false,updatedAt:new Date().toISOString()}));
+ if(old?.active){
+  const convert=x=>({...blank(x.startIndex||0),...x,date:(x.startedAt||'').slice(0,10)||isoDate(),entries:(x.highlights||[]).map(h=>({id:uid(),type:TYPES.includes(h.type)?h.type:'Événement',text:h.text||'',createdAt:h.createdAt||x.startedAt||new Date().toISOString()})),peopleTouched:[]});
+  const archives=(old.archives||[]).map(x=>({...convert(x),endedAt:x.endedAt,mechanical:x.journal||[],summary:x.summary||''}));
+  return{version:2,active:convert(old.active),archives,people};
+ }
+ const active=blank(0),legacyNotes=[social?.legacyNotes,social?.legacyRelations].filter(Boolean).join('\n');if(legacyNotes)active.notes=legacyNotes;
+ return{version:2,active,archives:[],people};
 }
-function stats(entries){
- const count=re=>entries.filter(x=>re.test(x)).length;
- return{events:entries.length,attacks:count(/attaque|solinar|sélhane|décharge|spectre/i),spells:count(/sort|lancé|concentration|porte dimensionnelle|synapti|voile/i),rests:count(/repos/i),social:count(/social|relation|mémoire|promesse/i)};
-}
-function useful(entries){
- const seen=new Set();return entries.filter(x=>{const v=x.trim();if(!v||seen.has(v))return false;seen.add(v);return true}).slice(-60);
-}
-function summary(session,entries=activeEntries(),socialSnapshot=social()){
- const st=stats(entries),marks=session.highlights||[],socials=socialLines(socialSnapshot),date=new Date(session.startedAt||Date.now()).toLocaleDateString('fr-FR');
- const sections=[`# ${session.title||'Session de Kentaro'}`,`_Commencée le ${date} · ${st.events} événements consignés_`];
- sections.push('\n## Notes de séance\n'+(session.notes?.trim()||'_Aucune note libre._'));
- sections.push('\n## Faits marquants\n'+(marks.length?marks.map(x=>`- **${x.type||'Événement'}** — ${x.text}`).join('\n'):'_Aucun fait marquant ajouté._'));
- const chronology=useful(entries);sections.push('\n## Chronologie\n'+(chronology.length?chronology.map(x=>`- ${x}`).join('\n'):'_Aucun événement enregistré._'));
- sections.push('\n## Relations et mémoire\n'+(socials.length?socials.join('\n'):'_Aucun élément social renseigné._'));
- sections.push(`\n## Bilan mécanique\n- ${st.attacks} événements de combat\n- ${st.spells} événements liés aux sorts\n- ${st.rests} repos\n- ${st.social} événements sociaux`);
- const follow=[...marks.filter(x=>/objectif|promesse|indice/i.test(x.type||'')).map(x=>x.text),...socialSnapshot.relations.filter(x=>x?.promise||x?.goal).flatMap(x=>[x.promise&&`${x.name} — ${x.promise}`,x.goal&&`${x.name} — ${x.goal}`].filter(Boolean))];
- sections.push('\n## À suivre\n'+(follow.length?follow.map(x=>`- ${x}`).join('\n'):'_À compléter à la prochaine séance._'));
- return sections.join('\n');
-}
-function aiPacket(){const a=data.active,e=activeEntries(),s=social();return`Rédige un résumé narratif fidèle et concis de cette session de D&D. Sépare : récit, révélations, relations, décisions/promesses, butin/ressources et pistes pour la prochaine séance. N’invente aucun fait.\n\n${summary(a,e,s)}\n\n## Données brutes complémentaires\n${e.map(x=>`- ${x}`).join('\n')}`}
+let data=read(KEY)||migrate();
+if(data.version!==2)data=migrate();if(!data.active)data.active=blank(journal().length);if(!Array.isArray(data.active.entries))data.active.entries=[];if(!Array.isArray(data.active.peopleTouched))data.active.peopleTouched=[];if(!Array.isArray(data.archives))data.archives=[];if(!Array.isArray(data.people))data.people=[];
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));document.dispatchEvent(new CustomEvent('kentaro-session-updated'))};
+const activeMechanical=session=>session.mechanical||journal().slice(Math.min(session.startIndex||0,journal().length));
+
+function openMediaDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(DB_STORE))req.result.createObjectStore(DB_STORE,{keyPath:'id'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function mediaPut(file,id=uid()){const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite'),record={id,blob:file,type:file.type||'image/jpeg',originalName:file.name||'portrait',updatedAt:new Date().toISOString()};tx.objectStore(DB_STORE).put(record);tx.oncomplete=()=>{db.close();resolve(record)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function mediaGet(id){if(!id)return null;const db=await openMediaDb();return new Promise((resolve,reject)=>{const req=db.transaction(DB_STORE).objectStore(DB_STORE).get(id);req.onsuccess=()=>{db.close();resolve(req.result||null)};req.onerror=()=>{db.close();reject(req.error)}})}
+async function mediaDelete(id){if(!id)return;const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).delete(id);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
+
+const intro=panel.querySelector('.wonq-section-head'),mechanicalCard=panel.querySelector('.card');
+if(intro){intro.querySelector('.action-title').textContent='Mécanique · carnet de session · export Obsidian';intro.querySelector('.social-kicker').textContent='journal'}
+const subnav=document.createElement('div');subnav.className='journal-subtabs';subnav.setAttribute('role','tablist');subnav.innerHTML='<button id="journalMechanicalTab" role="tab" data-journal-view="mechanical">Journal mécanique</button><button id="journalNotesTab" role="tab" data-journal-view="notes">Carnet de session</button>';
+const mechanicalPane=document.createElement('section');mechanicalPane.className='journal-pane';mechanicalPane.dataset.journalPane='mechanical';
+const notesPane=document.createElement('section');notesPane.className='journal-pane';notesPane.dataset.journalPane='notes';
+if(mechanicalCard)mechanicalPane.appendChild(mechanicalCard);panel.append(subnav,mechanicalPane,notesPane);
+
 const desk=document.createElement('article');desk.className='session-desk';desk.innerHTML=`
- <header class="session-head"><div><span class="session-kicker">Registre de session</span><input id="sessionTitle" aria-label="Titre de la session"></div><div class="session-count" id="sessionCount"></div></header>
- <div class="session-grid"><label class="session-notes"><span>Notes persistantes</span><textarea id="sessionNotes" placeholder="PNJ rencontrés, décisions, révélations, impressions…"></textarea><small>Sauvegarde automatique sur cet appareil.</small></label>
- <section class="session-marks"><span>Faits marquants</span><div class="session-capture"><select id="markType"><option>Événement</option><option>PNJ</option><option>Décision</option><option>Indice</option><option>Promesse</option><option>Objectif</option><option>Butin</option></select><input id="markText" placeholder="Ajouter un fait important…"><button id="addMark">Ajouter</button></div><div id="markList"></div></section></div>
- <div class="session-actions"><button id="makeSummary">Générer le résumé</button><button id="copyAI">Copier pour ChatGPT</button><button id="exportSummary">Exporter .md</button><button id="closeSession" class="session-close">Clore et archiver</button></div>
- <section id="summaryPreview" class="session-preview" hidden><div><b>Résumé généré</b><button id="copySummary">Copier</button></div><pre></pre></section>
- <details class="session-archives"><summary>Sessions archivées <span id="archiveCount"></span></summary><div id="archiveList"></div></details>`;
-const firstCard=panel.querySelector('.card');panel.insertBefore(desk,firstCard);
-const $=q=>desk.querySelector(q),title=$('#sessionTitle'),notes=$('#sessionNotes'),markText=$('#markText'),preview=$('#summaryPreview');
-function render(){
- title.value=data.active.title||'';notes.value=data.active.notes||'';const e=activeEntries(),st=stats(e);$('#sessionCount').textContent=`${st.events} événements · ${data.active.highlights.length} repères`;
- $('#markList').innerHTML=data.active.highlights.length?data.active.highlights.map((x,i)=>`<button class="session-mark" data-remove="${i}" title="Retirer"><b>${esc(x.type)}</b><span>${esc(x.text)}</span><i>×</i></button>`).join(''):'<small class="session-empty">Ajoute ici ce qui devra absolument apparaître dans le résumé.</small>';
- $('#archiveCount').textContent=`(${data.archives.length})`;$('#archiveList').innerHTML=data.archives.length?data.archives.map((x,i)=>`<article><div><b>${esc(x.title)}</b><small>${new Date(x.endedAt).toLocaleDateString('fr-FR')} · ${x.journal?.length||0} événements</small></div><button data-copy-archive="${i}">Copier</button><button data-export-archive="${i}">.md</button></article>`).join(''):'<p class="session-empty">Aucune session close pour le moment.</p>';
+ <header class="session-head"><div><span class="session-kicker">Carnet de session</span><input id="sessionTitle" aria-label="Titre de la session"></div><div class="session-meta"><input id="sessionDate" type="date" aria-label="Date de la session"><span id="sessionSaveState">Sauvegardé</span></div></header>
+ <section class="capture-card"><div class="capture-copy"><b>Capture rapide</b><small>Une ligne, Entrée, c’est consigné.</small></div><div class="session-capture"><select id="entryType" aria-label="Type de note">${TYPES.map(x=>`<option>${x}</option>`).join('')}</select><input id="entryText" autocomplete="off" placeholder="Que vient-il de se passer ?"><button id="addEntry" class="btn-gold">Ajouter</button><button id="cancelEntryEdit" hidden>Annuler</button></div><div id="entryFilters" class="entry-filters"></div></section>
+ <div class="session-main-grid">
+  <section class="session-timeline"><header><div><span>Chronologie</span><h3>Repères de la séance</h3></div><strong id="sessionCount"></strong></header><div id="entryList"></div></section>
+  <aside class="session-side">
+   <label class="session-notes"><span>Notes libres</span><textarea id="sessionNotes" placeholder="Impressions, dialogues, théorie en cours, détails à trier plus tard…"></textarea><small>Sauvegarde automatique.</small></label>
+   <section class="social-shortcuts"><span>Actions de Kentaro</span><div>${SOCIAL_ACTIONS.map((x,i)=>`<button data-social-shortcut="${i}">${x[0]}</button>`).join('')}</div></section>
+  </aside>
+ </div>
+ <section class="people-card"><header><div><span>Personnes rencontrées</span><h3>Relations et portraits</h3><p>Les personnes utilisées pendant cette séance seront exportées comme fiches PNJ Obsidian.</p></div><div><button id="peopleScope">Voir toutes</button><button id="addPerson" class="btn-gold">＋ Personne</button></div></header><div id="peopleList" class="people-list"></div></section>
+ <section class="session-export"><div><span>Fin de séance</span><b>Paquet Obsidian prêt à déposer</b><small>Session, fiches PNJ, portraits et journal mécanique dans la bonne arborescence.</small></div><div><button id="previewMarkdown">Aperçu</button><button id="exportObsidian" class="btn-gold">Exporter ZIP Obsidian</button><button id="closeSession" class="session-close">Clore la session</button></div></section>
+ <section id="markdownPreview" class="session-preview" hidden><header><b>Aperçu de la note Obsidian</b><button id="copyMarkdown">Copier</button></header><pre></pre></section>
+ <details class="session-archives"><summary>Sessions archivées <span id="archiveCount"></span></summary><div id="archiveList"></div></details>
+ <dialog id="personEditor" class="session-dialog"><form method="dialog"><header><h3 id="personEditorTitle">Personne</h3><button value="cancel" aria-label="Fermer">×</button></header><div id="personEditorBody"></div></form></dialog>
+ <div class="session-toast" id="sessionToast" role="status"></div>`;
+notesPane.appendChild(desk);
+
+const q=s=>$(s,desk),title=q('#sessionTitle'),date=q('#sessionDate'),notes=q('#sessionNotes'),entryText=q('#entryText'),entryType=q('#entryType'),preview=q('#markdownPreview');
+let entryFilter='Tout',editingEntry=-1,showAllPeople=false,previewUrls=[];
+function notify(text){const toast=q('#sessionToast');toast.textContent=text;toast.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>toast.classList.remove('show'),1700)}
+function flash(button,label){const old=button.textContent;button.textContent=label;setTimeout(()=>button.textContent=old,1400)}
+async function copyText(text,button){try{await navigator.clipboard.writeText(text)}catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}if(button)flash(button,'Copié ✓')}
+function saved(){q('#sessionSaveState').textContent=`Sauvegardé · ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`}
+function persist(){save();saved()}
+function selectJournalView(name){const current=name==='mechanical'?'mechanical':'notes';$$('[data-journal-view]',subnav).forEach(b=>{const on=b.dataset.journalView===current;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});$$('[data-journal-pane]',panel).forEach(p=>p.hidden=p.dataset.journalPane!==current);try{localStorage.setItem('kentaro-journal-view',current)}catch{}}
+subnav.onclick=e=>{const b=e.target.closest('[data-journal-view]');if(b)selectJournalView(b.dataset.journalView)};
+selectJournalView(localStorage.getItem('kentaro-journal-view')||'notes');
+
+function renderFilters(){const present=['Tout',...new Set(data.active.entries.map(x=>x.type))];q('#entryFilters').innerHTML=present.map(x=>`<button class="${entryFilter===x?'active':''}" data-entry-filter="${esc(x)}">${esc(x)}</button>`).join('')}
+function renderEntries(){
+ const entries=data.active.entries.map((x,i)=>({...x,index:i})).filter(x=>entryFilter==='Tout'||x.type===entryFilter);
+ q('#entryList').innerHTML=entries.length?entries.map(x=>`<article class="timeline-entry"><span class="entry-dot"></span><div><small>${esc(x.type)} · ${new Date(x.createdAt||Date.now()).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</small><p>${esc(x.text)}</p></div><div><button data-edit-entry="${x.index}" title="Modifier">✎</button><button data-delete-entry="${x.index}" title="Supprimer">×</button></div></article>`).join(''):'<div class="session-empty">Aucun repère dans cette catégorie.</div>';
+ renderFilters();q('#sessionCount').textContent=`${data.active.entries.length} repère${data.active.entries.length>1?'s':''}`;
 }
-function flash(button,label){const old=button.textContent;button.textContent=label;setTimeout(()=>button.textContent=old,1300)}
-async function copy(text,button){try{await navigator.clipboard.writeText(text);flash(button,'Copié ✓')}catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();flash(button,'Copié ✓')}}
-function download(text,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/markdown;charset=utf-8'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function showSummary(){const text=summary(data.active);preview.hidden=false;preview.querySelector('pre').textContent=text;preview.scrollIntoView({behavior:'smooth',block:'nearest'});return text}
-title.oninput=()=>{data.active.title=title.value;save()};notes.oninput=()=>{data.active.notes=notes.value;save()};
-$('#addMark').onclick=()=>{const text=markText.value.trim();if(!text)return;data.active.highlights.push({type:$('#markType').value,text,createdAt:new Date().toISOString()});markText.value='';save();render()};
-document.addEventListener('kentaro-session-add',e=>{const x=e.detail||{},text=String(x.text||'').trim();if(!text)return;data.active.highlights.push({type:String(x.type||'Événement'),text,createdAt:new Date().toISOString()});save();render()});
-markText.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#addMark').click()}};
-$('#markList').onclick=e=>{const b=e.target.closest('[data-remove]');if(!b)return;data.active.highlights.splice(Number(b.dataset.remove),1);save();render()};
-$('#makeSummary').onclick=showSummary;$('#copySummary').onclick=e=>copy(preview.querySelector('pre').textContent,e.currentTarget);$('#copyAI').onclick=e=>copy(aiPacket(),e.currentTarget);$('#exportSummary').onclick=()=>download(showSummary(),`${(data.active.title||'session-kentaro').replace(/[^a-z0-9à-ÿ]+/gi,'-').toLowerCase()}.md`);
-$('#closeSession').onclick=()=>{if(!confirm('Clore cette session et conserver son résumé dans les archives ?'))return;const entries=activeEntries(),snap=social(),closed={...data.active,endedAt:new Date().toISOString(),journal:entries,social:snap};closed.summary=summary(closed,entries,snap);data.archives.unshift(closed);data.archives=data.archives.slice(0,30);api.log(`☷ Session archivée : ${closed.title}`);data.active=blank(journal().length);save();preview.hidden=true;render()};
-$('#archiveList').onclick=e=>{const copyBtn=e.target.closest('[data-copy-archive]'),exportBtn=e.target.closest('[data-export-archive]');if(copyBtn){const x=data.archives[Number(copyBtn.dataset.copyArchive)];copy(x.summary||summary(x,x.journal,x.social),copyBtn)}if(exportBtn){const x=data.archives[Number(exportBtn.dataset.exportArchive)];download(x.summary||summary(x,x.journal,x.social),`${x.title.replace(/[^a-z0-9à-ÿ]+/gi,'-').toLowerCase()}.md`)}};
-new MutationObserver(()=>{const e=activeEntries();$('#sessionCount').textContent=`${e.length} événements · ${data.active.highlights.length} repères`}).observe(document.querySelector('#log'),{childList:true});
+function renderArchives(){q('#archiveCount').textContent=`(${data.archives.length})`;q('#archiveList').innerHTML=data.archives.length?data.archives.map((x,i)=>`<article><div><b>${esc(x.title)}</b><small>${localDate(x.endedAt)} · ${(x.entries||[]).length} repères · ${(x.mechanical||[]).length} événements</small></div><button data-copy-archive="${i}">Copier</button><button data-export-archive="${i}">ZIP</button></article>`).join(''):'<p class="session-empty">Aucune session close pour le moment.</p>'}
+async function renderPeople(){
+ previewUrls.forEach(URL.revokeObjectURL);previewUrls=[];const touched=new Set(data.active.peopleTouched),people=showAllPeople?data.people:data.people.filter(x=>touched.has(x.id));
+ q('#peopleScope').textContent=showAllPeople?'Cette session':'Voir toutes';
+ q('#peopleList').innerHTML=people.length?people.map(x=>`<article class="person-card" data-person-card="${x.id}"><div class="person-avatar" data-person-image="${x.id}">${esc((x.name||'?').slice(0,1).toUpperCase())}</div><div><b>${esc(x.name||'Sans nom')}</b><small>${esc(x.category||'Inconnu')}${x.status?` · ${esc(x.status)}`:''}</small><p>${esc(x.note||'Aucune note')}</p><span>${x.exportCard?'Fiche PNJ ':''}${x.promise?'Promesse ':''}${x.debt?'Dette ':''}${x.goal?'Objectif':''}</span></div><footer><button data-touch-person="${x.id}" class="${touched.has(x.id)?'active':''}">${touched.has(x.id)?'Dans la session ✓':'Ajouter à la session'}</button><button data-edit-person="${x.id}">Modifier</button></footer></article>`).join(''):'<div class="session-empty">Ajoute une personne ou affiche le registre existant.</div>';
+ for(const person of people.filter(x=>x.assetId)){try{const media=await mediaGet(person.assetId),slot=q(`[data-person-image="${CSS.escape(person.id)}"]`);if(media?.blob&&slot){const url=URL.createObjectURL(media.blob);previewUrls.push(url);slot.innerHTML=`<img src="${url}" alt="">`}}catch(_){}}
+}
+function render(){title.value=data.active.title||'';date.value=data.active.date||isoDate();if(notes!==document.activeElement)notes.value=data.active.notes||'';renderEntries();renderPeople();renderArchives();saved()}
+
+function addOrUpdateEntry(){const text=entryText.value.trim();if(!text)return;const item={id:uid(),type:entryType.value,text,createdAt:new Date().toISOString()};if(editingEntry>=0){data.active.entries[editingEntry]={...data.active.entries[editingEntry],type:item.type,text:item.text};editingEntry=-1;q('#addEntry').textContent='Ajouter';q('#cancelEntryEdit').hidden=true}else data.active.entries.push(item);entryText.value='';persist();renderEntries()}
+q('#addEntry').onclick=addOrUpdateEntry;entryText.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addOrUpdateEntry()}};
+document.addEventListener('kentaro-session-add',e=>{const detail=e.detail||{},text=String(detail.text||'').trim();if(!text)return;data.active.entries.push({id:uid(),type:TYPES.includes(detail.type)?detail.type:'Événement',text,createdAt:new Date().toISOString()});persist();renderEntries()});
+q('#cancelEntryEdit').onclick=()=>{editingEntry=-1;entryText.value='';q('#addEntry').textContent='Ajouter';q('#cancelEntryEdit').hidden=true};
+q('#entryFilters').onclick=e=>{const b=e.target.closest('[data-entry-filter]');if(b){entryFilter=b.dataset.entryFilter;renderEntries()}};
+q('#entryList').onclick=e=>{const edit=e.target.closest('[data-edit-entry]'),del=e.target.closest('[data-delete-entry]');if(edit){editingEntry=Number(edit.dataset.editEntry);const item=data.active.entries[editingEntry];entryType.value=item.type;entryText.value=item.text;entryText.focus();q('#addEntry').textContent='Mettre à jour';q('#cancelEntryEdit').hidden=false}if(del){data.active.entries.splice(Number(del.dataset.deleteEntry),1);persist();renderEntries()}};
+title.oninput=()=>{data.active.title=title.value;persist()};date.onchange=()=>{data.active.date=date.value||isoDate();persist()};notes.oninput=()=>{data.active.notes=notes.value;persist()};
+q('.social-shortcuts').onclick=e=>{const b=e.target.closest('[data-social-shortcut]');if(!b)return;const action=SOCIAL_ACTIONS[Number(b.dataset.socialShortcut)];data.active.entries.push({id:uid(),type:'Événement',text:`${action[0]} — ${action[1]}`,createdAt:new Date().toISOString()});api.log(`♜ ${action[0]} consigné dans le carnet.`);persist();renderEntries();notify(`${action[0]} consigné ✓`)};
+
+function personForm(x){return`<label>Nom<input name="name" required value="${esc(x.name||'')}"></label><div class="dialog-grid"><label>Catégorie<select name="category">${PERSON_CATEGORIES.map(c=>`<option ${c===x.category?'selected':''}>${c}</option>`).join('')}</select></label><label>Statut<input name="status" value="${esc(x.status||'')}" placeholder="Actif, disparu, hostile…"></label></div><label>Ce que Kentaro sait<textarea name="note">${esc(x.note||'')}</textarea></label><div class="dialog-grid"><label>Dette<input name="debt" value="${esc(x.debt||'')}"></label><label>Promesse<input name="promise" value="${esc(x.promise||'')}"></label></div><label>Objectif / prochaine étape<input name="goal" value="${esc(x.goal||'')}"></label><label class="portrait-field">Portrait<input name="portrait" type="file" accept="image/png,image/jpeg,image/webp"><small>${x.assetId?'Un portrait est déjà associé. Choisir un fichier le remplacera.':'PNG, JPEG ou WebP. Le fichier sera placé dans 99 - Médias à l’export.'}</small></label><label class="export-card-check"><input name="exportCard" type="checkbox" ${x.exportCard!==false?'checked':''}><span>Créer ou mettre à jour sa fiche dans <code>02 - Personnages/PNJ</code></span><small>Désactive cette option si ta fiche Obsidian contient déjà des notes que tu ne veux pas remplacer.</small></label><div class="dialog-actions"><button value="save" class="btn-gold">Enregistrer</button>${x.id?'<button type="button" data-delete-person class="utility-danger">Supprimer</button>':''}</div>`}
+function editPerson(id){
+ const existing=data.people.find(x=>x.id===id),person=existing||{id:'',name:'',category:'Inconnu',status:'',note:'',debt:'',promise:'',goal:'',exportCard:true},dlg=q('#personEditor'),form=$('form',dlg);q('#personEditorTitle').textContent=existing?'Modifier la personne':'Nouvelle personne';q('#personEditorBody').innerHTML=personForm(person);dlg.showModal();
+ form.onsubmit=async e=>{if(e.submitter?.value!=='save')return;e.preventDefault();const fd=new FormData(form),name=String(fd.get('name')||'').trim();if(!name)return;const target=existing||{id:uid()};['name','category','status','note','debt','promise','goal'].forEach(k=>target[k]=String(fd.get(k)||'').trim());target.exportCard=fd.get('exportCard')==='on';const portrait=fd.get('portrait');if(portrait instanceof File&&portrait.size){if(portrait.size>12*1024*1024)return alert('Cette image dépasse 12 Mo. Choisis une version plus légère.');try{const media=await mediaPut(portrait,target.assetId||uid());target.assetId=media.id;target.imageType=media.type;target.imageOriginalName=media.originalName}catch(error){return alert(`Impossible d’enregistrer cette image : ${error.message}`)}}target.updatedAt=new Date().toISOString();if(!existing)data.people.push(target);if(!data.active.peopleTouched.includes(target.id))data.active.peopleTouched.push(target.id);persist();dlg.close();await renderPeople();api.log(`♜ Relation consignée : ${target.name}.`);notify(`${target.name} enregistré${target.assetId?' avec portrait':''} ✓`)};
+ const del=$('[data-delete-person]',dlg);if(del)del.onclick=async()=>{if(!confirm(`Supprimer ${person.name} du registre ? Le portrait restera conservé pour les anciennes sessions.`))return;data.people=data.people.filter(x=>x.id!==person.id);data.active.peopleTouched=data.active.peopleTouched.filter(x=>x!==person.id);persist();dlg.close();renderPeople()};
+}
+q('#addPerson').onclick=()=>editPerson();q('#peopleScope').onclick=()=>{showAllPeople=!showAllPeople;renderPeople()};
+q('#peopleList').onclick=e=>{const edit=e.target.closest('[data-edit-person]'),touch=e.target.closest('[data-touch-person]');if(edit)editPerson(edit.dataset.editPerson);if(touch){const id=touch.dataset.touchPerson,i=data.active.peopleTouched.indexOf(id);i<0?data.active.peopleTouched.push(id):data.active.peopleTouched.splice(i,1);persist();renderPeople()}};
+
+function yaml(value){return `"${String(value??'').replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,' ')}"`}
+function listYaml(values){return `[${[...new Set(values.filter(Boolean))].map(yaml).join(', ')}]`}
+function safeName(value,fallback='Sans titre'){return String(value||fallback).normalize('NFC').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').replace(/[. ]+$/g,'').trim()||fallback}
+function imageExtension(person){const type=person.imageType||'';if(type.includes('png'))return'png';if(type.includes('webp'))return'webp';return'jpg'}
+function imageFileName(person){return`PNJ - ${safeName(person.name)}.${imageExtension(person)}`}
+function touchedPeople(session){if(Array.isArray(session.peopleSnapshot))return session.peopleSnapshot;const ids=new Set(session.peopleTouched||[]);return data.people.filter(x=>ids.has(x.id))}
+function personMarkdown(person,session){const image=person.assetId?imageFileName(person):'';return`---
+type: pnj
+aliases: []
+race:
+genre:
+groupe:
+lieu:
+statut: ${yaml(person.status||'actif')}
+relation_kentaro: ${yaml(person.category||'inconnu')}
+premiere_rencontre: ${yaml(session.date||'')}
+illustration: ${image?yaml(image):''}
+tags:
+  - pnj
+---
+# ${person.name||'PNJ sans nom'}
+${image?`\n> [!infobox]\n> ![[${image}|coverhsmall]]\n`:''}
+## En bref
+
+${person.note||'_À compléter._'}
+
+## Ce que Kentaro sait
+
+- **Statut :** ${person.status||'Inconnu'}
+- **Relation :** ${person.category||'Inconnu'}
+${person.debt?`- **Dette :** ${person.debt}\n`:''}${person.promise?`- **Promesse :** ${person.promise}\n`:''}${person.goal?`- **Objectif :** ${person.goal}\n`:''}
+## Motivation
+
+- À découvrir.
+
+## Relations
+
+- [[Kentaro]]
+
+## Secrets ou incertitudes
+
+- [ ] À confirmer :
+
+## Apparitions
+
+- [[${session.date} — ${safeName(session.title)}]]
+`}
+function cleanMechanical(lines){const seen=new Set();return lines.filter(x=>{const t=String(x).trim();if(!t||seen.has(t))return false;seen.add(t);return true}).slice(-100)}
+function sessionMarkdown(session){
+ const entries=session.entries||[],people=touchedPeople(session),mechanical=cleanMechanical(activeMechanical(session)),locations=entries.filter(x=>x.type==='Lieu').map(x=>x.text),pnj=[...people.map(x=>x.name),...entries.filter(x=>x.type==='PNJ').map(x=>x.text)];
+ const chronological=entries.length?entries.map(x=>`- **${x.type}** — ${x.text}`).join('\n'):'_Aucun repère saisi._';
+ const discoveries=entries.filter(x=>['Lieu','Indice','Butin','Mémoire'].includes(x.type));
+ const decisions=entries.filter(x=>['Décision','Promesse','Objectif'].includes(x.type));
+ const next=[...decisions.filter(x=>['Promesse','Objectif'].includes(x.type)).map(x=>x.text),...people.flatMap(x=>[x.promise,x.goal].filter(Boolean))];
+ const encounters=people.length?`| PNJ | Statut | Relation / conséquence |\n| --- | --- | --- |\n${people.map(x=>`| [[${x.name}]] | ${x.status||'Inconnu'} | ${x.note||x.category||''} |`).join('\n')}${people.some(x=>x.assetId)?`\n\n### Visages de la session\n\n${people.filter(x=>x.assetId).map(x=>`![[${imageFileName(x)}|160]]`).join(' ')}`:''}`:'_Aucune personne associée._';
+ const mech=mechanical.length?mechanical.flatMap(x=>String(x).split('\n').map(line=>`> ${line||' '}`)).join('\n'):'> Aucun événement mécanique.';
+ return`---
+type: session
+date: ${session.date||isoDate()}
+personnage: Kentaro
+lieux: ${listYaml(locations)}
+pnj: ${listYaml(pnj)}
+resume: ""
+tags:
+  - session
+  - kentaro
+---
+# ${session.date||isoDate()} — ${session.title||'Session de Kentaro'}
+
+## Notes de séance
+
+${session.notes?.trim()||'_Aucune note libre._'}
+
+## Chronologie
+
+${chronological}
+
+## Rencontres
+
+${encounters}
+
+## Découvertes
+
+${discoveries.length?discoveries.map(x=>`- **${x.type} :** ${x.text}`).join('\n'):'_Aucune découverte consignée._'}
+
+## Décisions et promesses
+
+${decisions.length?decisions.map(x=>`- [ ] **${x.type} :** ${x.text}`).join('\n'):'_Aucune décision consignée._'}
+
+## Combat et ressources
+
+> [!note]- Journal mécanique — ${mechanical.length} événements
+${mech}
+
+## À préparer pour la prochaine session
+
+${next.length?next.map(x=>`- [ ] ${x}`).join('\n'):'- [ ] À compléter.'}
+`}
+
+const crcTable=(()=>{const table=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;table[n]=c>>>0}return table})();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0}
+function u16(n){return new Uint8Array([n&255,(n>>>8)&255])}function u32(n){return new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255])}
+function joinBytes(parts){const length=parts.reduce((n,x)=>n+x.length,0),out=new Uint8Array(length);let offset=0;for(const part of parts){out.set(part,offset);offset+=part.length}return out}
+function dosDate(value){const d=new Date(value||Date.now()),year=Math.max(1980,d.getFullYear());return{time:(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),date:((year-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate()}}
+async function makeZip(files){const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;for(const file of files){const name=enc.encode(file.path.normalize('NFC')),bytes=file.bytes instanceof Uint8Array?file.bytes:enc.encode(file.text||''),crc=crc32(bytes),stamp=dosDate(),local=joinBytes([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(stamp.time),u16(stamp.date),u32(crc),u32(bytes.length),u32(bytes.length),u16(name.length),u16(0),name,bytes]);locals.push(local);centrals.push(joinBytes([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(stamp.time),u16(stamp.date),u32(crc),u32(bytes.length),u32(bytes.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]));offset+=local.length}const central=joinBytes(centrals),end=joinBytes([u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(central.length),u32(offset),u16(0)]);return new Blob([...locals,central,end],{type:'application/zip'})}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1800)}
+async function exportObsidian(session=data.active){
+ const people=touchedPeople(session),base=`${session.date||isoDate()} — ${safeName(session.title)}`,files=[{path:`01 - Sessions/${base}.md`,text:sessionMarkdown(session)}];
+ for(const person of people){if(person.exportCard!==false)files.push({path:`02 - Personnages/PNJ/${safeName(person.name)}.md`,text:personMarkdown(person,session)});if(person.assetId){const media=await mediaGet(person.assetId).catch(()=>null);if(media?.blob)files.push({path:`99 - Médias/${imageFileName(person)}`,bytes:new Uint8Array(await media.blob.arrayBuffer())})}}
+ const manifest=`# Import Kentaro — ${session.date||isoDate()}\n\nDécompresse ce ZIP à la racine du coffre Obsidian. Les dossiers fusionneront avec l'arborescence existante.\n\n- Session : [[${base}]]\n- Fiches PNJ créées ou mises à jour : ${people.filter(x=>x.exportCard!==false).length}\n- Portraits : ${people.filter(x=>x.assetId).length}\n`;
+ files.push({path:`98 - Archives/Imports Kentaro/${base} - Import.md`,text:manifest});
+ downloadBlob(await makeZip(files),`Kentaro - Session ${session.date||isoDate()}.zip`);api.log(`↓ Session exportée pour Obsidian : ${session.title}.`);notify(`ZIP prêt · ${files.length} fichiers ✓`)
+}
+function showPreview(){const md=sessionMarkdown(data.active);preview.hidden=false;$('pre',preview).textContent=md;preview.scrollIntoView({behavior:'smooth',block:'nearest'});return md}
+q('#previewMarkdown').onclick=showPreview;q('#copyMarkdown').onclick=e=>copyText($('pre',preview).textContent,e.currentTarget);q('#exportObsidian').onclick=async e=>{e.currentTarget.disabled=true;try{await exportObsidian()}catch(error){alert(`Export impossible : ${error.message}`)}finally{e.currentTarget.disabled=false}};
+q('#closeSession').onclick=()=>{if(!confirm('Clore cette session ? Elle restera exportable dans les archives.'))return;const closed={...clone(data.active),endedAt:new Date().toISOString(),mechanical:activeMechanical(data.active),peopleSnapshot:clone(touchedPeople(data.active))};data.archives.unshift(closed);data.archives=data.archives.slice(0,40);api.log(`☷ Session archivée : ${closed.title}`);data.active=blank(journal().length);preview.hidden=true;persist();render();notify('Nouvelle session ouverte ✓')};
+q('#archiveList').onclick=async e=>{const copy=e.target.closest('[data-copy-archive]'),exportBtn=e.target.closest('[data-export-archive]');if(copy){const session=data.archives[Number(copy.dataset.copyArchive)];copyText(sessionMarkdown(session),copy)}if(exportBtn){exportBtn.disabled=true;try{await exportObsidian(data.archives[Number(exportBtn.dataset.exportArchive)])}finally{exportBtn.disabled=false}}};
+
+new MutationObserver(()=>{if(!q('#sessionCount'))return;q('#sessionCount').textContent=`${data.active.entries.length} repère${data.active.entries.length>1?'s':''} · ${activeMechanical(data.active).length} événements mécaniques`}).observe($('#log'),{childList:true,subtree:true});
+window.KentaroSession={exportObsidian,getData:()=>clone(data),selectView:selectJournalView};
+
 const style=document.createElement('style');style.textContent=`
-.session-desk{margin:10px 0 12px;padding:14px;border:1px solid #51483f;border-radius:14px;background:linear-gradient(145deg,#171418,#0c0d11);box-shadow:0 12px 32px #0005}.session-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:11px}.session-kicker,.session-notes>span,.session-marks>span{display:block;margin-bottom:5px;color:#c79c61;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase}.session-head input{width:min(520px,65vw);border:0;border-bottom:1px solid #4b423a;background:transparent;color:#f1e5d3;font:700 1.22rem Georgia,serif;padding:3px 0}.session-count{color:#948b82;font-size:.7rem;white-space:nowrap}.session-grid{display:grid;grid-template-columns:minmax(260px,.8fr) 1.2fr;gap:10px}.session-notes textarea{display:block;width:100%;min-height:150px;padding:10px;border:1px solid #3c3d44;border-radius:10px;background:#090a0e;color:#eee4d7;resize:vertical;line-height:1.45}.session-notes small,.session-empty{color:#89827b;font-size:.68rem}.session-capture{display:grid;grid-template-columns:115px 1fr auto;gap:6px}.session-capture select,.session-capture input{min-height:42px;padding:7px;border:1px solid #414149;border-radius:9px;background:#0a0b0f;color:#eee4d7}.session-capture button{min-height:42px}.session-marks{min-width:0}.session-marks #markList{display:grid;gap:5px;margin-top:7px}.session-mark{display:grid;grid-template-columns:76px 1fr auto;gap:7px;align-items:center;width:100%;min-height:38px;padding:6px 8px;text-align:left;border-color:#3d3b40;background:#121116}.session-mark b{color:#c89e64;font-size:.66rem;text-transform:uppercase}.session-mark span{overflow:hidden;text-overflow:ellipsis;color:#ddd3c7}.session-mark i{color:#917e6e;font-style:normal}.session-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.session-actions button{min-height:42px}.session-actions .session-close{margin-left:auto;border-color:#7b493f;color:#e6bbb0}.session-preview{margin-top:10px;padding:10px;border:1px solid #45434a;border-radius:10px;background:#090a0e}.session-preview>div{display:flex;justify-content:space-between;align-items:center}.session-preview pre{max-height:420px;overflow:auto;white-space:pre-wrap;color:#d9d0c5;font:500 .76rem/1.5 ui-monospace,monospace}.session-archives{margin-top:10px;border-top:1px solid #302e33;padding-top:9px}.session-archives summary{cursor:pointer;color:#baaa96;font-size:.76rem}.session-archives article{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #2d2c31}.session-archives article small{display:block;color:#888078;margin-top:2px}.session-archives button{min-height:38px}
-@media(max-width:767px){.session-head{align-items:flex-start;flex-direction:column}.session-head input{width:100%}.session-grid{grid-template-columns:1fr}.session-capture{grid-template-columns:110px 1fr}.session-capture button{grid-column:1/-1}.session-actions{display:grid;grid-template-columns:1fr 1fr}.session-actions .session-close{margin:0;grid-column:1/-1}.session-count{white-space:normal}.session-archives article{grid-template-columns:1fr auto}.session-archives article button:last-child{grid-column:2}.session-mark{grid-template-columns:68px 1fr auto}}
+.journal-subtabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 11px;padding:5px;border:1px solid #3c3838;border-radius:13px;background:#0c0d11}.journal-subtabs button{min-height:44px;border:0;background:transparent;color:#a9a098}.journal-subtabs button.active{border:1px solid #8d6841;background:linear-gradient(135deg,#50351f,#2b2024);color:#ffe8bf;box-shadow:inset 0 1px #ffffff12}.journal-pane[hidden]{display:none!important}.session-desk{display:grid;gap:11px}.session-head{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:15px;border:1px solid #59493f;border-radius:15px;background:radial-gradient(circle at 90% 0,#a66d3424,transparent 34%),linear-gradient(145deg,#21181a,#0e1015)}.session-kicker,.capture-copy b,.session-timeline header span,.session-notes>span,.social-shortcuts>span,.people-card header span,.session-export>div>span{display:block;color:#d0a268;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase}.session-head input[type="text"],#sessionTitle{width:min(600px,62vw);padding:3px 0;border:0;border-bottom:1px solid #554a43;border-radius:0;background:transparent;color:#f3e7d6;font:700 1.25rem Georgia,serif}.session-meta{display:flex;align-items:center;gap:9px}.session-meta input{min-height:40px;padding:7px;border:1px solid #45454c;border-radius:9px;background:#0b0c10;color:#e9dfd2}.session-meta span{color:#8e8881;font-size:.68rem;white-space:nowrap}.capture-card,.session-timeline,.session-side,.people-card,.session-export{border:1px solid #393a42;border-radius:14px;background:linear-gradient(155deg,#18171c,#0e0f13)}.capture-card{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;padding:12px}.capture-copy small{display:block;color:#8e8880;font-size:.68rem}.session-capture{display:grid;grid-template-columns:120px 1fr auto auto;gap:6px}.session-capture select,.session-capture input{min-height:44px;padding:8px;border:1px solid #42434b;border-radius:9px;background:#090a0e;color:#eee4d7}.session-capture button{min-height:44px}.entry-filters{grid-column:1/-1;display:flex;gap:5px;overflow:auto;padding-top:2px;scrollbar-width:none}.entry-filters::-webkit-scrollbar{display:none}.entry-filters button{min-height:34px;padding:5px 9px;white-space:nowrap;border-radius:999px;background:#111217;color:#99918b}.entry-filters button.active{border-color:#906d45;color:#f1d6a7;background:#2d211b}.session-main-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:11px}.session-timeline,.session-side,.people-card{padding:13px}.session-timeline header,.people-card>header{display:flex;align-items:start;justify-content:space-between;gap:10px}.session-timeline h3,.people-card h3{margin:3px 0;color:#f0e4d2;font:700 1.05rem Georgia,serif}.session-timeline header strong{color:#8f8982;font-size:.68rem}.session-timeline #entryList{display:grid;gap:6px;margin-top:10px;max-height:530px;overflow:auto;padding-right:3px}.timeline-entry{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:start;padding:9px;border:1px solid #30313a;border-radius:10px;background:#0b0c10}.entry-dot{width:8px;height:8px;margin-top:6px;border-radius:50%;background:#bd754d;box-shadow:0 0 10px #bd754d66}.timeline-entry small{color:#b08d64;font-size:.62rem;text-transform:uppercase}.timeline-entry p{margin:3px 0 0;color:#e6ddd1;line-height:1.4}.timeline-entry>div:last-child{display:flex;gap:4px}.timeline-entry button{min-width:35px;min-height:35px;padding:4px;color:#a99e93;background:#14151a}.session-side{display:grid;align-content:start;gap:13px}.session-notes textarea{display:block;width:100%;min-height:230px;margin-top:6px;padding:10px;border:1px solid #3e3f47;border-radius:10px;background:#090a0e;color:#eee5d9;line-height:1.5;resize:vertical}.session-notes small{color:#817b75;font-size:.65rem}.social-shortcuts{padding-top:11px;border-top:1px solid #302f35}.social-shortcuts>div{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}.social-shortcuts button{min-height:42px;padding:7px;text-align:left;background:#121218;color:#cfc2b1}.people-card>header p{margin:2px 0;color:#8c8680;font-size:.7rem}.people-card>header>div:last-child{display:flex;gap:6px}.people-card button{min-height:40px}.people-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.person-card{display:grid;grid-template-columns:54px 1fr;gap:9px;padding:9px;border:1px solid #333640;border-radius:11px;background:#0b0d12;min-width:0}.person-avatar{display:grid;place-items:center;width:54px;height:54px;overflow:hidden;border:1px solid #6b5540;border-radius:10px;background:linear-gradient(145deg,#50301f,#252b40);color:#f0d6a9;font-size:1.2rem;font-weight:800}.person-avatar img{width:100%;height:100%;object-fit:cover}.person-card>div:nth-child(2){min-width:0}.person-card b,.person-card small,.person-card p,.person-card span{display:block}.person-card small{color:#bc9464}.person-card p{overflow:hidden;margin:3px 0;color:#948d85;font-size:.69rem;text-overflow:ellipsis;white-space:nowrap}.person-card span{min-height:15px;color:#a68a6f;font-size:.6rem}.person-card footer{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:5px}.person-card footer button{min-height:36px;padding:5px 7px}.person-card footer button.active{border-color:#8b6742;color:#efd3a5;background:#2d2019}.session-export{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border-color:#66533e;background:radial-gradient(circle at 6% 50%,#a76b2b20,transparent 32%),linear-gradient(145deg,#1d1718,#0d0f13)}.session-export>div:first-child{display:grid;gap:2px}.session-export b{color:#eee1ce}.session-export small{color:#8f8780}.session-export>div:last-child{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.session-export button{min-height:42px}.session-close{border-color:#70443f!important;color:#ddb1a9!important}.session-preview{padding:12px;border:1px solid #403e45;border-radius:12px;background:#090a0e}.session-preview header{display:flex;align-items:center;justify-content:space-between}.session-preview pre{max-height:460px;overflow:auto;white-space:pre-wrap;color:#d9d0c5;font:500 .74rem/1.5 ui-monospace,monospace}.session-archives{padding:10px 2px;border-top:1px solid #302e33}.session-archives summary{cursor:pointer;color:#baa992}.session-archives article{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid #2d2c31}.session-archives article small{display:block;color:#857e77}.session-empty{padding:22px;border:1px dashed #3b3d45;border-radius:10px;color:#8f8982;text-align:center}.session-dialog{width:min(650px,calc(100% - 20px));max-height:92vh;overflow:auto;padding:17px;border:1px solid #806648;border-radius:16px;background:#141419;color:#f2e8da;box-shadow:0 30px 90px #000}.session-dialog::backdrop{background:#020305db;backdrop-filter:blur(6px)}.session-dialog header{display:flex;align-items:center;justify-content:space-between}.session-dialog label{display:block;margin:9px 0;color:#aaa29a}.session-dialog input,.session-dialog select,.session-dialog textarea{display:block;width:100%;min-height:44px;margin-top:5px;padding:9px;border:1px solid #41434c;border-radius:9px;background:#090a0e;color:#f1e8dc}.session-dialog textarea{min-height:110px;resize:vertical}.dialog-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.portrait-field small{display:block;margin-top:5px;color:#807a74}.dialog-actions{display:flex;gap:7px;margin-top:13px}.session-toast{position:fixed;right:18px;bottom:84px;z-index:10010;transform:translateY(12px);padding:10px 13px;border:1px solid #8b6942;border-radius:9px;background:#181217;color:#efd9b1;opacity:0;pointer-events:none;transition:.18s}.session-toast.show{transform:none;opacity:1}
+.session-dialog input,.session-dialog select,.session-dialog textarea{min-width:0}.portrait-field small,.export-card-check small{display:block;margin-top:5px;color:#807a74}.export-card-check{display:grid!important;grid-template-columns:auto 1fr;gap:0 8px;align-items:center;padding:9px;border:1px solid #343740;border-radius:9px}.export-card-check input{grid-row:1/3;width:22px!important;min-height:22px!important;margin:0!important}.export-card-check span{color:#d8ccbd}
+@media(max-width:900px){.session-main-grid{grid-template-columns:1fr}.session-notes textarea{min-height:150px}.people-list{grid-template-columns:1fr 1fr}.session-head input[type="text"],#sessionTitle{width:55vw}}
+@media(max-width:767px){.journal-subtabs{position:sticky;top:201px;z-index:25}.session-head{align-items:stretch;flex-direction:column;padding:12px}.session-head input[type="text"],#sessionTitle{width:100%;min-height:44px}.session-meta{justify-content:space-between}.capture-card{grid-template-columns:1fr;padding:10px}.session-capture{grid-template-columns:105px 1fr}.session-capture button{grid-column:auto}.session-capture #cancelEntryEdit{grid-column:1/-1}.session-main-grid{display:block}.session-timeline,.session-side,.people-card{padding:10px;margin-bottom:9px}.session-timeline #entryList{max-height:none}.social-shortcuts>div{grid-template-columns:1fr 1fr}.people-card>header{align-items:stretch;flex-direction:column}.people-card>header>div:last-child{display:grid;grid-template-columns:1fr 1fr}.people-list{grid-template-columns:1fr}.session-export{align-items:stretch;flex-direction:column}.session-export>div:last-child{display:grid;grid-template-columns:1fr 1fr}.session-export .session-close{grid-column:1/-1}.session-archives article{grid-template-columns:1fr auto}.session-archives article button:last-child{grid-column:2}.dialog-grid{grid-template-columns:1fr}.session-toast{right:10px;bottom:75px;max-width:calc(100% - 20px)}}
 `;document.head.appendChild(style);save();render();
 })();

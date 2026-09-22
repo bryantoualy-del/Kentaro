@@ -163,7 +163,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
 </div>
 
-<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Inventaire</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="social">♜ Social</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Inventaire</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
 
 <section class="panel active" data-panel="combat">
 <div class="combat-layout">
@@ -344,52 +344,6 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div></article>
 </div></section>
 
-
-<section class="panel" data-panel="social">
-  <div class="social-grid">
-    <article class="card">
-      <div class="social-kicker">Identité & comportement</div>
-      <div class="action-title">Kentaro hors combat</div>
-      <div class="identity-list" style="margin-top:9px">
-        <div><b>Loyal Neutre</b> • méfiant avant d’accorder sa confiance.</div>
-        <div><b>Grand Voyageur</b> • observe les coutumes locales avec fascination.</div>
-        <div><b>Souvenirs incomplets</b> • passé fragmenté, nostalgie de sa patrie.</div>
-        <div><b>Âmes fusionnées</b> • identité marquée par plusieurs héritages.</div>
-        <div><b>Nourriture & sang</b> • rapport inhabituel, à jouer comme un détail révélateur.</div>
-      </div>
-    </article>
-    <article class="card">
-      <div class="social-kicker">Relations</div>
-      <div class="action-title">Liens importants</div>
-      <div style="margin:8px 0"><span class="relation-chip">Jemal Dormy</span><span class="relation-chip">Compagnie Créole</span><span class="relation-chip">Patrie / famille Amane</span></div>
-      <textarea id="socialRelations" class="social-textarea" placeholder="Dettes, promesses, évolution des relations…"></textarea>
-    </article>
-    <article class="card">
-      <div class="social-kicker">Charme prédateur</div>
-      <div class="action-title">Préparer l’approche</div>
-      <div class="meta">Rappel de jeu : nécessite une conversation préalable d’environ 1 minute. Le compagnon suit seulement la préparation ; il n’invente pas de règle supplémentaire.</div>
-      <input id="charmTarget" class="social-input" style="margin-top:9px" placeholder="Interlocuteur / cible">
-      <div class="row"><button id="prepareCharm" class="btn-red">Préparer l’avantage</button><button id="resetCharm">Réinitialiser</button></div>
-      <div id="charmStatus" class="statusbox">Aucune approche préparée.</div>
-    </article>
-    <article class="card">
-      <div class="social-kicker">Outils sociaux</div>
-      <div class="action-title">Infiltration & voyage</div>
-      <div class="social-tools" style="margin-top:9px">
-        <div class="social-tool"><b>Bague d’échange de visages</b><br><span class="meta">Identité, infiltration, faux-semblants.</span></div>
-        <div class="social-tool"><b>Ocarina</b><br><span class="meta">Objet personnel et marqueur culturel.</span></div>
-        <div class="social-tool"><b>Langues</b><br><span class="meta">Consulter la fiche pour le détail.</span></div>
-        <div class="social-tool"><b>Cartes de la patrie</b><br><span class="meta">Voyage, mémoire, nostalgie.</span></div>
-      </div>
-    </article>
-    <article class="card social-wide">
-      <div class="social-kicker">Mémoire / registre</div>
-      <div class="action-title">Ce que Kentaro ne doit pas oublier</div>
-      <textarea id="socialNotes" class="social-textarea" placeholder="Noms rencontrés, promesses, dettes, souvenirs récupérés, pistes sur la patrie…"></textarea>
-      <div class="memory-hint">Enregistré automatiquement sur cet appareil.</div>
-    </article>
-  </div>
-</section>
 
 <section class="panel journal-panel" data-panel="journal">
   <article class="card">
@@ -783,10 +737,11 @@ q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').val
 q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');};
 q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
 q('#hpMinus').onclick=()=>{push();S.hp=Math.max(0,S.hp-1);render();save()};q('#hpPlus').onclick=()=>{push();S.hp=Math.min(103,S.hp+1);render();save()};q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
-q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{const t=q('.tab[data-tab="journal"]');if(t)t.click()};
+q('#resetSave').onclick=()=>{localStorage.removeItem(SAVE);q('#saveStatus').textContent='Sauvegarde locale : effacée.';log('🗑 Sauvegarde locale effacée.')};q('#undoLast').onclick=()=>{const x=undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')};q('#toggleHistory').onclick=()=>{const t=q('.tab[data-tab="journal"]');if(t)t.click();window.KentaroSession?.selectView?.('mechanical')};
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;S.turnPhase='kentaro';resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{push();S.journal=[];q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.remove('show');save(true)};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit){q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.add('show')}};q('#lastBadge').onclick=()=>{q('#lastBadge').classList.remove('show');q('#kentaro-ribbon').classList.add('show')};
-q('#socialNotes').oninput=e=>{S.socialNotes=e.target.value;save(true)};q('#socialRelations').oninput=e=>{S.socialRelations=e.target.value;save(true)};q('#charmTarget').oninput=e=>{S.charmTarget=e.target.value;save(true)};q('#prepareCharm').onclick=()=>{push();S.charmTarget=q('#charmTarget').value.trim();S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};q('#resetCharm').onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
+const socialNotes=q('#socialNotes'),socialRelations=q('#socialRelations'),charmTarget=q('#charmTarget'),prepareCharm=q('#prepareCharm'),resetCharm=q('#resetCharm');
+if(socialNotes)socialNotes.oninput=e=>{S.socialNotes=e.target.value;save(true)};if(socialRelations)socialRelations.oninput=e=>{S.socialRelations=e.target.value;save(true)};if(charmTarget)charmTarget.oninput=e=>{S.charmTarget=e.target.value;save(true)};if(prepareCharm)prepareCharm.onclick=()=>{push();S.charmTarget=charmTarget?.value.trim()||'';S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};if(resetCharm)resetCharm.onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
 window.KentaroAPI={state:S,log,save,render,snapshot:snap,push,restore,undo:()=>q('#undoLast').click()};
 render();load(true);
 })();
@@ -794,9 +749,8 @@ render();load(true);
 <script src="kentaro-modern-ui.js?v=8"></script>
 <script src="kentaro-icons.js?v=3"></script>
 <script src="kentaro-inventory.js?v=9"></script>
-<script src="kentaro-social.js?v=6"></script>
 <script src="kentaro-journal.js?v=2"></script>
-<script src="kentaro-session.js?v=3"></script>
+<script src="kentaro-session.js?v=4"></script>
 <script src="kentaro-backup.js?v=1"></script>
 <script src="kentaro-fx.js?v=11"></script>
 </body></html>
