@@ -1,43 +1,30 @@
-# Import automatique Kentaro vers Obsidian sur iPad
+# Importer une session Kentaro dans Obsidian sur iPad
 
-Le compagnon produit désormais un ZIP routable contenant :
+Le compagnon Kentaro utilise désormais le plugin **Kentaro Session Importer**. Aucun raccourci Apple n’est nécessaire.
 
-- `_kentaro-import.json` : manifeste lisible par une automatisation ;
-- `Contenu/01 - Sessions` : note de séance ;
-- `Contenu/02 - Personnages/PNJ` : nouvelles fiches PNJ autorisées ;
-- `Contenu/99 - Médias` : portraits liés ;
-- `Contenu/98 - Archives/Imports Kentaro` : reçu d’import.
+## Installation unique
 
-Le bouton **Partager vers Obsidian** ouvre directement la feuille de partage d’iPadOS lorsque le navigateur accepte le partage de fichiers. Sinon, le ZIP est téléchargé normalement.
+1. Dans Obsidian, ouvre **Réglages → Modules complémentaires communautaires**.
+2. Installe et active **BRAT**.
+3. Ouvre les réglages de BRAT puis choisis **Add beta plugin**.
+4. Saisis : `bryantoualy-del/Kentaro`.
+5. Sélectionne la dernière version disponible.
+6. Active ensuite **Kentaro Session Importer** dans les modules installés.
 
-## Raccourci à créer une seule fois
+## À la fin d’une session
 
-Créer dans l’application Raccourcis un raccourci nommé **Importer session Kentaro** :
+1. Dans l’onglet Journal du compagnon, touche **1 · Télécharger**.
+2. Touche **2 · Ouvrir Obsidian**.
+3. Dans Obsidian, touche l’icône lune ou lance la commande **Importer une session Kentaro**.
+4. Sélectionne le ZIP Kentaro dans Téléchargements.
+5. Vérifie l’aperçu puis touche **Importer dans ce coffre**.
 
-1. Dans les détails, activer **Afficher dans la feuille de partage**.
-2. Toucher le type d’entrée affiché en bleu et ne conserver que **Fichiers**. Ne pas laisser `Apps et 18 de plus`, du texte, des URL ou d’autres types.
-3. Ajouter **Extraire l’archive** en utilisant l’entrée du raccourci.
-4. Vérifier que le dossier extrait contient `_kentaro-import.json`. Si ce fichier manque, arrêter avec le message `Ce ZIP n’est pas un export Kentaro compatible`.
-5. Pour chacun des quatre dossiers sous `Contenu`, récupérer son contenu et enregistrer ses fichiers dans le dossier homonyme du coffre Obsidian `DND` :
-   - `01 - Sessions` vers `DND/01 - Sessions` ;
-   - `02 - Personnages/PNJ` vers `DND/02 - Personnages/PNJ` ;
-   - `99 - Médias` vers `DND/99 - Médias` ;
-   - `98 - Archives/Imports Kentaro` vers `DND/98 - Archives/Imports Kentaro`.
-6. Appliquer les règles de conflit suivantes :
-   - session existante : demander `Mettre à jour`, `Garder les deux` ou `Annuler` ;
-   - fiche PNJ existante : ignorer la nouvelle fiche ;
-   - média Kentaro existant : remplacer ;
-   - reçu d’import : conserver, son nom horodaté est unique.
-7. Afficher la notification **Session Kentaro importée**.
-8. Facultatif : ouvrir l’URL `obsidian://open?vault=DND`.
+Le plugin crée automatiquement les dossiers nécessaires, classe les fichiers puis ouvre la note de session.
 
-Le choix des dossiers par Raccourcis déclenchera une demande d’autorisation la première fois. Il ne faudra ensuite plus refaire cette configuration.
+## Protection des données
 
-## Utilisation après installation
-
-1. Dans Kentaro, ouvrir **Journal > Carnet de session**.
-2. Toucher **Partager vers Obsidian**.
-3. Choisir **Importer session Kentaro** dans la feuille de partage.
-4. Attendre la notification de fin puis ouvrir Obsidian.
-
-Le bouton **Télécharger ZIP** reste disponible pour sauvegarder ou importer manuellement le paquet.
+- une fiche PNJ existante n’est jamais écrasée ;
+- une session portant déjà le même nom est importée comme copie ;
+- un portrait n’est actualisé que si l’export est plus récent ;
+- chaque import conserve un reçu dans `98 - Archives/Imports Kentaro` ;
+- tout le traitement reste local sur l’appareil.

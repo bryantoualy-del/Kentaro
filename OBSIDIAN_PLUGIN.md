@@ -1,0 +1,26 @@
+# Kentaro Session Importer
+
+Plugin Obsidian mobile et ordinateur pour importer les paquets ZIP produits par le compagnon Kentaro.
+
+## Installation avec BRAT
+
+1. Installer **BRAT** depuis les modules complémentaires communautaires d’Obsidian.
+2. Dans BRAT, choisir **Add beta plugin**.
+3. Ajouter `bryantoualy-del/Kentaro` et sélectionner la dernière version.
+4. Activer **Kentaro Session Importer** dans les modules installés.
+
+## Utilisation
+
+1. Dans le compagnon Kentaro, télécharger le paquet Obsidian.
+2. Dans Obsidian, toucher l’icône en forme de lune ou lancer la commande **Importer une session Kentaro**.
+3. Choisir le ZIP dans Téléchargements.
+4. Vérifier l’aperçu et confirmer l’import.
+
+Le plugin crée les dossiers nécessaires et applique les règles suivantes :
+
+- une session existante est conservée et la nouvelle devient une copie ;
+- une fiche PNJ existante n’est jamais écrasée ;
+- un portrait n’est remplacé que si l’export est plus récent ;
+- les reçus d’import sont toujours renommés en cas de doublon.
+
+Le traitement est entièrement local.

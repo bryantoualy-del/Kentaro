@@ -1,0 +1,126 @@
+.kentaro-import-modal {
+  --kentaro-gold: #c8944e;
+  --kentaro-amber: #e4ad58;
+  --kentaro-blue: #829bc8;
+}
+
+.kentaro-import-modal .modal-title {
+  color: var(--text-normal);
+  font-family: Georgia, serif;
+}
+
+.kentaro-import-hero {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin: 10px 0 16px;
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, var(--kentaro-gold) 45%, var(--background-modifier-border));
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(122, 67, 35, .18), rgba(29, 34, 48, .22));
+}
+
+.kentaro-import-mark {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid var(--kentaro-gold);
+  border-radius: 50%;
+  color: #f1ca82;
+  background: radial-gradient(circle, #08090d 30%, #5a3a22 32%, #11131b 62%);
+  box-shadow: 0 0 18px rgba(210, 146, 64, .18), inset 0 0 12px rgba(112, 140, 202, .18);
+  font-size: 24px;
+}
+
+.kentaro-import-hero strong,
+.kentaro-import-hero small {
+  display: block;
+}
+
+.kentaro-import-hero small,
+.kentaro-import-help,
+.kentaro-import-file small {
+  color: var(--text-muted);
+}
+
+.kentaro-import-picker {
+  display: grid;
+  gap: 8px;
+  min-height: 92px;
+  padding: 16px;
+  border: 1px dashed color-mix(in srgb, var(--kentaro-gold) 60%, var(--background-modifier-border));
+  border-radius: 12px;
+  background: var(--background-secondary);
+}
+
+.kentaro-import-picker input {
+  width: 100%;
+}
+
+.kentaro-import-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.kentaro-import-session {
+  padding: 11px;
+  border-left: 3px solid var(--kentaro-gold);
+  border-radius: 7px;
+  background: var(--background-secondary);
+}
+
+.kentaro-import-files {
+  display: grid;
+  gap: 6px;
+  max-height: min(42vh, 420px);
+  overflow: auto;
+}
+
+.kentaro-import-file {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 9px;
+}
+
+.kentaro-import-file b,
+.kentaro-import-file small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kentaro-import-status {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--background-modifier-hover);
+  font-size: .72em;
+  white-space: nowrap;
+}
+
+.kentaro-import-status.create { color: #b9dfbe; }
+.kentaro-import-status.skip { color: #d8b2a8; }
+.kentaro-import-status.replace { color: #e6c27d; }
+.kentaro-import-status.rename { color: #b6c8ec; }
+
+.kentaro-import-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .kentaro-import-modal .modal-content { padding: 14px; }
+  .kentaro-import-file { grid-template-columns: 24px minmax(0, 1fr); }
+  .kentaro-import-status { grid-column: 2; justify-self: start; }
+  .kentaro-import-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .kentaro-import-actions button { min-height: 44px; }
+}

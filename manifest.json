@@ -1,0 +1,9 @@
+{
+  "id": "kentaro-session-importer",
+  "name": "Kentaro Session Importer",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.2",
+  "description": "Importe les sessions, PNJ et portraits exportés par le compagnon Kentaro.",
+  "author": "Bryan Toualy",
+  "isDesktopOnly": false
+}
