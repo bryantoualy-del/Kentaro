@@ -438,7 +438,7 @@ function runFx(type){
    clearTimeout(stage._fxTimer);stage.className='';void stage.offsetWidth;
    stage.className=type==='eclipse'?'play fx-eclipse':'play kind-'+type;
    stage.dataset.lastFx=type;
-   const stageDuration=type==='door'?2200:type==='lazarus'||type==='spectre-summon'?1500:type==='spectre-strike'?850:type==='sun'||type==='moon'?1050:1100;
+   const stageDuration=type==='door'?2200:type==='lazarus'||type==='spectre-summon'?1500:type==='spectre-drain'?1200:type==='sun'||type==='moon'?1050:1100;
    stage._fxTimer=setTimeout(()=>stage.className='',stageDuration);
  }
  const o=q('#fxOverlay'); if(!o)return;
@@ -707,7 +707,7 @@ function confirmPendingEldritch(hit){
  render();
  log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
 }
-function confirmPendingSpectre(hit){const p=S.pendingHit;if(!p||p.kind!=='spectre')return;S.pendingHit=null;pendingBefore=null;S.spectreActionUsed=true;if(hit){const r=roll(p.crit?6:3,6);S.spectreTurnDamage=(S.spectreTurnDamage||0)+r.total;render();fx('spectre-strike');return log(`👻 Spectre — Absorption de vie\nConfirmation : TOUCHÉ${p.crit?' • CRITIQUE':''}\nAttaque : ${p.total}\nDégâts : ${r.total} nécrotiques (${r.dice.join('+')}).`)}render();log(`👻 Spectre — Absorption de vie\nConfirmation : RATÉ\nAttaque : ${p.total}.`)}
+function confirmPendingSpectre(hit){const p=S.pendingHit;if(!p||p.kind!=='spectre')return;S.pendingHit=null;pendingBefore=null;S.spectreActionUsed=true;if(hit){const r=roll(p.crit?6:3,6);S.spectreTurnDamage=(S.spectreTurnDamage||0)+r.total;render();fx('spectre-drain');return log(`👻 Spectre — Absorption de vie\nConfirmation : TOUCHÉ${p.crit?' • CRITIQUE':''}\nAttaque : ${p.total}\nDégâts : ${r.total} nécrotiques (${r.dice.join('+')}).`)}render();log(`👻 Spectre — Absorption de vie\nConfirmation : RATÉ\nAttaque : ${p.total}.`)}
 function confirmPendingAttack(hit){if(!S.pendingHit)return;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);if(S.pendingHit.kind==='spectre')return confirmPendingSpectre(hit);return confirmPendingBlade(hit)}
 q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(true)};
 q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(false)};
@@ -751,5 +751,5 @@ render();load(true);
 <script src="kentaro-social.js?v=6"></script>
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-session.js?v=3"></script>
-<script src="kentaro-fx.js?v=9"></script>
+<script src="kentaro-fx.js?v=10"></script>
 </body></html>
