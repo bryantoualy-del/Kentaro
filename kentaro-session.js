@@ -244,8 +244,11 @@ async function exportObsidian(session=data.active){
 function showPreview(){const md=sessionMarkdown(data.active);preview.hidden=false;$('pre',preview).textContent=md;preview.scrollIntoView({behavior:'smooth',block:'nearest'});return md}
 q('#previewMarkdown').onclick=showPreview;q('#copyMarkdown').onclick=e=>copyText($('pre',preview).textContent,e.currentTarget);
 q('#setupObsidian').onclick=()=>q('#obsidianSetup').showModal();
-q('#exportObsidian').onclick=async e=>{e.currentTarget.disabled=true;try{await exportObsidian()}catch(error){alert(`Export impossible : ${error.message}`)}finally{e.currentTarget.disabled=false}};
-q('#openObsidian').onclick=()=>{window.location.href='obsidian://open?vault=DND'};
+const exportButton=q('#exportObsidian');let exportBusy=false,exportResetTimer=0;
+function resetExportButton(){exportBusy=false;clearTimeout(exportResetTimer);exportButton.removeAttribute('aria-busy');exportButton.textContent='1 · Télécharger'}
+exportButton.onclick=async()=>{if(exportBusy)return;exportBusy=true;exportButton.setAttribute('aria-busy','true');exportButton.textContent='Préparation…';exportResetTimer=setTimeout(resetExportButton,8000);try{await exportObsidian()}catch(error){alert(`Export impossible : ${error.message}`)}finally{resetExportButton()}};
+window.addEventListener('pageshow',resetExportButton);document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetExportButton()});
+q('#openObsidian').onclick=()=>{resetExportButton();window.location.href='obsidian://open?vault=DND'};
 q('#closeSession').onclick=()=>{if(!confirm('Clore cette session ? Elle restera exportable dans les archives.'))return;const closed={...clone(data.active),endedAt:new Date().toISOString(),mechanical:activeMechanical(data.active),peopleSnapshot:clone(touchedPeople(data.active))};data.archives.unshift(closed);data.archives=data.archives.slice(0,40);api.log(`☷ Session archivée : ${closed.title}`);data.active=blank(journal().length);preview.hidden=true;persist();render();notify('Nouvelle session ouverte ✓')};
 q('#archiveList').onclick=async e=>{const copy=e.target.closest('[data-copy-archive]'),exportBtn=e.target.closest('[data-export-archive]');if(copy){const session=data.archives[Number(copy.dataset.copyArchive)];copyText(sessionMarkdown(session),copy)}if(exportBtn){exportBtn.disabled=true;try{await exportObsidian(data.archives[Number(exportBtn.dataset.exportArchive)])}finally{exportBtn.disabled=false}}};
 
