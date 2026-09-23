@@ -335,6 +335,75 @@ class KentaroImportModal extends Modal {
   }
 }
 
+function safePnjName(value) {
+  return String(value || '').normalize('NFC').replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').replace(/[. ]+$/g, '').trim();
+}
+
+function yamlText(value) {
+  return `"${String(value || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, ' ')}"`;
+}
+
+class CreatePnjFromNotesModal extends Modal {
+  constructor(app, selection = '', sourceFile = null) {
+    super(app);
+    this.selection = selection;
+    this.sourceFile = sourceFile;
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    this.modalEl.addClass('kentaro-create-pnj-modal');
+    contentEl.createEl('h2', { text: 'Créer un PNJ depuis les notes' });
+    contentEl.createEl('p', { text: 'La sélection devient le point de départ de la fiche. Tu pourras ensuite la compléter normalement dans Obsidian.', cls: 'kentaro-import-help' });
+    const field = (label, tag = 'input') => {
+      const wrap = contentEl.createEl('label', { cls: 'kentaro-pnj-field' });
+      wrap.createEl('span', { text: label });
+      return wrap.createEl(tag);
+    };
+    const name = field('Nom du PNJ');
+    name.placeholder = 'Nom obligatoire';
+    const category = field('Relation', 'select');
+    for (const value of ['Inconnu', 'Allié', 'Compagnon', 'Contact', 'Rival', 'Ennemi']) category.createEl('option', { text: value, value });
+    const status = field('Statut');
+    status.placeholder = 'Actif, disparu, hostile…';
+    const note = field('Ce que Kentaro sait', 'textarea');
+    note.value = this.selection;
+    note.placeholder = 'Colle ou résume ici les informations connues.';
+    const actions = contentEl.createDiv({ cls: 'kentaro-import-actions' });
+    const cancel = actions.createEl('button', { text: 'Annuler' });
+    cancel.addEventListener('click', () => this.close());
+    const create = actions.createEl('button', { text: 'Créer la fiche', cls: 'mod-cta' });
+    create.addEventListener('click', async () => {
+      const cleanName = safePnjName(name.value);
+      if (!cleanName) { new Notice('Indique le nom du PNJ.'); name.focus(); return; }
+      const path = `02 - Personnages/PNJ/${cleanName}.md`;
+      const existing = this.app.vault.getAbstractFileByPath(path);
+      if (existing) {
+        new Notice(`${cleanName} possède déjà une fiche. Elle a été ouverte sans être modifiée.`);
+        this.close();
+        await this.app.workspace.getLeaf(false).openFile(existing);
+        return;
+      }
+      create.disabled = true;
+      try {
+        await ensureFolder(this.app.vault, '02 - Personnages/PNJ');
+        const source = this.sourceFile ? `[[${this.sourceFile.basename}]]` : '';
+        const body = `---\ntype: pnj\naliases: []\nrace:\ngenre:\ngroupe:\nlieu:\nstatut: ${yamlText(status.value || 'actif')}\nrelation_kentaro: ${yamlText(category.value || 'Inconnu')}\npremiere_rencontre:\nillustration:\ntags:\n  - pnj\n---\n# ${cleanName}\n\n## En bref\n\n${note.value.trim() || '_À compléter._'}\n\n## Ce que Kentaro sait\n\n- **Statut :** ${status.value.trim() || 'Inconnu'}\n- **Relation :** ${category.value || 'Inconnu'}\n${source ? `- **Source :** ${source}\n` : ''}\n## Motivation\n\n- À découvrir.\n\n## Relations\n\n- [[Kentaro]]\n\n## Secrets ou incertitudes\n\n- [ ] À confirmer :\n\n## Apparitions\n\n${source ? `- ${source}` : '- À compléter.'}\n`;
+        const file = await this.app.vault.create(path, body);
+        new Notice(`Fiche PNJ créée : ${cleanName}`);
+        this.close();
+        await this.app.workspace.getLeaf(false).openFile(file);
+      } catch (err) {
+        create.disabled = false;
+        new Notice(`Création impossible : ${err && err.message ? err.message : err}`, 8000);
+      }
+    });
+    setTimeout(() => name.focus(), 50);
+  }
+
+  onClose() { this.contentEl.empty(); }
+}
+
 class KentaroSessionImporter extends Plugin {
   async onload() {
     this.addRibbonIcon('moon-star', 'Importer une session Kentaro', () => this.openImporter());
@@ -342,6 +411,11 @@ class KentaroSessionImporter extends Plugin {
       id: 'import-kentaro-session',
       name: 'Importer une session Kentaro',
       callback: () => this.openImporter()
+    });
+    this.addCommand({
+      id: 'create-pnj-from-notes',
+      name: 'Créer un PNJ depuis la sélection',
+      editorCallback: (editor, view) => new CreatePnjFromNotesModal(this.app, editor.getSelection().trim(), view.file).open()
     });
   }
 

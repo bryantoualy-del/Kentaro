@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const api=window.KentaroAPI,panel=document.querySelector('[data-panel="journal"]');if(!api||!panel)return;
-const KEYS=['kentaro-eclipse-v4','kentaro-social-v2','kentaro-session-v1','kentaro-session-v2'];
+const KEYS=['kentaro-eclipse-v4','kentaro-social-v2','kentaro-session-v1','kentaro-session-v2','kentaro-session-v3'];
 const RECOVERY='kentaro-backup-recovery-v1',KIND='kentaro-complete-backup';
 const capture=()=>Object.fromEntries(KEYS.map(key=>[key,localStorage.getItem(key)]));
 function payload(storage=capture()){return{kind:KIND,version:1,app:'Kentaro — Porteur de l’Éclipse',exportedAt:new Date().toISOString(),storage}}

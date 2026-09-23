@@ -25,4 +25,10 @@ Le plugin crée les dossiers nécessaires et applique les règles suivantes :
 
 Lorsqu’une fiche PNJ existe déjà, l’aperçu permet de choisir les informations de la session à ajouter. Le plugin écrit uniquement dans une section balisée `Suivi automatique Kentaro` et ne modifie jamais le reste de la fiche. Les changements de statut sont décochés par défaut.
 
+## Faire évoluer une simple mention
+
+Dans une note de session, sélectionne le passage consacré à un PNJ devenu important, puis lance la commande **Créer un PNJ depuis la sélection**. Renseigne son nom, sa relation et son statut : le plugin crée sa fiche dans `02 - Personnages/PNJ` et conserve un lien vers la session source.
+
+Le compagnon n’est pas un second registre permanent : seules les fiches explicitement créées pendant la session sont exportées. Les autres personnages restent de simples mentions dans la chronologie.
+
 Le traitement est entièrement local.

@@ -173,6 +173,34 @@
   margin-top: 16px;
 }
 
+.kentaro-create-pnj-modal .modal-content {
+  display: grid;
+  gap: 12px;
+}
+
+.kentaro-pnj-field {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: .85em;
+}
+
+.kentaro-pnj-field input,
+.kentaro-pnj-field select,
+.kentaro-pnj-field textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.kentaro-pnj-field textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
 @media (max-width: 600px) {
   .kentaro-import-modal .modal-content { padding: 14px; }
   .kentaro-import-file { grid-template-columns: 24px minmax(0, 1fr); }

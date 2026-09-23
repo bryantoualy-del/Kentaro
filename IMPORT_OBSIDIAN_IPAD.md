@@ -31,6 +31,8 @@ Le plugin crée automatiquement les dossiers nécessaires, classe les fichiers p
 
 ## Mise à jour des fiches PNJ
 
-Dans le carnet Kentaro, une note de type **PNJ** peut être reliée à une personne et qualifiée comme information, relation, statut, promesse, dette, objectif, souvenir ou localisation.
+Dans le carnet Kentaro, une note de type **PNJ** reste une simple mention par défaut. Si le personnage devient important, touche le bouton **♙** de la mention ou **Créer une fiche PNJ**. Seules ces fiches explicites sont envoyées dans le registre Obsidian.
 
 Pendant l’import, le plugin affiche chaque information avec une case à cocher. Il ajoute uniquement les éléments sélectionnés dans une zone **Suivi automatique Kentaro** de la fiche existante. Le reste de la fiche reste intact et les changements de statut sont décochés par défaut.
+
+Si une ancienne mention devient importante après la séance, sélectionne son passage dans la note Obsidian puis lance **Créer un PNJ depuis la sélection** dans la palette de commandes. La nouvelle fiche conserve automatiquement un lien vers la session source.
