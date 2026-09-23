@@ -201,6 +201,73 @@
   resize: vertical;
 }
 
+.kentaro-roster-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+
+.kentaro-roster-toolbar input {
+  width: 100%;
+}
+
+.kentaro-roster-summary {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+
+.kentaro-roster-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  max-height: min(52vh, 520px);
+  overflow: auto;
+}
+
+.kentaro-roster-person {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+}
+
+.kentaro-roster-person.selected {
+  border-color: color-mix(in srgb, var(--kentaro-gold) 68%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--kentaro-gold) 10%, var(--background-secondary));
+}
+
+.kentaro-roster-person b,
+.kentaro-roster-person small {
+  display: block;
+}
+
+.kentaro-roster-person small {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kentaro-roster-launch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: var(--button-radius);
+  text-decoration: none;
+}
+
+.kentaro-roster-launch.is-disabled {
+  opacity: .45;
+  pointer-events: none;
+}
+
 @media (max-width: 600px) {
   .kentaro-import-modal .modal-content { padding: 14px; }
   .kentaro-import-file { grid-template-columns: 24px minmax(0, 1fr); }
@@ -210,4 +277,6 @@
   .kentaro-person-update-choices { margin-left: 0; }
   .kentaro-import-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .kentaro-import-actions button { min-height: 44px; }
+  .kentaro-roster-list { grid-template-columns: 1fr; }
+  .kentaro-roster-toolbar { grid-template-columns: 1fr; }
 }

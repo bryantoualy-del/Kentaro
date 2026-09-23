@@ -3,6 +3,7 @@
 const { Plugin, Modal, Notice, normalizePath } = require('obsidian');
 
 const SCHEMA = 'kentaro.obsidian-import';
+const KENTARO_URL = 'https://bryantoualy-del.github.io/Kentaro/';
 const ALLOWED_ROOTS = [
   '01 - Sessions/',
   '02 - Personnages/PNJ/',
@@ -130,7 +131,8 @@ async function planImport(vault, entries, manifest) {
     const destination = safePath(update.destination);
     const existing = vault.getAbstractFileByPath(destination);
     const willCreate = plan.some(item => item.route.kind === 'person' && item.destination === destination && item.outcome !== 'skip');
-    if (!existing && !willCreate) continue;
+    if (willCreate) continue;
+    if (!existing) continue;
     const sessionId = String(update.sessionId || manifest.session?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
     if (!sessionId) continue;
     const marker = `<!-- KENTARO:SESSION:${sessionId}:START -->`;
@@ -343,6 +345,129 @@ function yamlText(value) {
   return `"${String(value || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, ' ')}"`;
 }
 
+function rosterPayload(people) {
+  const payload = JSON.stringify({
+    v: 1,
+    createdAt: new Date().toISOString(),
+    people: people.map(person => ({
+      id: String(person.id || ''),
+      name: String(person.name || ''),
+      category: String(person.category || 'Inconnu'),
+      status: String(person.status || ''),
+      path: String(person.path || '')
+    }))
+  });
+  const bytes = new TextEncoder().encode(payload);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+class PrepareKentaroSessionModal extends Modal {
+  constructor(app, plugin) {
+    super(app);
+    this.plugin = plugin;
+    this.people = [];
+    this.selected = new Set();
+    this.query = '';
+  }
+
+  async onOpen() {
+    this.modalEl.addClass('kentaro-roster-modal');
+    const saved = await this.plugin.loadData() || {};
+    this.selected = new Set(Array.isArray(saved.rosterPaths) ? saved.rosterPaths : []);
+    this.people = this.app.vault.getMarkdownFiles()
+      .filter(file => file.path.startsWith('02 - Personnages/PNJ/'))
+      .map(file => {
+        const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter || {};
+        return {
+          id: String(frontmatter.kentaro_id || `obsidian-${file.path}`),
+          name: String(frontmatter.nom || file.basename),
+          category: String(frontmatter.relation_kentaro || 'Inconnu'),
+          status: String(frontmatter.statut || ''),
+          path: file.path
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+    const valid = new Set(this.people.map(person => person.path));
+    this.selected = new Set([...this.selected].filter(path => valid.has(path)).slice(0, 20));
+    this.render();
+  }
+
+  render() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.createEl('h2', { text: 'Préparer une session Kentaro' });
+    contentEl.createEl('p', { text: 'Choisis les PNJ susceptibles d’apparaître. Cette distribution sera temporaire : Obsidian reste le registre permanent.', cls: 'kentaro-import-help' });
+    const toolbar = contentEl.createDiv({ cls: 'kentaro-roster-toolbar' });
+    const search = toolbar.createEl('input');
+    search.type = 'search';
+    search.placeholder = 'Rechercher un PNJ…';
+    search.value = this.query;
+    search.addEventListener('input', () => { this.query = search.value; this.renderList(); });
+    const clear = toolbar.createEl('button', { text: 'Tout retirer' });
+    clear.addEventListener('click', () => { this.selected.clear(); this.renderList(); this.updateLaunch(); });
+    this.summaryEl = contentEl.createEl('small', { cls: 'kentaro-roster-summary' });
+    this.listEl = contentEl.createDiv({ cls: 'kentaro-roster-list' });
+    const actions = contentEl.createDiv({ cls: 'kentaro-import-actions' });
+    const cancel = actions.createEl('button', { text: 'Annuler' });
+    cancel.addEventListener('click', () => this.close());
+    this.launch = actions.createEl('a', { text: 'Ouvrir Kentaro', cls: 'mod-cta kentaro-roster-launch' });
+    this.launch.target = '_blank';
+    this.launch.rel = 'noopener';
+    this.launch.addEventListener('click', () => {
+      this.plugin.saveData({ rosterPaths: [...this.selected] });
+      setTimeout(() => this.close(), 120);
+    });
+    this.renderList();
+    this.updateLaunch();
+  }
+
+  filteredPeople() {
+    const needle = this.query.trim().toLocaleLowerCase('fr');
+    if (!needle) return this.people;
+    return this.people.filter(person => `${person.name} ${person.category} ${person.status}`.toLocaleLowerCase('fr').includes(needle));
+  }
+
+  renderList() {
+    this.listEl.empty();
+    const people = this.filteredPeople();
+    if (!people.length) this.listEl.createEl('p', { text: this.people.length ? 'Aucun PNJ ne correspond.' : 'Aucune fiche trouvée dans 02 - Personnages/PNJ.', cls: 'kentaro-import-help' });
+    for (const person of people) {
+      const label = this.listEl.createEl('label', { cls: 'kentaro-roster-person' });
+      const checkbox = label.createEl('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = this.selected.has(person.path);
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked && this.selected.size >= 20) {
+          checkbox.checked = false;
+          new Notice('La distribution est limitée à 20 PNJ pour rester fiable sur iPad.');
+          return;
+        }
+        checkbox.checked ? this.selected.add(person.path) : this.selected.delete(person.path);
+        label.toggleClass('selected', checkbox.checked);
+        this.updateLaunch();
+      });
+      label.toggleClass('selected', checkbox.checked);
+      const copy = label.createDiv();
+      copy.createEl('b', { text: person.name });
+      copy.createEl('small', { text: [person.category, person.status].filter(Boolean).join(' · ') || 'Inconnu' });
+    }
+    this.updateLaunch();
+  }
+
+  updateLaunch() {
+    if (!this.launch || !this.summaryEl) return;
+    const selected = this.people.filter(person => this.selected.has(person.path));
+    this.summaryEl.setText(`${selected.length}/20 PNJ dans la distribution temporaire`);
+    this.launch.toggleClass('is-disabled', !selected.length);
+    this.launch.setAttr('aria-disabled', String(!selected.length));
+    this.launch.href = selected.length ? `${KENTARO_URL}#roster=${rosterPayload(selected)}` : '#';
+  }
+
+  onClose() { this.contentEl.empty(); }
+}
+
 class CreatePnjFromNotesModal extends Modal {
   constructor(app, selection = '', sourceFile = null) {
     super(app);
@@ -407,6 +532,7 @@ class CreatePnjFromNotesModal extends Modal {
 class KentaroSessionImporter extends Plugin {
   async onload() {
     this.addRibbonIcon('moon-star', 'Importer une session Kentaro', () => this.openImporter());
+    this.addRibbonIcon('users', 'Préparer une session Kentaro', () => this.openRoster());
     this.addCommand({
       id: 'import-kentaro-session',
       name: 'Importer une session Kentaro',
@@ -417,12 +543,21 @@ class KentaroSessionImporter extends Plugin {
       name: 'Créer un PNJ depuis la sélection',
       editorCallback: (editor, view) => new CreatePnjFromNotesModal(this.app, editor.getSelection().trim(), view.file).open()
     });
+    this.addCommand({
+      id: 'prepare-kentaro-session',
+      name: 'Préparer une session Kentaro',
+      callback: () => this.openRoster()
+    });
   }
 
   openImporter() {
     new KentaroImportModal(this.app, this).open();
   }
+
+  openRoster() {
+    new PrepareKentaroSessionModal(this.app, this).open();
+  }
 }
 
 module.exports = KentaroSessionImporter;
-module.exports.__test = { readZipEntries, parseManifest, safePath, planImport, applyImport, personSessionBlock };
+module.exports.__test = { readZipEntries, parseManifest, safePath, planImport, applyImport, personSessionBlock, rosterPayload };

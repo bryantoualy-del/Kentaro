@@ -1,9 +1,9 @@
 {
   "id": "kentaro-session-importer",
   "name": "Kentaro Session Importer",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "minAppVersion": "1.7.2",
-  "description": "Importe les sessions Kentaro et transforme une note importante en fiche PNJ.",
+  "description": "Prépare la distribution de Kentaro, importe ses sessions et crée les fiches PNJ.",
   "author": "Bryan Toualy",
   "isDesktopOnly": false
 }

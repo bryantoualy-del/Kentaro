@@ -21,6 +21,15 @@ Le compagnon Kentaro utilise désormais le plugin **Kentaro Session Importer**. 
 
 Le plugin crée automatiquement les dossiers nécessaires, classe les fichiers puis ouvre la note de session.
 
+## Avant une session : préparer la distribution
+
+1. Dans Obsidian, touche l’icône de groupe ou lance **Préparer une session Kentaro**.
+2. Recherche les PNJ dans l’index issu de `02 - Personnages/PNJ`.
+3. Sélectionne les personnages susceptibles d’apparaître, jusqu’à 20.
+4. Touche **Ouvrir Kentaro**.
+
+Le compagnon s’ouvre avec cette distribution temporaire. Marque un PNJ présent ou rattache-lui une note lorsqu’il intervient réellement. Les personnages préparés mais absents ne seront pas exportés en fin de séance.
+
 ## Protection des données
 
 - une fiche PNJ existante n’est jamais écrasée ;
