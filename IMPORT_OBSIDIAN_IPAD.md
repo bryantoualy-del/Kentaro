@@ -28,3 +28,9 @@ Le plugin crée automatiquement les dossiers nécessaires, classe les fichiers p
 - un portrait n’est actualisé que si l’export est plus récent ;
 - chaque import conserve un reçu dans `98 - Archives/Imports Kentaro` ;
 - tout le traitement reste local sur l’appareil.
+
+## Mise à jour des fiches PNJ
+
+Dans le carnet Kentaro, une note de type **PNJ** peut être reliée à une personne et qualifiée comme information, relation, statut, promesse, dette, objectif, souvenir ou localisation.
+
+Pendant l’import, le plugin affiche chaque information avec une case à cocher. Il ajoute uniquement les éléments sélectionnés dans une zone **Suivi automatique Kentaro** de la fiche existante. Le reste de la fiche reste intact et les changements de statut sont décochés par défaut.

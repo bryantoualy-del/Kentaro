@@ -23,4 +23,6 @@ Le plugin crée les dossiers nécessaires et applique les règles suivantes :
 - un portrait n’est remplacé que si l’export est plus récent ;
 - les reçus d’import sont toujours renommés en cas de doublon.
 
+Lorsqu’une fiche PNJ existe déjà, l’aperçu permet de choisir les informations de la session à ajouter. Le plugin écrit uniquement dans une section balisée `Suivi automatique Kentaro` et ne modifie jamais le reste de la fiche. Les changements de statut sont décochés par défaut.
+
 Le traitement est entièrement local.

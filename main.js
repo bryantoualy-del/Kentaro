@@ -126,12 +126,78 @@ async function planImport(vault, entries, manifest) {
     }
     plan.push({ route, source, destination, finalPath, outcome, bytes: entries.get(source) });
   }
+  for (const update of Array.isArray(manifest.personUpdates) ? manifest.personUpdates : []) {
+    const destination = safePath(update.destination);
+    const existing = vault.getAbstractFileByPath(destination);
+    const willCreate = plan.some(item => item.route.kind === 'person' && item.destination === destination && item.outcome !== 'skip');
+    if (!existing && !willCreate) continue;
+    const sessionId = String(update.sessionId || manifest.session?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!sessionId) continue;
+    const marker = `<!-- KENTARO:SESSION:${sessionId}:START -->`;
+    let alreadyMerged = false;
+    if (existing) {
+      const current = await vault.read(existing);
+      alreadyMerged = current.includes(marker);
+    }
+    const facts = (Array.isArray(update.facts) ? update.facts : [])
+      .filter(fact => fact && String(fact.text || '').trim())
+      .map((fact, index) => ({
+        id: `${sessionId}-${index}`,
+        kind: String(fact.kind || 'information'),
+        label: String(fact.label || 'Information'),
+        text: String(fact.text || '').trim(),
+        selected: fact.defaultSelected !== false
+      }));
+    plan.push({
+      route: { kind: 'person-merge' },
+      destination,
+      finalPath: destination,
+      outcome: alreadyMerged ? 'merged-skip' : 'merge',
+      update: { ...update, sessionId },
+      facts
+    });
+  }
   return plan;
 }
 
+function personSessionBlock(update, facts) {
+  const start = `<!-- KENTARO:SESSION:${update.sessionId}:START -->`;
+  const end = `<!-- KENTARO:SESSION:${update.sessionId}:END -->`;
+  const sessionLink = update.sessionNote ? `[[${update.sessionNote}]]` : (update.sessionTitle || 'Session de Kentaro');
+  const lines = facts.map(fact => `- **${fact.label} :** ${fact.text}`);
+  return `${start}\n### ${sessionLink}\n\n${lines.join('\n')}\n${end}`;
+}
+
+async function mergePersonUpdate(vault, item) {
+  const file = vault.getAbstractFileByPath(item.finalPath);
+  if (!file) throw new Error(`Fiche PNJ introuvable après import : ${item.finalPath}`);
+  const facts = item.facts.filter(fact => fact.selected);
+  if (!facts.length) return false;
+  const current = await vault.read(file);
+  const sessionMarker = `<!-- KENTARO:SESSION:${item.update.sessionId}:START -->`;
+  if (current.includes(sessionMarker)) return false;
+  const autoStart = '<!-- KENTARO:AUTO:START -->';
+  const autoEnd = '<!-- KENTARO:AUTO:END -->';
+  const block = personSessionBlock(item.update, facts);
+  let next;
+  if (current.includes(autoStart) && current.includes(autoEnd)) {
+    next = current.replace(autoEnd, `${block}\n\n${autoEnd}`);
+  } else {
+    next = `${current.trimEnd()}\n\n## Suivi automatique Kentaro\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
+  }
+  await vault.modify(file, next);
+  return true;
+}
+
 async function applyImport(vault, plan) {
-  const result = { create: 0, replace: 0, rename: 0, skip: 0, sessionPath: null };
+  const result = { create: 0, replace: 0, rename: 0, merge: 0, skip: 0, sessionPath: null };
   for (const item of plan) {
+    if (item.route.kind === 'person-merge') {
+      if (item.outcome === 'merged-skip') { result.skip += 1; continue; }
+      if (await mergePersonUpdate(vault, item)) result.merge += 1;
+      else result.skip += 1;
+      continue;
+    }
     if (item.outcome === 'skip') { result.skip += 1; continue; }
     const { folder } = splitPath(item.finalPath);
     if (folder) await ensureFolder(vault, folder);
@@ -144,11 +210,11 @@ async function applyImport(vault, plan) {
 }
 
 function iconFor(kind) {
-  return ({ session: '☷', person: '♙', media: '▧', receipt: '✓' })[kind] || '•';
+  return ({ session: '☷', person: '♙', 'person-merge': '✦', media: '▧', receipt: '✓' })[kind] || '•';
 }
 
 function labelFor(outcome) {
-  return ({ create: 'Créer', replace: 'Actualiser', rename: 'Créer une copie', skip: 'Conserver l’existant' })[outcome] || outcome;
+  return ({ create: 'Créer', replace: 'Actualiser', rename: 'Créer une copie', skip: 'Conserver l’existant', merge: 'Enrichir la fiche', 'merged-skip': 'Déjà intégré' })[outcome] || outcome;
 }
 
 class KentaroImportModal extends Modal {
@@ -207,9 +273,32 @@ class KentaroImportModal extends Modal {
     sessionBox.createEl('div', { text: `${session.date || 'Date inconnue'} · ${fileName}` });
     const summary = contentEl.createDiv({ cls: 'kentaro-import-summary' });
     const counts = this.plan.reduce((acc, item) => (acc[item.outcome] = (acc[item.outcome] || 0) + 1, acc), {});
-    summary.createEl('small', { text: `${counts.create || 0} création(s) · ${counts.rename || 0} copie(s) · ${counts.replace || 0} actualisation(s) · ${counts.skip || 0} conservé(s)` });
+    summary.createEl('small', { text: `${counts.create || 0} création(s) · ${counts.merge || 0} fiche(s) PNJ à enrichir · ${counts.rename || 0} copie(s) · ${(counts.skip || 0) + (counts['merged-skip'] || 0)} conservé(s)` });
     const files = summary.createDiv({ cls: 'kentaro-import-files' });
     for (const item of this.plan) {
+      if (item.route.kind === 'person-merge') {
+        const card = files.createDiv({ cls: 'kentaro-person-update' });
+        const head = card.createDiv({ cls: 'kentaro-person-update-head' });
+        head.createEl('span', { text: '✦' });
+        const headCopy = head.createDiv();
+        headCopy.createEl('b', { text: item.update.name || splitPath(item.finalPath).name.replace(/\.md$/i, '') });
+        headCopy.createEl('small', { text: item.outcome === 'merged-skip' ? 'Cette session est déjà présente dans la fiche.' : 'Choisis les informations à ajouter à la zone protégée.' });
+        head.createEl('span', { text: labelFor(item.outcome), cls: `kentaro-import-status ${item.outcome}` });
+        if (item.outcome === 'merge') {
+          const choices = card.createDiv({ cls: 'kentaro-person-update-choices' });
+          for (const fact of item.facts) {
+            const label = choices.createEl('label');
+            const checkbox = label.createEl('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = fact.selected;
+            checkbox.addEventListener('change', () => { fact.selected = checkbox.checked; });
+            const copy = label.createDiv();
+            copy.createEl('b', { text: fact.label });
+            copy.createEl('span', { text: fact.text });
+          }
+        }
+        continue;
+      }
       const row = files.createDiv({ cls: 'kentaro-import-file' });
       row.createEl('span', { text: iconFor(item.route.kind) });
       const detail = row.createDiv();
@@ -227,7 +316,7 @@ class KentaroImportModal extends Modal {
       try {
         const result = await applyImport(this.app.vault, this.plan);
         const total = result.create + result.rename + result.replace;
-        new Notice(`Kentaro · ${total} fichier(s) importé(s), ${result.skip} conservé(s).`, 7000);
+        new Notice(`Kentaro · ${total} fichier(s), ${result.merge} fiche(s) PNJ enrichie(s), ${result.skip} élément(s) conservé(s).`, 7000);
         this.close();
         if (result.sessionPath) {
           const sessionFile = this.app.vault.getAbstractFileByPath(result.sessionPath);
@@ -262,4 +351,4 @@ class KentaroSessionImporter extends Plugin {
 }
 
 module.exports = KentaroSessionImporter;
-module.exports.__test = { readZipEntries, parseManifest, safePath, planImport, applyImport };
+module.exports.__test = { readZipEntries, parseManifest, safePath, planImport, applyImport, personSessionBlock };
