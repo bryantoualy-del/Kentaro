@@ -159,6 +159,33 @@ async function planImport(vault, entries, manifest) {
       facts
     });
   }
+  for (const update of Array.isArray(manifest.registryUpdates) ? manifest.registryUpdates : []) {
+    const destination = safePath(update.destination);
+    const existing = vault.getAbstractFileByPath(destination);
+    const willCreate = plan.some(item => item.route.kind === 'registry' && item.destination === destination && item.outcome !== 'skip');
+    if (willCreate) continue;
+    if (!existing) continue;
+    const sessionId = String(update.sessionId || manifest.session?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!sessionId) continue;
+    const entries = (Array.isArray(update.entries) ? update.entries : [])
+      .filter(entry => entry && String(entry.text || '').trim())
+      .map((entry, index) => ({
+        id: String(entry.id || `${sessionId}-${index}`),
+        text: String(entry.text || '').trim(),
+        createdAt: String(entry.createdAt || '')
+      }));
+    if (!entries.length) continue;
+    const current = await vault.read(existing);
+    const marker = `<!-- KENTARO:REGISTRY:${sessionId}:START -->`;
+    plan.push({
+      route: { kind: 'registry-merge' },
+      destination,
+      finalPath: destination,
+      outcome: current.includes(marker) ? 'merged-skip' : 'merge',
+      update: { ...update, sessionId },
+      entries
+    });
+  }
   return plan;
 }
 
@@ -168,6 +195,13 @@ function personSessionBlock(update, facts) {
   const sessionLink = update.sessionNote ? `[[${update.sessionNote}]]` : (update.sessionTitle || 'Session de Kentaro');
   const lines = facts.map(fact => `- **${fact.label} :** ${fact.text}`);
   return `${start}\n### ${sessionLink}\n\n${lines.join('\n')}\n${end}`;
+}
+
+function registrySessionBlock(update, entries) {
+  const start = `<!-- KENTARO:REGISTRY:${update.sessionId}:START -->`;
+  const end = `<!-- KENTARO:REGISTRY:${update.sessionId}:END -->`;
+  const sessionLink = update.sessionNote ? `[[${update.sessionNote}]]` : (update.sessionTitle || 'Session de Wonq');
+  return `${start}\n### ${sessionLink}\n\n${entries.map(entry => `- ${entry.text}`).join('\n')}\n${end}`;
 }
 
 async function mergePersonUpdate(vault, item) {
@@ -191,12 +225,37 @@ async function mergePersonUpdate(vault, item) {
   return true;
 }
 
+async function mergeRegistryUpdate(vault, item) {
+  const file = vault.getAbstractFileByPath(item.finalPath);
+  if (!file) throw new Error(`Registre des Absents introuvable après import : ${item.finalPath}`);
+  const current = await vault.read(file);
+  const sessionMarker = `<!-- KENTARO:REGISTRY:${item.update.sessionId}:START -->`;
+  if (current.includes(sessionMarker)) return false;
+  const autoStart = '<!-- KENTARO:REGISTRY:AUTO:START -->';
+  const autoEnd = '<!-- KENTARO:REGISTRY:AUTO:END -->';
+  const block = registrySessionBlock(item.update, item.entries);
+  let next;
+  if (current.includes(autoStart) && current.includes(autoEnd)) {
+    next = current.replace(autoEnd, `${block}\n\n${autoEnd}`);
+  } else {
+    next = `${current.trimEnd()}\n\n## Entrées consignées en séance\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
+  }
+  await vault.modify(file, next);
+  return true;
+}
+
 async function applyImport(vault, plan) {
   const result = { create: 0, replace: 0, rename: 0, merge: 0, skip: 0, sessionPath: null };
   for (const item of plan) {
     if (item.route.kind === 'person-merge') {
       if (item.outcome === 'merged-skip') { result.skip += 1; continue; }
       if (await mergePersonUpdate(vault, item)) result.merge += 1;
+      else result.skip += 1;
+      continue;
+    }
+    if (item.route.kind === 'registry-merge') {
+      if (item.outcome === 'merged-skip') { result.skip += 1; continue; }
+      if (await mergeRegistryUpdate(vault, item)) result.merge += 1;
       else result.skip += 1;
       continue;
     }
@@ -212,11 +271,11 @@ async function applyImport(vault, plan) {
 }
 
 function iconFor(kind) {
-  return ({ session: '☷', person: '♙', 'person-merge': '✦', media: '▧', receipt: '✓' })[kind] || '•';
+  return ({ session: '☷', person: '♙', 'person-merge': '✦', registry: '◌', 'registry-merge': '◌', media: '▧', receipt: '✓' })[kind] || '•';
 }
 
 function labelFor(outcome) {
-  return ({ create: 'Créer', replace: 'Actualiser', rename: 'Créer une copie', skip: 'Conserver l’existant', merge: 'Enrichir la fiche', 'merged-skip': 'Déjà intégré' })[outcome] || outcome;
+  return ({ create: 'Créer', replace: 'Actualiser', rename: 'Créer une copie', skip: 'Conserver l’existant', merge: 'Enrichir', 'merged-skip': 'Déjà intégré' })[outcome] || outcome;
 }
 
 class KentaroImportModal extends Modal {
@@ -275,9 +334,26 @@ class KentaroImportModal extends Modal {
     sessionBox.createEl('div', { text: `${session.date || 'Date inconnue'} · ${fileName}` });
     const summary = contentEl.createDiv({ cls: 'kentaro-import-summary' });
     const counts = this.plan.reduce((acc, item) => (acc[item.outcome] = (acc[item.outcome] || 0) + 1, acc), {});
-    summary.createEl('small', { text: `${counts.create || 0} création(s) · ${counts.merge || 0} fiche(s) PNJ à enrichir · ${counts.rename || 0} copie(s) · ${(counts.skip || 0) + (counts['merged-skip'] || 0)} conservé(s)` });
+    summary.createEl('small', { text: `${counts.create || 0} création(s) · ${counts.merge || 0} enrichissement(s) · ${counts.rename || 0} copie(s) · ${(counts.skip || 0) + (counts['merged-skip'] || 0)} conservé(s)` });
     const files = summary.createDiv({ cls: 'kentaro-import-files' });
     for (const item of this.plan) {
+      if (item.route.kind === 'registry-merge') {
+        const card = files.createDiv({ cls: 'kentaro-person-update' });
+        const head = card.createDiv({ cls: 'kentaro-person-update-head' });
+        head.createEl('span', { text: '◌' });
+        const headCopy = head.createDiv();
+        headCopy.createEl('b', { text: 'Registre des Absents' });
+        headCopy.createEl('small', { text: item.outcome === 'merged-skip' ? 'Cette session est déjà versée au Registre.' : `${item.entries.length} entrée(s) de Wonq seront ajoutée(s) à la note permanente.` });
+        head.createEl('span', { text: labelFor(item.outcome), cls: `kentaro-import-status ${item.outcome}` });
+        if (item.outcome === 'merge') {
+          const choices = card.createDiv({ cls: 'kentaro-person-update-choices' });
+          for (const entry of item.entries) {
+            const row = choices.createEl('div');
+            row.createEl('span', { text: entry.text });
+          }
+        }
+        continue;
+      }
       if (item.route.kind === 'person-merge') {
         const card = files.createDiv({ cls: 'kentaro-person-update' });
         const head = card.createDiv({ cls: 'kentaro-person-update-head' });
@@ -318,7 +394,7 @@ class KentaroImportModal extends Modal {
       try {
         const result = await applyImport(this.app.vault, this.plan);
         const total = result.create + result.rename + result.replace;
-        new Notice(`Kentaro · ${total} fichier(s), ${result.merge} fiche(s) PNJ enrichie(s), ${result.skip} élément(s) conservé(s).`, 7000);
+        new Notice(`Kentaro · ${total} fichier(s), ${result.merge} enrichissement(s), ${result.skip} élément(s) conservé(s).`, 7000);
         this.close();
         if (result.sessionPath) {
           const sessionFile = this.app.vault.getAbstractFileByPath(result.sessionPath);
