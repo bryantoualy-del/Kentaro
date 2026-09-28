@@ -1,7 +1,8 @@
 /* V3 shell: only navigation and resolution; Eclipse palette and mechanics stay local. */
 .company-kicker{font:750 11px/1.3 system-ui,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#d9b87b;margin-bottom:5px}
-#kentaro-ribbon{top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;transform:translate(-50%,145%)!important;max-height:34vh;overflow:auto}
+#kentaro-ribbon{top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;transform:translate(-50%,145%)!important;max-height:34vh;overflow:auto;pointer-events:none!important;padding-right:45px}
 #kentaro-ribbon.show{transform:translate(-50%,0)!important}
+#ribbonDismiss{position:absolute;top:6px;right:7px;min-width:34px;min-height:34px;padding:2px;border:1px solid #ffffff66;border-radius:8px;background:#111a;color:#fff;font-size:22px;line-height:1;pointer-events:auto}
 #kentaro-ribbon.awaiting-hit{display:none!important}
 #kentaro-hit-modal{position:fixed;inset:0;z-index:10030;display:none;place-items:center;padding:18px;background:#020307c9;backdrop-filter:blur(8px)}
 #kentaro-hit-modal.show{display:grid}.kentaro-hit-box{width:min(94vw,480px);max-height:85dvh;overflow:auto;border:1px solid #c49d68;border-radius:18px;padding:22px;background:radial-gradient(circle at 50% 0,#6d476538,transparent 70%),linear-gradient(140deg,#271b20,#111622);box-shadow:0 28px 80px #000e;text-align:center}
