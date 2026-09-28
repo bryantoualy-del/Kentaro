@@ -1,0 +1,12 @@
+/* V3 shell: only navigation and resolution; Eclipse palette and mechanics stay local. */
+.company-kicker{font:750 11px/1.3 system-ui,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#d9b87b;margin-bottom:5px}
+#kentaro-ribbon{top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;transform:translate(-50%,145%)!important;max-height:34vh;overflow:auto}
+#kentaro-ribbon.show{transform:translate(-50%,0)!important}
+#kentaro-ribbon.awaiting-hit{display:none!important}
+#kentaro-hit-modal{position:fixed;inset:0;z-index:10030;display:none;place-items:center;padding:18px;background:#020307c9;backdrop-filter:blur(8px)}
+#kentaro-hit-modal.show{display:grid}.kentaro-hit-box{width:min(94vw,480px);max-height:85dvh;overflow:auto;border:1px solid #c49d68;border-radius:18px;padding:22px;background:radial-gradient(circle at 50% 0,#6d476538,transparent 70%),linear-gradient(140deg,#271b20,#111622);box-shadow:0 28px 80px #000e;text-align:center}
+.kentaro-hit-box h2{margin:9px 0;color:#fae8ca}.kentaro-hit-box #kentaroHitRoll{font:800 20px/1.35 Georgia,serif;color:#e6c891;margin:16px 0;overflow-wrap:anywhere}
+#kentaro-hit-modal .ribbon-actions{display:flex;gap:9px;flex-wrap:wrap}#kentaro-hit-modal .ribbon-actions button{flex:1;min-height:52px;min-width:110px}
+.kentaro-dock{display:none}.kentaro-subnav{display:none}
+@media(max-width:767px){.wrap{padding-bottom:calc(156px + env(safe-area-inset-bottom))!important}.tabs{display:none!important}.kentaro-dock{position:fixed;left:0;right:0;bottom:0;z-index:80;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));background:#12141cef;border-top:1px solid #736155;backdrop-filter:blur(16px)}.kentaro-dock button{min-height:52px;min-width:0;padding:6px 2px;font-size:11px;border-radius:10px}.kentaro-dock button.active{background:linear-gradient(120deg,#68402a,#40304c,#284568);border-color:#d7b678}.kentaro-subnav{display:flex;gap:6px;overflow-x:auto;margin:5px 0 11px;padding:2px;scrollbar-width:none}.kentaro-subnav button{flex:1;min-width:max-content;min-height:42px;padding:6px 10px}.kentaro-subnav button.active{border-color:#d7b678;color:#ffe6b7}#kentaro-ribbon{bottom:calc(80px + env(safe-area-inset-bottom))!important;width:calc(100% - 18px)!important}#lastBadge{bottom:calc(82px + env(safe-area-inset-bottom))!important}}
+@media(prefers-reduced-motion:reduce){#kentaro-ribbon{transition:none!important}}

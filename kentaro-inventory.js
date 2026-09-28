@@ -145,6 +145,12 @@ $('#inventoryForm')?.addEventListener('submit',e=>{
  else{const newId=`custom-${Date.now().toString(36)}`;commit(`⌁ ${name} ajouté à l’inventaire.`,()=>normalize().custom.push({id:newId,description:'Objet ajouté au registre de Kentaro.',...data}))}
  $('#inventoryEditor').close();
 });
+window.KentaroInventoryCommands={
+ getItems:()=>allItems().filter(x=>Number(x.qty)>0).map(x=>({id:x.id,name:x.name,qty:x.qty})),
+ add:item=>{const name=String(item?.name||'').trim().slice(0,80);if(!name)throw Error('Nom requis');const entry={id:`custom-${crypto.randomUUID()}`,name,category:categories[item.category]?item.category:'misc',qty:Math.min(99,Math.max(0,Number(item.qty??1))),notes:String(item.notes||'').slice(0,500),iconKey:'generic',description:'Objet ajouté au registre de Kentaro.'};commit(`⌁ ${name} ajouté à l’inventaire.`,()=>normalize().custom.push(entry));return entry},
+ update:item=>{const found=findItem(item?.id);if(!found)throw Error('Objet inconnu');commit(`⌁ ${found.base?.name||found.entry.name} mis à jour.`,()=>{if(item.qty!==undefined)found.entry.qty=Math.min(99,Math.max(0,Number(item.qty)));if(item.notes!==undefined)found.entry.notes=String(item.notes).slice(0,500)});return true},
+ remove:id=>{const found=findItem(id);if(!found)throw Error('Objet inconnu');commit(`⌁ Objet retiré de l’inventaire.`,()=>{if(found.fixed)found.entry.qty=0;else normalize().custom=normalize().custom.filter(x=>x.id!==id)});return true}
+};
 window.KentaroInventoryRender=render;
 render();api.save(true);
 })();

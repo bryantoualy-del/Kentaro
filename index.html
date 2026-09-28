@@ -139,7 +139,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <body>
 <div id="fxOverlay" aria-hidden="true"></div>
 <div class="wrap"><main class="shell" id="app">
-<header class="head"><div class="eclipse-mark"><span class="sunIcon">☀</span><span>✦</span><span class="moonIcon">☾</span></div><h1><span class="ken">KENTARO</span></h1><div class="subtitle">Dhampire • Occultiste 10 • Lame Maudite • Porteur de Solinar & Sélhane</div></header>
+<header class="head"><div class="company-kicker">Compagnie Créole</div><div class="eclipse-mark"><span class="sunIcon">☀</span><span>✦</span><span class="moonIcon">☾</span></div><h1><span class="ken">KENTARO</span></h1><div class="subtitle">Dhampire • Occultiste 10 • Lame Maudite • Porteur de Solinar & Sélhane</div></header>
 
 <section class="grid stats">
 <div class="card center">CA<span class="big gold">18</span></div><div class="card center">PV<span id="hpView" class="big">103</span></div><div class="card center">Initiative<span class="big">+2</span></div><div class="card center">DD sorts<span class="big">16</span></div><div class="card center">Att. sort<span class="big">+8</span></div><div class="card center">Lames<span class="big gold">+10</span></div>
@@ -163,7 +163,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   <button id="newTurn" class="turn-next">↻ Nouveau tour</button>
 </div>
 
-<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Inventaire</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="combat">⚔ Combat</button><button class="tab" data-tab="spells">✦ Sorts</button><button class="tab" data-tab="defense">◈ Défenses</button><button class="tab" data-tab="items">⌁ Inventaire</button><button class="tab" data-tab="spectre">👻 Spectre</button><button class="tab" data-tab="social">◇ Social</button><button class="tab" data-tab="journal">☷ Journal</button></nav>
 
 <section class="panel active" data-panel="combat">
 <div class="combat-layout">
@@ -345,6 +345,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </div></section>
 
 
+<section class="panel" data-panel="social"></section>
 <section class="panel journal-panel" data-panel="journal">
   <article class="card">
     <div class="journal-head"><div><div class="social-kicker">Journal complet</div><div class="action-title">Historique de session</div></div><button id="clearLog">Effacer journal</button></div>
@@ -365,7 +366,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   </div>
 </div>
 <div id="saveStatus" class="meta save-status-compact">Sauvegarde locale : aucune modification enregistrée.</div>
-<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div id="ribbonHitActions" class="ribbon-actions three-actions"><button id="confirmHit" class="btn-green">✅ Oui</button><button id="confirmMiss" class="btn-red">❌ Non</button><button id="confirmCancel">↶ Annuler</button></div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div><button id="lastBadge" class="result-badge">✦ Dernier résultat</button>
+<div id="kentaro-ribbon" role="status" aria-live="polite"><div class="title">Dernier résultat</div><div id="lastResult" class="body">Prêt. Que l’éclipse tombe.</div><div class="hint">Touchez pour fermer • disparition automatique après 7 s</div></div><div id="kentaro-hit-modal" role="dialog" aria-modal="true" aria-labelledby="kentaroHitTitle" aria-hidden="true"><div class="kentaro-hit-box"><div class="social-kicker">Résolution d’attaque</div><h2 id="kentaroHitTitle">L’attaque touche ?</h2><div id="kentaroHitRoll"></div><div id="ribbonHitActions" class="ribbon-actions three-actions"><button id="confirmHit" class="btn-green">Touché</button><button id="confirmMiss" class="btn-red">Raté</button><button id="confirmCancel">Annuler</button></div></div></div><button id="lastBadge" class="result-badge">✦ Dernier résultat</button>
 </main></div>
 <script>
 (()=>{
@@ -387,7 +388,7 @@ let ribbonTimer=null,fxTimer=null,pendingBefore=null,fxSequenceId=0;
 function snap(){return JSON.parse(JSON.stringify(S))}
 function push(){undo.push(snap());if(undo.length>40)undo.shift()}
 function restore(x){Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,x);render()}
-function save(silent=true){try{localStorage.setItem(SAVE,JSON.stringify(S));q('#saveStatus').textContent='Sauvegarde locale : état enregistré sur cet appareil.';if(!silent)log('💾 Partie sauvegardée.')}catch(e){if(!silent)log('❌ Sauvegarde locale indisponible.')}}
+function save(silent=true){try{localStorage.setItem(SAVE,JSON.stringify(S));queueMicrotask(()=>window.CompanionAPI?.sync());q('#saveStatus').textContent='Sauvegarde locale : état enregistré sur cet appareil.';if(!silent)log('💾 Partie sauvegardée.')}catch(e){if(!silent)log('❌ Sauvegarde locale indisponible.')}}
 function load(silent=true){try{const x=JSON.parse(localStorage.getItem(SAVE)||'null');if(x){Object.assign(S,x);render();if(!silent)log('↩ Sauvegarde chargée.')}}catch(e){}}
 function runFx(type){
  const stage=q('#kentaroFxStage');
@@ -431,7 +432,7 @@ function log(t){
  const tone=getRibbonTone(t);
  if(tone==='warn')r.classList.add('tone-warn');
  else if(tone==='error')r.classList.add('tone-error');
- const badge=q('#lastBadge');if(badge)badge.classList.remove('show');r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>{r.classList.remove('show');if(badge)badge.classList.add('show')},7000);save(true)
+ const badge=q('#lastBadge');if(badge)badge.classList.remove('show');if(!S.pendingHit)r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>{r.classList.remove('show');if(badge)badge.classList.add('show')},7000);save(true)
 }
 function cleanName(x){return (x||'').trim().toLowerCase()}
 function curseAppliesTo(target){return S.curse && cleanName(S.curseTarget) && cleanName(target)===cleanName(S.curseTarget)}
@@ -584,7 +585,7 @@ function render(){
  q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';q('#currentTarget').disabled=!!S.pendingHit;q('#targetAC').disabled=!!S.pendingHit;q('#rememberTarget').disabled=!!S.pendingHit;q('#curseTarget').disabled=!!S.pendingHit||!!S.curse;q('#sameTarget').disabled=!!S.pendingHit||!!S.curse;
  q('#combatStatus').textContent=`Tour ${S.turn} • Solinar : ${S.solHit?`touché${S.solTarget?' → '+S.solTarget:''}`:'—'} • Sélhane : ${S.selHit?`touché${S.selTarget?' → '+S.selTarget:''}`:'—'} • Malédiction sur cible : ${curseApplies()?'OUI':'non'}`;
  q('#sealStatus').textContent=S.sealTarget?`✦ Sceau : ${S.sealTarget} est marquée • avantage de Kentaro jusqu’à la fin du tour ${S.sealExpiresAfterTurn}.`:'Sceau : aucune cible marquée.';
- const rb=q('#kentaro-ribbon');if(rb)rb.classList.toggle('awaiting-hit',!!S.pendingHit);
+ const rb=q('#kentaro-ribbon'),modal=q('#kentaro-hit-modal');if(rb){rb.classList.toggle('awaiting-hit',!!S.pendingHit);if(S.pendingHit)rb.classList.remove('show')}if(modal){modal.classList.toggle('show',!!S.pendingHit);modal.setAttribute('aria-hidden',String(!S.pendingHit));if(S.pendingHit)q('#kentaroHitRoll').textContent=`${S.pendingHit.name||'Attaque'} · jet ${S.pendingHit.total??'—'}`}
  q('#spectreState').textContent=S.spectreActive?(S.turnPhase==='spectre'?'Tour en cours':'Actif'):'Inactif';q('#spectreHp').textContent=S.spectreHp;q('#spectreTemp').textContent=S.spectreTemp;
  const stb=q('#spectreTurnbar'),sta=q('#spectreActionCell'),stm=q('#spectreMoveCell'),sts=q('#spectreTurnState'),sat=q('#spectre');if(stb){stb.hidden=!S.spectreActive;stb.classList.toggle('active',S.turnPhase==='spectre')}if(sts)sts.textContent=S.turnPhase==='spectre'?`Tour ${S.turn} · à lui d’agir`:'En attente de Kentaro';if(sta){sta.classList.toggle('used',!!S.spectreActionUsed);sta.disabled=S.turnPhase!=='spectre'||S.spectreActionUsed;sta.querySelector('b').textContent=S.spectreActionUsed?'Utilisée':'Disponible'}if(stm){stm.classList.toggle('used',!!S.spectreMoveUsed);stm.disabled=S.turnPhase!=='spectre'||S.spectreMoveUsed;stm.querySelector('b').textContent=S.spectreMoveUsed?'Utilisé':'Vol 15 m'}if(sat)sat.disabled=!S.spectreActive||S.turnPhase!=='spectre'||S.spectreActionUsed||!!S.pendingHit;if(app)app.classList.toggle('spectre-phase',S.turnPhase==='spectre');const nt=q('#newTurn');if(nt)nt.textContent=S.spectreActive&&S.turnPhase==='kentaro'?'👻 Passer au Spectre':S.turnPhase==='spectre'?'↻ Finir le Spectre':'↻ Nouveau tour';
  const sn=q('#socialNotes'),sr=q('#socialRelations'),ct=q('#charmTarget'),cs=q('#charmStatus'),jl=q('#log');if(sn&&sn!==document.activeElement)sn.value=S.socialNotes||'';if(sr&&sr!==document.activeElement)sr.value=S.socialRelations||'';if(ct&&ct!==document.activeElement)ct.value=S.charmTarget||'';if(cs)cs.textContent=S.charmPrepared?`Approche préparée${S.charmTarget?' pour '+S.charmTarget:''} • avantage prêt à être utilisé selon la capacité.`:'Aucune approche préparée.';if(jl)jl.textContent=Array.isArray(S.journal)&&S.journal.length?S.journal.join('\n\n'):'Prêt. Que l’éclipse tombe.';
@@ -693,7 +694,7 @@ function eldritchRay(){
 }
 function confirmPendingEldritch(hit){
  const p=S.pendingHit;if(!p)return;
- const before=pendingBefore;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
+ const before=pendingBefore;window.__lastAttackHit=null;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
  S.eldritchCount=Math.max(S.eldritchCount||0,p.ray||1);
  if(hit){
    const r=roll(p.crit?2:1,10,4+(p.cursed?4:0));
@@ -706,7 +707,7 @@ function confirmPendingEldritch(hit){
  log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
 }
 function confirmPendingSpectre(hit){const p=S.pendingHit;if(!p||p.kind!=='spectre')return;S.pendingHit=null;pendingBefore=null;S.spectreActionUsed=true;if(hit){const r=roll(p.crit?6:3,6);S.spectreTurnDamage=(S.spectreTurnDamage||0)+r.total;render();fx('spectre-drain');return log(`👻 Spectre — Absorption de vie\nConfirmation : TOUCHÉ${p.crit?' • CRITIQUE':''}\nAttaque : ${p.total}\nDégâts : ${r.total} nécrotiques (${r.dice.join('+')}).`)}render();log(`👻 Spectre — Absorption de vie\nConfirmation : RATÉ\nAttaque : ${p.total}.`)}
-function confirmPendingAttack(hit){if(!S.pendingHit)return;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);if(S.pendingHit.kind==='spectre')return confirmPendingSpectre(hit);return confirmPendingBlade(hit)}
+function confirmPendingAttack(hit){if(!S.pendingHit)return;window.__lastAttackHit=hit;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);if(S.pendingHit.kind==='spectre')return confirmPendingSpectre(hit);return confirmPendingBlade(hit)}
 q('#confirmHit').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(true)};
 q('#confirmMiss').onclick=(e)=>{e.stopPropagation();confirmPendingAttack(false)};
 q('#confirmCancel').onclick=(e)=>{e.stopPropagation();if(!S.pendingHit)return;const before=pendingBefore;S.pendingHit=null;pendingBefore=null;if(before)restore(before);log('↶ Attaque annulée : économie d’action et état du tour restaurés.')};
@@ -742,6 +743,7 @@ q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTarget=S
 q('#clearLog').onclick=()=>{push();S.journal=[];q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.remove('show');save(true)};q('#kentaro-ribbon').onclick=()=>{if(!S.pendingHit){q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.add('show')}};q('#lastBadge').onclick=()=>{q('#lastBadge').classList.remove('show');q('#kentaro-ribbon').classList.add('show')};
 const socialNotes=q('#socialNotes'),socialRelations=q('#socialRelations'),charmTarget=q('#charmTarget'),prepareCharm=q('#prepareCharm'),resetCharm=q('#resetCharm');
 if(socialNotes)socialNotes.oninput=e=>{S.socialNotes=e.target.value;save(true)};if(socialRelations)socialRelations.oninput=e=>{S.socialRelations=e.target.value;save(true)};if(charmTarget)charmTarget.oninput=e=>{S.charmTarget=e.target.value;save(true)};if(prepareCharm)prepareCharm.onclick=()=>{push();S.charmTarget=charmTarget?.value.trim()||'';S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};if(resetCharm)resetCharm.onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
+window.__CompanionBridge={id:'kentaro',name:'Kentaro',maxHp:103,read:()=>S,ac:()=>18,inventory:()=>window.KentaroInventoryCommands?.getItems?.()||[],resources:s=>({slots:s.slots,curseReady:s.curseReady,shroud:s.shroud}),statuses:s=>[s.curse?'malédiction':null,s.shroud?'voile spirituel':null,s.spectreActive?'spectre':null].filter(Boolean),custom:s=>({spectre:{active:s.spectreActive,hp:s.spectreHp,temp:s.spectreTemp},target:s.currentTarget,recentTargets:s.recentTargets,curseTarget:s.curseTarget,phase:s.turnPhase}),pending:()=>S.pendingHit,lastHit:()=>window.__lastAttackHit??null,commands:{damage:(n,o)=>{push();return processIncomingDamage(n,o)},heal:n=>{push();S.hp=Math.min(S.maxHp,S.hp+n);render();log('Soins reçus : +'+n+' PV.')},setHP:n=>{push();S.hp=Math.min(S.maxHp,n);render();save()},setTemporaryHP:n=>{push();return setTempHp(n,'Manuel')},setResource:(k,v)=>{if(!['slots','spectreHp','spectreTemp'].includes(k))throw Error('Ressource inconnue');push();S[k]=v;render();save()},changeResource:(k,d)=>window.__CompanionBridge.commands.setResource(k,Math.max(0,(S[k]||0)+d)),setRollMode:m=>{if(m!=='normal'&&m!=='manual')throw Error('Mode indisponible');S.manualDice=m==='manual';render();save()},nextTurn:()=>q('#newTurn').click(),clearConcentration:()=>{push();S.conc=false;S.concSpell='';S.shroud=false;render();save()},setConcentration:name=>{push();S.conc=!!name;S.concSpell=name||'';render();save()},addInventoryItem:item=>window.KentaroInventoryCommands.add(item),updateInventory:item=>window.KentaroInventoryCommands.update(item),removeInventoryItem:id=>window.KentaroInventoryCommands.remove(id),applyHitDecision:hit=>confirmPendingAttack(hit),undo:()=>q('#undoLast').click()}};
 window.KentaroAPI={state:S,log,save,render,snapshot:snap,push,restore,undo:()=>q('#undoLast').click()};
 render();load(true);
 })();
@@ -753,4 +755,7 @@ render();load(true);
 <script src="kentaro-session.js?v=12"></script>
 <script src="kentaro-backup.js?v=2"></script>
 <script src="kentaro-fx.js?v=11"></script>
+<link rel="stylesheet" href="companion-v3-shell.css?v=1">
+<script src="kentaro-shell.js?v=1"></script>
+<script src="companion-api.js?v=1"></script>
 </body></html>
