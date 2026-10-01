@@ -44,8 +44,10 @@
     try{const explicit=bridge.lastDamage?.();if(Array.isArray(explicit)&&explicit.length)return explicit.map(c=>({amount:Math.max(0,Math.trunc(Number(c.amount)||0)),type:canonDamageType(c.type)})).filter(c=>c.amount>0)}catch{}
     const text=recentResolutionText(),found=[],push=(amount,type)=>{amount=Math.max(0,Math.trunc(Number(amount)||0));type=canonDamageType(type);if(amount>0&&type&&!found.some(x=>x.amount===amount&&x.type===type))found.push({amount,type})};
     const types='acide|contondants?|feu|force|foudre|froid|n[ée]crotiques?|perforants?|poison|psychiques?|radiants?|tonnerre|tranchants?';
-    let m,re=new RegExp('(\\d+)\\s+(?:d[ée]g[âa]ts?\\s+)?('+types+')','gi');while((m=re.exec(text)))push(m[1],m[2]);
-    re=new RegExp('\\d+d\\d+(?:\\+\\d+)?\\s+('+types+')\\s*[:=]\\s*([\\d+\\s]+)','gi');while((m=re.exec(text))){const parts=(m[2].match(/\\d+/g)||[]).map(Number);if(parts.length)push(parts.reduce((a,b)=>a+b,0),m[1])}
+    let m,re=new RegExp('\\d+d\\d+(?:\\+\\d+)?\\s+('+types+')\\s*[:=]\\s*([\\d+\\s]+)','gi'),scrub=text;
+    scrub=scrub.replace(re,(all,type,expr)=>{const parts=(String(expr).match(/\\d+/g)||[]).map(Number);if(parts.length)push(parts.reduce((a,b)=>a+b,0),type);return' '});
+    re=new RegExp('(\\d+)\\s+(?:d[ée]g[âa]ts?\\s+)?('+types+')','gi');while((m=re.exec(scrub)))push(m[1],m[2]);
+    if(!found.length){const low=text.toLowerCase();if(low.includes('solinar'))push(total,'radiants');else if(low.includes('sélhane')||low.includes('selhane'))push(total,'psychiques');else if(low.includes('décharge occulte')||low.includes('decharge occulte'))push(total,'force');else if(low.includes('absorption de vie'))push(total,'nécrotiques')}
     const sum=found.reduce((n,x)=>n+x.amount,0);if(sum>total&&found.length>1){const exact=found.find(x=>x.amount===total);return exact?[exact]:[]}return found.filter(x=>x.amount<=total);
   }
   function sync(){
