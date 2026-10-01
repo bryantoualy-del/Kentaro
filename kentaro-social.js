@@ -1,69 +1,143 @@
 (()=>{
 'use strict';
-const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const KEY='kentaro-social-v2',uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2),categories=['Allié','Compagnon','Contact','Rival','Ennemi','Inconnu'];
-const old=(()=>{try{return JSON.parse(localStorage.getItem('kentaro-eclipse-v4')||'{}')}catch{return{}}})();
-let data=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}})()||{relations:[],memories:[],legacyRelations:old.socialRelations||'',legacyNotes:old.socialNotes||''};
-if(!Array.isArray(data.relations))data.relations=[];if(!Array.isArray(data.memories))data.memories=[];
-const save=()=>localStorage.setItem(KEY,JSON.stringify(data)),record=t=>window.KentaroAPI?.log?.(`♜ Social — ${t}`),social=$('[data-panel="social"]');if(!social)return;
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const social=$('[data-panel="social"]');
+if(!social)return;
 
-const actions=[
- {id:'predator',icon:'◉',title:'Charme prédateur',tag:'Influence',text:'Préparer une approche, gagner la confiance et retourner une conversation en faveur de Kentaro.',prompt:'Charme prédateur utilisé'},
- {id:'faces',icon:'◐',title:'Bague d’échange de visages',tag:'Identité',text:'Emprunter une apparence, soutenir une couverture et préparer une infiltration.',prompt:'Bague d’échange de visages utilisée'},
- {id:'mask',icon:'◒',title:'Masque d’Aen',tag:'Infiltration',text:'Dissimuler son identité et renforcer les faux-semblants liés à Aen.',prompt:'Masque d’Aen utilisé'},
- {id:'ocarina',icon:'♪',title:'Ocarina',tag:'Expression',text:'Créer un lien par la musique, raviver un souvenir ou rappeler les racines de Kentaro.',prompt:'Ocarina utilisé'},
- {id:'languages',icon:'文',title:'Langues & coutumes',tag:'Voyage',text:'Observer les usages, comprendre les interlocuteurs et éviter un faux pas culturel.',prompt:'Langues et coutumes mobilisées'},
- {id:'traveler',icon:'◇',title:'Cartes du voyageur',tag:'Orientation',text:'Comparer un récit aux routes connues et rechercher une piste vers la patrie.',prompt:'Cartes du voyageur consultées'}
-];
-
-social.innerHTML=`<nav class="kentaro-social-tabs" aria-label="Profil social"><button data-k-social="skills" class="active">Compétences</button><button data-k-social="abilities">Carac. & JdS</button><button data-k-social="info">Infos utiles</button><button data-k-social="narrative">Relations</button></nav><div class="kentaro-sheet"><div class="kentaro-roll-modes" role="group" aria-label="Mode de jet social"><button data-k-mode="normal" class="active">Normal</button><button data-k-mode="adv">Avantage</button><button data-k-mode="dis">Désavantage</button></div><p class="kentaro-sheet-note">Valeurs de la fiche niveau 10. Tu peux les modifier ; les ajustements restent enregistrés sur cet appareil.</p><div id="kentaroSheetContent"></div></div><div class="social-shell" hidden>
- <section class="social-identity"><div><span>Présence sociale</span><h2>Kentaro Amane</h2><p>Grand Voyageur · Dhampir · Méfiant</p><blockquote>Observer d’abord. Comprendre ensuite. Ne révéler que ce qui est nécessaire.</blockquote></div><img src="assets/icons/03_Kane_katana.webp?v=2" alt="" aria-hidden="true"></section>
- <section class="social-actions"><header><div><span>Actions sociales</span><h3>Approches disponibles</h3><p>Appuie sur une action pour la consigner directement dans le Journal.</p></div></header><div class="social-action-grid">${actions.map(x=>`<button class="social-action" data-social-action="${x.id}"><i>${x.icon}</i><span><small>${x.tag}</small><b>${x.title}</b><em>${x.text}</em></span><strong>Utiliser</strong></button>`).join('')}</div></section>
- <section class="social-network"><header><div><span>Réseau</span><h3>Relations, dettes et promesses</h3><p>Les informations durables sur les personnes rencontrées restent regroupées ici.</p></div><button id="addRelation" class="social-add">＋ Relation</button></header><div id="relationList" class="relation-list"></div></section>
-</div><dialog id="kentaroEditor" class="kentaro-editor"><form method="dialog"><div class="editor-head"><h3 id="editorTitle"></h3><button value="cancel" aria-label="Fermer">×</button></div><div id="editorBody"></div></form></dialog><div class="social-toast" id="socialToast" role="status"></div>`;
-
-function notify(text){const toast=$('#socialToast');toast.textContent=text;toast.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>toast.classList.remove('show'),1500)}
-function useAction(id){const action=actions.find(x=>x.id===id);if(!action)return;record(`${action.prompt}.`);notify(`${action.title} consigné ✓`)}
-function renderRelations(){
- const root=$('#relationList');root.innerHTML=data.relations.length?data.relations.map(x=>`<button class="relation-entry" data-relation="${x.id}"><span class="relation-avatar">${esc((x.name||'?').slice(0,1).toUpperCase())}</span><span class="relation-copy"><b>${esc(x.name||'Sans nom')}</b><small>${esc(x.category)} · ${esc(x.status||'statut inconnu')}</small><em>${esc(x.note||'Aucune note')}</em></span><span class="relation-flags">${x.debt?'<i>Dette</i>':''}${x.promise?'<i>Promesse</i>':''}${x.goal?'<i>Objectif</i>':''}</span></button>`).join(''):`<div class="social-empty">Ajoute ici les alliés, contacts, rivaux et ennemis que Kentaro doit suivre.</div>`;
- $$('[data-relation]',root).forEach(b=>b.onclick=()=>editRelation(b.dataset.relation));
-}
-function openEditor(title,body,onSave,onDelete){const dlg=$('#kentaroEditor'),form=$('form',dlg);$('#editorTitle').textContent=title;$('#editorBody').innerHTML=body;dlg.showModal();form.onsubmit=e=>{if(e.submitter?.value!=='save')return;e.preventDefault();onSave(new FormData(form));dlg.close()};const del=$('[data-delete]',dlg);if(del)del.onclick=()=>{onDelete?.();dlg.close()}}
-function editRelation(id){
- const x={id:uid(),name:'',category:'Compagnon',status:'Actif',note:'',debt:'',promise:'',goal:'',...data.relations.find(v=>v.id===id)};
- openEditor(id?'Modifier la relation':'Nouvelle relation',`<label>Nom<input name="name" value="${esc(x.name)}" required></label><div class="editor-grid"><label>Catégorie<select name="category">${categories.map(c=>`<option ${c===x.category?'selected':''}>${c}</option>`).join('')}</select></label><label>Statut<input name="status" value="${esc(x.status)}"></label></div><label>Notes<textarea name="note">${esc(x.note)}</textarea></label><div class="editor-grid"><label>Dette<input name="debt" value="${esc(x.debt)}"></label><label>Promesse<input name="promise" value="${esc(x.promise)}"></label></div><label>Objectif<input name="goal" value="${esc(x.goal)}"></label><div class="editor-actions"><button value="save" class="btn-gold">Enregistrer</button>${id?'<button type="button" data-delete class="utility-danger">Retirer</button>':''}</div>`,fd=>{Object.assign(x,Object.fromEntries(fd));const i=data.relations.findIndex(v=>v.id===x.id);i<0?data.relations.push(x):data.relations[i]=x;save();renderRelations();record(`relation mise à jour : ${x.name}.`)},()=>{data.relations=data.relations.filter(v=>v.id!==x.id);save();renderRelations();record(`relation retirée : ${x.name}.`)})
-}
-const SHEET_KEY='kentaro-social-sheet-v1',abilities=[['FOR','Force'],['DEX','Dextérité'],['CON','Constitution'],['INT','Intelligence'],['SAG','Sagesse'],['CHA','Charisme']],skills=[['Athlétisme','FOR'],['Acrobaties','DEX'],['Escamotage','DEX'],['Discrétion','DEX'],['Arcanes','INT'],['Histoire','INT'],['Investigation','INT'],['Nature','INT'],['Religion','INT'],['Dressage','SAG'],['Intuition','SAG'],['Médecine','SAG'],['Perception','SAG'],['Survie','SAG'],['Tromperie','CHA'],['Intimidation','CHA'],['Représentation','CHA'],['Persuasion','CHA']];
-const sheetDefaults={
- 'score:FOR':10,'score:DEX':14,'score:CON':16,'score:INT':10,'score:SAG':10,'score:CHA':18,
- 'save:FOR':0,'save:DEX':2,'save:CON':3,'save:INT':0,'save:SAG':4,'save:CHA':8,
- 'skill:Athlétisme':0,'skill:Acrobaties':2,'skill:Escamotage':2,'skill:Discrétion':2,
- 'skill:Arcanes':4,'skill:Histoire':0,'skill:Investigation':4,'skill:Nature':0,'skill:Religion':0,
- 'skill:Dressage':0,'skill:Intuition':0,'skill:Médecine':0,'skill:Perception':0,'skill:Survie':0,
- 'skill:Tromperie':8,'skill:Intimidation':8,'skill:Représentation':4,'skill:Persuasion':8
+const profile={
+  scores:{FOR:10,DEX:14,CON:16,INT:10,SAG:10,CHA:18},
+  abilities:{FOR:0,DEX:2,CON:3,INT:0,SAG:0,CHA:4},
+  saves:{FOR:0,DEX:2,CON:3,INT:0,SAG:4,CHA:8},
+  skills:{
+    'Athlétisme':0,'Acrobaties':2,'Discrétion':2,'Escamotage':2,
+    'Arcanes':4,'Histoire':0,'Investigation':4,'Nature':0,'Religion':0,
+    'Dressage':0,'Intuition':0,'Médecine':0,'Perception':0,'Survie':0,
+    'Intimidation':8,'Persuasion':8,'Représentation':4,'Tromperie':8
+  },
+  extra:[
+    ['Profil','Grand Voyageur · Dhampir · Pacte de la lame · Loyal neutre'],
+    ['Combat','Maîtrise +4 · Initiative +2 · Vitesse 9 m · CA 18 · PV max 103'],
+    ['Passifs','Perception passive 10 · Intuition passive 10 · Investigation passive 14'],
+    ['Langues & instrument','Commun · Infernal · langue orientale · Ocarina'],
+    ['Repères','34 ans · 179 cm · 76 kg · peau grise · cheveux blancs · yeux rouges'],
+    ['Social','Charme prédateur : avantage aux tests de Charisme contre une cible éligible après 1 minute de conversation']
+  ]
 };
-let sheet=(()=>{try{const stored=JSON.parse(localStorage.getItem(SHEET_KEY)||'{}');return stored&&typeof stored==='object'&&!Array.isArray(stored)?stored:{}}catch{return{}}})(),sheetPane='skills',sheetMode='normal';
-if(!sheet.__prefilledFromLevel10){for(const [key,value] of Object.entries(sheetDefaults))if(!(key in sheet))sheet[key]=value;sheet.__prefilledFromLevel10=true;localStorage.setItem(SHEET_KEY,JSON.stringify(sheet))}
-function sheetSave(){localStorage.setItem(SHEET_KEY,JSON.stringify(sheet))}
-function sheetField(key,label,value,placeholder){return `<label class="kentaro-sheet-field">${esc(label)}<input inputmode="numeric" type="number" min="-10" max="40" data-k-field="${esc(key)}" value="${value==null?'':esc(value)}" placeholder="${placeholder}"></label>`}
-function sheetRoll(label,bonus){const a=1+Math.floor(Math.random()*20),b=sheetMode==='normal'?null:1+Math.floor(Math.random()*20),chosen=b===null?a:sheetMode==='adv'?Math.max(a,b):Math.min(a,b),total=chosen+bonus;const details='d20 '+(b===null?a:a+' / '+b+' → '+chosen)+' '+(bonus<0?'− ':'+ ')+Math.abs(bonus)+' = '+total;record(`Jet ${label} · ${details}`);window.CompanionSocialDice?.show({label,dice:b===null?a:[a,b],bonus,total,mode:sheetMode})}
-function renderSheet(){
- const narrative=sheetPane==='narrative';$('.social-shell',social).hidden=!narrative;$('.kentaro-sheet',social).hidden=narrative;
- $$('[data-k-social]',social).forEach(b=>b.classList.toggle('active',b.dataset.kSocial===sheetPane));$$('[data-k-mode]',social).forEach(b=>b.classList.toggle('active',b.dataset.kMode===sheetMode));if(narrative)return;
- const root=$('#kentaroSheetContent',social);
- const row=(key,label,subtitle,bonus,field)=>`<div class="kentaro-sheet-row"><div><b>${esc(label)}</b><small>${esc(subtitle)}</small></div>${field}<button type="button" data-k-roll="${esc(key)}" data-k-label="${esc(label)}" ${bonus==null?'disabled':''}>${bonus==null?'—':(bonus>=0?'+':'')+bonus} · Jeter</button></div>`;
- if(sheetPane==='skills')root.innerHTML='<h3>Compétences</h3><div class="kentaro-sheet-grid">'+skills.map(([name,ability])=>{const key='skill:'+name,bonus=sheet[key];return row(key,name,ability,bonus,sheetField(key,'Bonus',bonus,'—'))}).join('')+'</div>';
- else if(sheetPane==='abilities')root.innerHTML='<h3>Caractéristiques & jets de sauvegarde</h3><div class="kentaro-sheet-grid">'+abilities.map(([abbr,name])=>{const score=sheet['score:'+abbr],mod=score==null?null:Math.floor((Number(score)-10)/2),save=sheet['save:'+abbr];return `<div class="kentaro-ability"><h4>${abbr} · ${name}</h4>${sheetField('score:'+abbr,'Score',score,'—')}${row('test:'+abbr,'Test de '+name,'Modificateur du score',mod,'')}${row('save:'+abbr,'JdS '+abbr,'Bonus de sauvegarde',save,sheetField('save:'+abbr,'JdS',save,'—'))}</div>`}).join('')+'</div>';
- else root.innerHTML='<h3>Infos utiles</h3><div class="kentaro-info"><p><b>Grand Voyageur · Dhampir · Pacte de la lame</b> · Loyal neutre · La Compagnie · foi : La Lame Maudite.</p><p><b>Maîtrise :</b> +4 · <b>Initiative :</b> +2 · <b>Vitesse :</b> 9 m · <b>CA :</b> 18 · <b>PV max :</b> 103.</p><p><b>Scores passifs :</b> Perception 10 · Intuition 10 · Investigation 14.</p><p><b>Langues :</b> commun, infernal, langue orientale. <b>Instrument :</b> ocarina.</p><p><b>Repères :</b> 34 ans · 179 cm · 76 kg · peau grise · cheveux blancs · yeux rouges. <b>Allié :</b> Jemal Dormy.</p><p><b>Force 10* :</b> valeur de la fiche avec le bracelet (+2). <b>Discrétion :</b> désavantage aux tests à cause de l’armure.</p><p><b>Charme prédateur :</b> après une minute de conversation avec un humanoïde éligible, avantage aux tests de Charisme dirigés contre lui, selon les conditions de la fiche.</p><p>Les valeurs sociales sont locales ; elles ne changent ni les règles de combat ni le coffre Obsidian.</p></div>';
-}
-social.addEventListener('click',e=>{const tab=e.target.closest('[data-k-social]');if(tab){sheetPane=tab.dataset.kSocial;renderSheet();return}const mode=e.target.closest('[data-k-mode]');if(mode){sheetMode=mode.dataset.kMode;renderSheet();return}const roll=e.target.closest('[data-k-roll]');if(roll){const key=roll.dataset.kRoll,bonus=key.startsWith('test:')?Math.floor((Number(sheet['score:'+key.slice(5)])-10)/2):Number(sheet[key]);if(Number.isFinite(bonus))sheetRoll(roll.dataset.kLabel,bonus)}});
-social.addEventListener('input',e=>{const field=e.target.closest('[data-k-field]');if(!field)return;const value=field.value.trim(),key=field.dataset.kField;if(value==='')delete sheet[key];else if(Number.isInteger(Number(value)))sheet[key]=Number(value);sheetSave();const row=field.closest('.kentaro-sheet-row'),roll=row?.querySelector('[data-k-roll]');if(roll){roll.disabled=value==='';roll.textContent=value===''?'— · Jeter':(Number(value)>=0?'+':'')+value+' · Jeter'}});social.addEventListener('change',e=>{if(e.target.closest('[data-k-field]'))renderSheet()});
-renderSheet();
-$$('[data-social-action]').forEach(b=>b.onclick=()=>useAction(b.dataset.socialAction));$('#addRelation').onclick=()=>editRelation();renderRelations();
 
-const style=document.createElement('style');style.textContent=`
-.social-shell{display:grid;gap:10px}.social-identity{position:relative;display:flex;align-items:center;min-height:170px;overflow:hidden;padding:20px 190px 20px 20px;border:1px solid #55463e;border-radius:15px;background:radial-gradient(circle at 84% 45%,#9a69322b,transparent 25%),linear-gradient(135deg,#21191a,#11131a 62%,#0c0f16)}.social-identity>div{position:relative;z-index:1}.social-identity>div>span,.social-actions header span,.social-network header span{color:#c89e65;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase}.social-identity h2,.social-actions h3,.social-network h3{margin:5px 0;color:#f0e4d2;font-family:Georgia,serif}.social-identity p{margin:0;color:#d0bea7}.social-identity blockquote{margin:13px 0 0;color:#918a83;font:italic .8rem Georgia,serif}.social-identity img{position:absolute;right:14px;width:165px;height:165px;object-fit:contain;filter:drop-shadow(0 15px 24px #000d)}.social-actions,.social-network{padding:14px;border:1px solid #353841;border-radius:14px;background:linear-gradient(155deg,#18191f,#101116)}.social-actions>header,.social-network>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}.social-actions header p,.social-network header p{margin:3px 0;color:#8f8982;font-size:.72rem}.social-action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.social-action{display:grid;grid-template-columns:43px 1fr;grid-template-rows:1fr auto;gap:5px 9px;min-height:126px;padding:10px;text-align:left;border-color:#3c3b42;background:#0c0e13}.social-action>i{grid-row:1/3;display:grid;place-items:center;width:43px;height:43px;border:1px solid #63513f;border-radius:50%;background:radial-gradient(circle,#4c3525,#151116 70%);color:#e1b978;font:normal 1.2rem Georgia,serif}.social-action span>*{display:block}.social-action small{color:#ad8b5e;font-size:.59rem;letter-spacing:.1em;text-transform:uppercase}.social-action b{margin:3px 0;color:#eee1d0}.social-action em{color:#918a83;font-size:.69rem;font-style:normal;line-height:1.35}.social-action strong{grid-column:2;align-self:end;color:#c49a65;font-size:.65rem}.social-action:hover,.social-action:focus-visible{border-color:#8d6b43;background:#171318}.social-add{min-height:40px;border-color:#66523a;background:#211d1b;color:#e5c17c}.relation-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.relation-entry{display:grid;grid-template-columns:40px 1fr;grid-template-rows:1fr auto;gap:7px 9px;min-height:105px;padding:9px;text-align:left;background:#0d0f14}.relation-avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6a3b27,#2d3654);color:#f1dcae;font-weight:800}.relation-copy>*{display:block}.relation-copy small{margin:2px 0;color:#c69f68}.relation-copy em{overflow:hidden;color:#98918a;font-size:.72rem;font-style:normal;text-overflow:ellipsis;white-space:nowrap}.relation-flags{grid-column:2;display:flex;gap:4px;flex-wrap:wrap}.relation-flags i{padding:3px 5px;border:1px solid #4b4038;border-radius:999px;color:#bca17c;font-size:.57rem;font-style:normal}.social-empty{grid-column:1/-1;padding:20px;border:1px dashed #42444c;border-radius:11px;color:#918b85;text-align:center}.social-toast{position:fixed;right:18px;bottom:86px;z-index:1000;transform:translateY(12px);padding:9px 12px;border:1px solid #8a6a43;border-radius:9px;background:#171216;color:#efd9b1;opacity:0;pointer-events:none;transition:.18s}.social-toast.show{transform:none;opacity:1}.kentaro-editor{width:min(620px,calc(100% - 20px));max-height:90vh;overflow:auto;padding:17px;border:1px solid #856b48;border-radius:17px;background:#151419;color:#f2e9dc;box-shadow:0 28px 80px #000}.kentaro-editor::backdrop{background:#020305db;backdrop-filter:blur(7px)}.kentaro-editor .editor-head{display:flex;align-items:center;justify-content:space-between}.kentaro-editor label{display:block;margin:9px 0;color:#aba39b}.kentaro-editor input,.kentaro-editor select,.kentaro-editor textarea{width:100%;min-height:44px;margin-top:5px;padding:9px;border:1px solid #444650;border-radius:9px;background:#0b0c10;color:#f2e9dc}.kentaro-editor textarea{min-height:120px;resize:vertical}.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.editor-actions{display:flex;gap:8px;margin-top:12px}
-@media(max-width:900px){.social-action-grid{grid-template-columns:repeat(2,1fr)}.relation-list{grid-template-columns:1fr 1fr}}@media(max-width:767px){.social-identity{min-height:145px;padding:14px 110px 14px 13px}.social-identity img{right:-7px;width:120px;height:120px}.social-identity blockquote{display:none}.social-actions,.social-network{padding:11px}.social-actions>header,.social-network>header{align-items:flex-start}.social-action-grid,.relation-list{grid-template-columns:1fr}.social-action{min-height:105px}.editor-grid{grid-template-columns:1fr}}
-`;document.head.appendChild(style);
-const sheetStyle=document.createElement('style');sheetStyle.textContent=`.kentaro-social-tabs{display:flex;gap:6px;overflow-x:auto;margin:3px 0 10px;padding:5px;background:#11141a;border:1px solid #504946;border-radius:12px}.kentaro-social-tabs button{min-height:44px;flex:1 0 auto;padding:8px 10px}.kentaro-social-tabs button.active,.kentaro-roll-modes button.active{border-color:#c49a65;color:#ffe4bb;background:#34251d}.kentaro-sheet{padding:14px;border:1px solid #3b3d43;border-radius:14px;background:#14171d}.kentaro-sheet[hidden],.social-shell[hidden]{display:none!important}.kentaro-roll-modes{display:flex;gap:6px;position:sticky;top:0;z-index:20;padding:5px;background:#11141af2;border-radius:10px}.kentaro-roll-modes button{min-height:40px;flex:1}.kentaro-sheet-note{color:#aea69c;font-size:12px}.kentaro-sheet h3{font:20px Georgia,serif;color:#efdec6}.kentaro-sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kentaro-sheet-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px;border:1px solid #42444b;border-radius:11px;background:#0e1117;min-width:0}.kentaro-sheet-row b,.kentaro-sheet-row small{display:block}.kentaro-sheet-row small{color:#ab9e8b;font-size:10px}.kentaro-sheet-row button{min-height:40px;white-space:nowrap}.kentaro-sheet-row button:disabled{opacity:.45}.kentaro-sheet-field{display:grid;gap:2px;font-size:10px;color:#c4aa84}.kentaro-sheet-field input{width:64px;min-height:38px;padding:5px;border:1px solid #65513f;border-radius:8px;background:#0b0e13;color:#f6e8d3;text-align:center}.kentaro-ability{padding:8px;border:1px solid #50483f;border-radius:11px}.kentaro-ability h4{margin:0 0 6px;color:#e7c795}.kentaro-ability>.kentaro-sheet-field{margin-bottom:5px}.kentaro-ability .kentaro-sheet-row{margin-top:5px}.kentaro-info{line-height:1.6;color:#d6c8b4}@media(max-width:720px){.kentaro-sheet-grid{grid-template-columns:1fr}.kentaro-social-tabs button{font-size:11px}.kentaro-sheet-row{grid-template-columns:1fr auto auto;gap:4px}.kentaro-sheet-row button{font-size:11px;padding:5px}}`;document.head.appendChild(sheetStyle);
+let pane='skills',mode='normal';
+
+social.innerHTML=`
+<div id="kentaro-social-v3">
+  <div class="v3-heading">
+    <div>
+      <h2>Social · Kentaro Amane</h2>
+      <p class="v3-sub">Jets de la fiche et informations utiles.</p>
+    </div>
+  </div>
+  <nav class="v3-sheet-tabs" aria-label="Profil social">
+    <button type="button" data-v3-sheet="skills" class="active">Compétences</button>
+    <button type="button" data-v3-sheet="abilities">Carac. &amp; JdS</button>
+    <button type="button" data-v3-sheet="info">Infos utiles</button>
+  </nav>
+  <div class="v3-switch v3-social-mode" role="group" aria-label="Mode de jet social">
+    <button type="button" data-v3-social-mode="normal" class="active">Normal</button>
+    <button type="button" data-v3-social-mode="adv">Avantage</button>
+    <button type="button" data-v3-social-mode="dis">Désavantage</button>
+  </div>
+  <div id="kentaro-social-content"></div>
+  <div id="v3-roll" class="v3-result" role="status" hidden></div>
+</div>`;
+
+function record(text){
+  window.KentaroAPI?.log?.('♜ Social — '+text);
+  if(typeof window.addLog==='function')window.addLog('Jet social · '+text);
+}
+function roll(label,bonus){
+  const a=1+Math.floor(Math.random()*20);
+  const b=mode==='normal'?null:1+Math.floor(Math.random()*20);
+  const chosen=b===null?a:(mode==='adv'?Math.max(a,b):Math.min(a,b));
+  const total=chosen+Number(bonus||0);
+  const detail=b===null?`d20 ${a}`:`d20 ${a} / ${b} → ${chosen}`;
+  const mod=bonus>=0?`+${bonus}`:`${bonus}`;
+  const text=`${label} : ${detail} ${mod} = ${total}`;
+  record(text);
+  if(window.CompanionSocialDice?.show){
+    window.CompanionSocialDice.show({label,dice:b===null?a:[a,b],bonus:Number(bonus||0),total,mode});
+  }else{
+    const out=$('#v3-roll',social);out.hidden=false;out.textContent=text;
+  }
+}
+function list(values,kind){
+  return Object.entries(values).map(([name,bonus])=>`
+    <button type="button" data-v3-roll="${esc((kind==='saves'?'JdS ':'')+name)}" data-bonus="${Number(bonus)}">
+      <span><b>${esc(name)}</b>${kind==='abilities'&&profile.scores[name]!==undefined?`<small>Score ${profile.scores[name]}</small>`:''}</span>
+      <strong>${bonus>=0?'+':''}${bonus}</strong>
+    </button>`).join('');
+}
+function render(){
+  $$('[data-v3-sheet]',social).forEach(b=>b.classList.toggle('active',b.dataset.v3Sheet===pane));
+  $$('[data-v3-social-mode]',social).forEach(b=>b.classList.toggle('active',b.dataset.v3SocialMode===mode));
+  const root=$('#kentaro-social-content',social);
+  if(pane==='skills'){
+    root.innerHTML=`<article class="v3-card"><h3>Compétences</h3><div class="v3-roll-grid">${list(profile.skills,'skills')}</div></article>`;
+  }else if(pane==='abilities'){
+    root.innerHTML=`<div class="v3-social-grid">
+      <article class="v3-card"><h3>Caractéristiques</h3><div class="v3-roll-grid">${list(profile.abilities,'abilities')}</div></article>
+      <article class="v3-card"><h3>Jets de sauvegarde</h3><div class="v3-roll-grid">${list(profile.saves,'saves')}</div></article>
+    </div>`;
+  }else{
+    root.innerHTML=`<article class="v3-card"><h3>Informations utiles</h3><div class="v3-extra-grid">${profile.extra.map(([k,v])=>`<div><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}</div></article>`;
+  }
+}
+social.addEventListener('click',e=>{
+  const p=e.target.closest('[data-v3-sheet]');
+  if(p){pane=p.dataset.v3Sheet;render();return;}
+  const m=e.target.closest('[data-v3-social-mode]');
+  if(m){mode=m.dataset.v3SocialMode;render();return;}
+  const r=e.target.closest('[data-v3-roll]');
+  if(r)roll(r.dataset.v3Roll,Number(r.dataset.bonus));
+});
+
+const style=document.createElement('style');
+style.id='kentaro-social-v3-style';
+style.textContent=`
+#kentaro-social-v3{--v3-panel:#15181f;--v3-panel2:#0e1117;--v3-line:#454954;--v3-muted:#aaa39a;--v3-accent:#c49a65;display:block}
+#kentaro-social-v3 .v3-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0}
+#kentaro-social-v3 .v3-heading h2{margin:0;color:#f0e4d2;font-family:Georgia,serif}
+#kentaro-social-v3 .v3-sub,#kentaro-social-v3 small{color:var(--v3-muted)}
+#kentaro-social-v3 .v3-card{background:linear-gradient(145deg,var(--v3-panel),var(--v3-panel2));border:1px solid var(--v3-line);border-radius:16px;padding:15px;margin:8px 0;box-shadow:0 12px 30px #0005}
+#kentaro-social-v3 .v3-card h3{margin:0 0 10px;color:#efdec6}
+#kentaro-social-v3 .v3-sheet-tabs{display:flex;gap:6px;overflow-x:auto;margin:9px 0;padding:5px;border:1px solid var(--v3-line);border-radius:12px;background:#11151bcf}
+#kentaro-social-v3 .v3-sheet-tabs button{flex:1 0 auto;min-height:42px;padding:7px 10px;border-radius:9px;font-size:12px}
+#kentaro-social-v3 .v3-sheet-tabs button.active{border-color:var(--v3-accent);color:#fff2d8;background:#473527}
+#kentaro-social-v3 .v3-switch{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#kentaro-social-v3 .v3-social-mode{position:sticky;top:0;z-index:20;padding:5px;border:1px solid #3f424b;border-radius:11px;background:#11141af2;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#kentaro-social-v3 .v3-social-mode button{flex:1;min-height:40px}
+#kentaro-social-v3 .v3-social-mode button.active{border-color:var(--v3-accent);color:#ffe4bb;background:#34251d}
+#kentaro-social-v3 .v3-social-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#kentaro-social-v3 .v3-roll-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#kentaro-social-v3 .v3-roll-grid button{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:54px;padding:9px 10px;text-align:left;border:1px solid #44464f;border-radius:10px;background:#0b0e13;color:#eee1d0}
+#kentaro-social-v3 .v3-roll-grid button span{display:grid;gap:2px;min-width:0}
+#kentaro-social-v3 .v3-roll-grid button b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#kentaro-social-v3 .v3-roll-grid button small{font-size:10px;opacity:.75}
+#kentaro-social-v3 .v3-roll-grid button strong{font-size:16px;color:#e2bd88}
+#kentaro-social-v3 .v3-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#kentaro-social-v3 .v3-extra-grid>div{border:1px solid #2c3034;border-radius:11px;background:#0b0d0f;padding:10px}
+#kentaro-social-v3 .v3-extra-grid small,#kentaro-social-v3 .v3-extra-grid b{display:block}
+#kentaro-social-v3 .v3-extra-grid small{text-transform:uppercase;letter-spacing:.06em;font-size:.67rem}
+#kentaro-social-v3 .v3-extra-grid b{margin-top:3px;font-size:.86rem;line-height:1.45}
+#kentaro-social-v3 .v3-result{padding:15px;background:#2a2119;border:1px solid var(--v3-accent);border-radius:14px;margin:16px 0;font-weight:800}
+@media(max-width:760px){
+ #kentaro-social-v3 .v3-social-grid{grid-template-columns:1fr}
+ #kentaro-social-v3 .v3-roll-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #kentaro-social-v3 .v3-extra-grid{grid-template-columns:1fr}
+}
+@media(max-width:430px){
+ #kentaro-social-v3 .v3-roll-grid{grid-template-columns:1fr 1fr}
+ #kentaro-social-v3 .v3-sheet-tabs button{font-size:11px;padding:6px 8px}
+}`;
+document.head.appendChild(style);
+render();
 })();
