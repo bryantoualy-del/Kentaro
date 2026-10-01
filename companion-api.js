@@ -35,9 +35,9 @@
   const canonDamageType=v=>{const k=String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/s$/,'').trim();return DAMAGE_WORDS.find(x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/s$/,'')===k)||''};
   function recentResolutionText(){
     const parts=[],push=n=>{const t=n&&(n.innerText||n.textContent||'');if(t)parts.push(t)};
-    push(document.querySelector('#rbody'));push(document.querySelector('#ribbonText'));
+    push(document.querySelector('#lastResult'));push(document.querySelector('#rbody'));push(document.querySelector('#ribbonText'));push(document.querySelector('#rtitle'));
     const entries=[...document.querySelectorAll('#log .log-entry,.log-entry')].slice(0,3);
-    if(entries.length)entries.forEach(push);else{const raw=document.querySelector('#log');if(raw)parts.push((raw.innerText||raw.textContent||'').slice(0,1000))}
+    if(entries.length)entries.forEach(push);else{const raw=document.querySelector('#log');if(raw)parts.push((raw.innerText||raw.textContent||'').slice(-1000))}
     return parts.join('\n').slice(0,1800);
   }
   function inferDamageComponents(total){
