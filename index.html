@@ -643,7 +643,13 @@ function useSlot(){if(S.slots<1){log('❌ Aucun emplacement de pacte restant.');
 function resolveHit(nat,total,crit){
  const ac=Number(S.targetAC)||0;if(crit)return true;if(nat===1)return false;if(!ac)return true;return total>=ac
 }
+function requireEncounterTarget(){
+ const status=window.RPGConnect?.getStatus?.();
+ if(status?.connected&&!status.target){log('🎯 Sélectionne d’abord une cible Encounter. Aucune action d’attaque n’a été consommée.');document.getElementById('rpg-target-dock')?.classList.add('open');return false}
+ return true
+}
 function blade(which,mode='action'){
+ if(!requireEncounterTarget())return;
  if(mode==='bonus'&&(S.actionKind!=='attack'||S.attackCount<1)){log('❌ La 3e attaque demande d’avoir commencé l’Action Attaquer ce tour.');return render()}
  rememberTarget(S.currentTarget,S.targetAC,false);
  const before=snap();
@@ -724,12 +730,13 @@ function confirmPendingBlade(hit){
  const damage=w.total+elem.total+extra,totalDamage=damage+sealDamage;
  addTurnDamage(damage,sun?'Solinar':'Sélhane');if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
  S.lastCrit=crit;S.lastCritBlade=crit?(sun?'Solinar':'Sélhane'):'';
- if(p.attackId&&window.CompanionAPI?.emitLocal)window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'kentaro',amount:totalDamage,components:[],source:name},p.attackId+':damage');
+ if(p.attackId&&window.CompanionAPI?.emitLocal){const bladeType=sun?'radiants':'psychiques';window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'kentaro',amount:totalDamage,components:[{amount:totalDamage,type:bladeType}],source:name},p.attackId+':damage')}
  render();
  log(`${name}${crit?" — ✦ CRITIQUE":""}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${damage}${parts.length?` • ${parts.join(" • ")}`:""}${sealDamage?`\n✦ Sceau d’Éclipse : +${sealDamage}`:""}\nTOTAL : ${damage+sealDamage}`);
  if(crit&&S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?"Solinar":"Sélhane"}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
 }
 function eldritchRay(){
+ if(!requireEncounterTarget())return;
  if((S.eldritchCount||0)>=2)return log('❌ Décharge occulte : les 2 rayons du tour ont déjà été lancés.');
  rememberTarget(S.currentTarget,S.targetAC,false);
  const before=snap();
@@ -772,7 +779,7 @@ q('#smite').onclick=()=>{push();if(!useSlot()){undo.pop();return}const r=roll(6,
 q('#smiteCrit').onclick=()=>{if(!S.lastCrit)return log('ℹ️ Châtiment critique disponible uniquement après un critique confirmé.');push();if(!useSlot()){undo.pop();return}const r=roll(12,8);addTurnDamage(r.total,'Châtiment occulte critique');S.lastCrit=false;render();fx('occult-crit');log(`☠ Châtiment occulte CRITIQUE : ${r.total} dégâts (${r.dice.join('+')}).`)};
 q('#eldritch').onclick=()=>eldritchRay();
 q('#spectreInvoke').onclick=()=>{push();S.spectreActive=true;S.spectreHp=22;S.spectreTemp=5;S.turnPhase='kentaro';resetSpectreEconomy();render();fx('spectre-summon');log('👻 Spectre maudit invoqué : 22 PV + 5 PV temp • CA 12 • vol 15 m. Son tour suivra celui de Kentaro.')};
-q('#spectre').onclick=()=>{if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');if(S.turnPhase!=='spectre')return log('ℹ️ Le Spectre agit après Kentaro : utilise « Passer au Spectre ».');if(S.spectreActionUsed)return log('❌ Le Spectre a déjà utilisé son action ce tour.');if(S.pendingHit)return log('⚠️ Confirme ou annule d’abord l’attaque en cours.');rememberTarget(S.currentTarget,S.targetAC,false);const before=snap(),rr=askNat('Spectre — Absorption de vie');if(!rr)return;pendingBefore=before;const total=rr.nat+8,crit=rr.nat===20;if(rr.nat===1){undo.push(before);if(undo.length>40)undo.shift();S.spectreActionUsed=true;render();return log(`👻 Spectre — Absorption de vie\nJet ${rr.detail} +8 = ${total} → ÉCHEC AUTOMATIQUE (1 naturel).`)}S.pendingHit={kind:'spectre',nat:rr.nat,total,crit,target:S.currentTarget,undoBefore:before};render();log(`👻 Spectre — Absorption de vie${crit?' — ✦ CRITIQUE':''}\nAttaque : ${rr.detail} +8 = ${total}${S.targetAC?` • CA repère ${S.targetAC}`:''}${S.currentTarget?` • ${S.currentTarget}`:''}\nEst-ce que l’attaque touche ?`)};
+q('#spectre').onclick=()=>{if(!requireEncounterTarget())return;if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');if(S.turnPhase!=='spectre')return log('ℹ️ Le Spectre agit après Kentaro : utilise « Passer au Spectre ».');if(S.spectreActionUsed)return log('❌ Le Spectre a déjà utilisé son action ce tour.');if(S.pendingHit)return log('⚠️ Confirme ou annule d’abord l’attaque en cours.');rememberTarget(S.currentTarget,S.targetAC,false);const before=snap(),rr=askNat('Spectre — Absorption de vie');if(!rr)return;pendingBefore=before;const total=rr.nat+8,crit=rr.nat===20;if(rr.nat===1){undo.push(before);if(undo.length>40)undo.shift();S.spectreActionUsed=true;render();return log(`👻 Spectre — Absorption de vie\nJet ${rr.detail} +8 = ${total} → ÉCHEC AUTOMATIQUE (1 naturel).`)}S.pendingHit={kind:'spectre',nat:rr.nat,total,crit,target:S.currentTarget,undoBefore:before};render();log(`👻 Spectre — Absorption de vie${crit?' — ✦ CRITIQUE':''}\nAttaque : ${rr.detail} +8 = ${total}${S.targetAC?` • CA repère ${S.targetAC}`:''}${S.currentTarget?` • ${S.currentTarget}`:''}\nEst-ce que l’attaque touche ?`)};
 q('#spectreActionCell').onclick=()=>q('#spectre').click();q('#spectreMoveCell').onclick=()=>{if(S.turnPhase!=='spectre'||S.spectreMoveUsed)return;push();S.spectreMoveUsed=true;render();log('👻 Spectre : déplacement de vol jusqu’à 15 m utilisé.')};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
 qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
