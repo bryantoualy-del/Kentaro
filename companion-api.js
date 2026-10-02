@@ -71,6 +71,7 @@
       if(key&&pendingMissingTimer){clearTimeout(pendingMissingTimer);pendingMissingTimer=null}
       if(key&&!pendingKey){
         pendingId=pending.attackId||id();
+        try{if(pending&&typeof pending==='object'&&!pending.attackId)pending.attackId=pendingId}catch{}
         pendingDamageBaseline=Number(current?.turn?.damage)||0;
         const rawRoll=pending.total??pending.roll?.total??pending.roll??pending.attackTotal??pending.attack??null,numericRoll=(rawRoll!==null&&rawRoll!==''&&Number.isFinite(Number(rawRoll)))?Number(rawRoll):null;
         emit('attack:rolled',{attackId:pendingId,actor:pending.actor||bridge.id,roll:numericRoll??rawRoll,total:numericRoll,nat:(pending.nat!==null&&pending.nat!==undefined&&Number.isFinite(Number(pending.nat)))?Number(pending.nat):null,detail:pending.detail??pending.roll?.detail??'',crit:!!pending.crit,name:pending.name??pending.label??pending.kind??'Attaque'},pendingId+':rolled');
@@ -81,7 +82,7 @@
         if(result!==null&&result!==undefined){
           const resolvedAttackId=pendingId,baseline=Number(pendingDamageBaseline)||0;
           emit(result?'attack:hit':'attack:miss',{attackId:resolvedAttackId,actor:bridge.id});
-          if(result){
+          if(result&&!bridge.emitsAttackDamage){
             const settleDamage=(attempt=0)=>{
               const settled=state(),afterDamage=Number(settled?.turn?.damage)||0,amount=Math.max(0,afterDamage-baseline);
               if(amount>0){
