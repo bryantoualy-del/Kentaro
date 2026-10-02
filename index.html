@@ -743,7 +743,7 @@ function eldritchRay(){
 }
 function confirmPendingEldritch(hit){
  const p=S.pendingHit;if(!p)return;
- const before=pendingBefore||p.undoBefore;window.__lastAttackHit=null;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
+ const before=pendingBefore||p.undoBefore;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
  S.eldritchCount=Math.max(S.eldritchCount||0,p.ray||1);
  if(hit){
    const r=roll(p.crit?2:1,10,4+(p.cursed?4:0));
