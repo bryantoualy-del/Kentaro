@@ -134,6 +134,25 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 /* Kentaro 2026 — modernisation conservatrice */
 .head{overflow:hidden}.head::before,.head::after{content:"";position:absolute;top:50%;width:96px;height:96px;transform:translateY(-50%);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.42;filter:drop-shadow(0 0 16px rgba(255,255,255,.08));pointer-events:none}.head::before{left:12px;background-image:url('assets/icons/01_Solinar.webp?v=2')}.head::after{right:12px;background-image:url('assets/icons/02_Selhane.webp?v=2')}.head>.company-kicker,.head>.eclipse-mark,.head>h1,.head>.subtitle{position:relative;z-index:1}.turn-economy{position:sticky;top:max(6px,env(safe-area-inset-top));z-index:35;padding:7px;border:1px solid rgba(83,73,65,.8);border-radius:12px;background:rgba(8,10,15,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 24px rgba(0,0,0,.25)}.tabs{top:82px}.art-card{position:relative;overflow:hidden;padding-right:88px;min-height:112px}.art-card .item-art{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 7px 12px rgba(0,0,0,.45));pointer-events:none}.blade-card{min-height:154px;padding-right:132px}.blade-card .item-art{right:10px;width:112px;height:112px;padding:10px;object-fit:contain;object-position:center;opacity:.96;box-sizing:border-box}.art-pair{display:flex;gap:4px;position:absolute;right:6px;top:50%;transform:translateY(-50%)}.art-pair img{width:66px;height:82px;padding:5px;box-sizing:border-box;object-fit:contain;object-position:center;filter:drop-shadow(0 7px 12px rgba(0,0,0,.45))}.social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.social-wide{grid-column:1/-1}.social-input,.social-textarea{width:100%;background:#0b0d12;color:var(--ivory);border:1px solid #444b5e;border-radius:9px;padding:9px}.social-textarea{min-height:110px;resize:vertical}.social-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c99f61;margin-bottom:6px}.journal-head{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}.journal-panel .log{display:block;max-height:520px;min-height:260px}.result-badge{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:9997;display:none;min-height:44px;border-radius:999px;padding:9px 14px;background:linear-gradient(90deg,#59331f,#322a45,#1d4266);border-color:#b98d4d;box-shadow:0 8px 26px rgba(0,0,0,.55);font-weight:800}.result-badge.show{display:block}.ribbon-actions.three-actions{grid-template-columns:1fr 1fr 1fr}.ribbon-actions.three-actions button{min-width:0}.eco.move{border-color:#4a556b}.memory-hint{font-size:12px;color:var(--muted);margin-top:6px} .seal-art{width:64px;height:64px;object-fit:contain;float:right;margin:-8px -2px 4px 8px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.45))}.relation-chip{display:inline-block;border:1px solid #5a4b43;border-radius:999px;padding:4px 8px;margin:2px;font-size:12px;background:#16131a}.social-tools{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.social-tool{padding:8px;border:1px solid #394154;border-radius:9px;background:#0c0e14}.identity-list{display:grid;gap:5px}.identity-list div{padding:6px 8px;border-left:2px solid #8f6b3b;background:#0d0f15;border-radius:4px}.journal-tab-glow{border-color:#9e7d4b!important}
 @media(max-width:760px){.head::before,.head::after{width:68px;height:68px;background-size:contain;opacity:.28}.turn-economy{top:max(4px,env(safe-area-inset-top));grid-template-columns:1fr 1fr}.tabs{position:relative;top:auto}.social-grid{grid-template-columns:1fr}.social-wide{grid-column:auto}.art-card{padding-right:74px}.art-card .item-art{width:64px;height:64px}.blade-card{padding-right:104px}.blade-card .item-art{right:6px;width:92px;height:92px;padding:9px}.social-tools{grid-template-columns:1fr}.result-badge{max-width:calc(100% - 24px)}}
+
+/* kentaro-standard-header-v1 — structure alignée sur Brack, identité Kentaro conservée */
+.kentaro-top{display:grid;grid-template-columns:minmax(290px,1.25fr) minmax(0,2fr);gap:12px;margin-bottom:12px}
+.kentaro-identity,.kentaro-vitals{background:linear-gradient(145deg,rgba(23,26,36,.96),rgba(10,12,18,.98));border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 38px rgba(0,0,0,.34)}
+.kentaro-identity{position:relative;min-height:126px;padding:18px 112px 16px 18px;overflow:hidden;display:flex;align-items:center}
+.kentaro-identity:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--sun),rgba(118,83,166,.5),var(--moon))}
+.kentaro-identity .identity-copy{position:relative;z-index:1;min-width:0}.kentaro-identity h1{margin:3px 0 6px;font-size:clamp(30px,4vw,46px);line-height:.98;letter-spacing:.08em}.kentaro-identity .subtitle{font-style:normal;font-size:12px;line-height:1.35}
+.kentaro-signature{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:82px;height:82px;border-radius:20px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,rgba(255,145,45,.16),rgba(79,72,130,.18) 52%,rgba(51,130,210,.12));border:1px solid rgba(156,139,112,.48);box-shadow:inset 0 0 20px rgba(0,0,0,.48),0 0 24px rgba(95,126,220,.13)}
+.kentaro-signature img{width:68px;height:68px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
+.identity-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.identity-tags span{border:1px solid #464354;border-radius:999px;background:#11131a;padding:3px 8px;font-size:10px;color:#d6d1c8}
+.kentaro-vitals{padding:10px;display:grid;grid-template-columns:1.55fr 1fr repeat(5,minmax(72px,1fr));gap:7px}
+.vital{min-width:0;border:1px solid #2f3544;border-radius:11px;background:#0c0f15;padding:8px;display:flex;flex-direction:column;justify-content:center;text-align:center}.vital small{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#9ea7b6}.vital b{font-size:20px;margin-top:2px}.vital-sub{display:block;margin-top:2px;font-size:9px;color:#8f98a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp-vital .hp-controls{margin-top:4px;gap:4px}.hp-vital .hp-controls input{width:62px;min-height:34px;height:34px}.hp-vital .hp-controls button{min-height:34px;height:34px;padding:2px 8px}.temp-vital b{color:#c8b6e8}
+.head::before,.head::after{display:none!important}.head{display:none!important}
+.stats,.resources{display:none!important}
+.pact-resource-strip{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;align-items:center;gap:12px;margin:4px 0 10px;padding:10px 12px;border:1px solid #514769;border-radius:12px;background:linear-gradient(90deg,rgba(44,34,60,.72),rgba(14,18,27,.84),rgba(30,48,72,.58))}
+.pact-resource-strip>div:first-child{display:grid;gap:1px}.pact-resource-strip small{font-size:9px;letter-spacing:.12em;color:#b6a0d5}.pact-resource-strip b{font-size:14px;color:#eee5f7}.pact-resource-strip span{font-size:10px;color:#929baa}.pact-resource-strip>strong{font-size:21px;color:#f0c36d}.pact-slots{margin:0!important;justify-content:flex-end!important}.pact-slots .pip{width:26px;height:26px;min-height:26px}
+@media(max-width:900px){.kentaro-top{grid-template-columns:1fr}.kentaro-vitals{grid-template-columns:1.5fr 1fr repeat(3,1fr)}}
+@media(max-width:600px){.kentaro-identity{min-height:104px;padding:14px 88px 14px 14px}.kentaro-signature{width:64px;height:64px;right:12px}.kentaro-signature img{width:52px;height:52px}.kentaro-identity h1{font-size:32px;letter-spacing:.07em}.kentaro-vitals{grid-template-columns:repeat(3,1fr)}.hp-vital{grid-column:span 2}.pact-resource-strip{grid-template-columns:1fr auto}.pact-slots{grid-column:1/-1;justify-content:flex-start!important}}
 </style>
 <link rel="stylesheet" href="social-dice.css?v=3"><link rel="stylesheet" href="rpg-connect-client.css?v=6">
 <style id="rpg-hud-v9">
@@ -156,18 +175,25 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 <body>
 <div id="fxOverlay" aria-hidden="true"></div>
 <div class="wrap"><main class="shell" id="app">
-<header class="head"><div class="company-kicker">Compagnie Créole</div><div class="eclipse-mark"><span class="sunIcon">☀</span><span>✦</span><span class="moonIcon">☾</span></div><h1><span class="ken">KENTARO</span></h1><div class="subtitle">Dhampire • Occultiste 10 • Lame Maudite • Porteur de Solinar & Sélhane</div></header>
-
-<section class="grid stats">
-<div class="card center">CA<span class="big gold">18</span></div><div class="card center">PV<span id="hpView" class="big">103</span></div><div class="card center">Initiative<span class="big">+2</span></div><div class="card center">DD sorts<span class="big">16</span></div><div class="card center">Att. sort<span class="big">+8</span></div><div class="card center">Lames<span class="big gold">+10</span></div>
-</section>
-<section class="grid resources">
-<div class="card center">Slots de pacte<span id="slotView" class="big gold">2/2</span><div id="slots" class="slotrow" style="justify-content:center" aria-label="Emplacements de pacte"></div></div>
-<div class="card center">Malédiction<span id="curseView" class="big">Prête</span></div>
-<div class="card center">Châtiment occulte<span class="big">6d8</span></div>
-<div class="card center">Armure maléfices<span class="big">4–6</span><span class="meta">sur d6</span></div>
-<div class="card center">PV actuels<div class="hp-controls"><button id="hpMinus">−</button><input id="hpInput" type="number" min="0" max="103" value="103"><button id="hpPlus">+</button></div></div>
-<div class="card center">PV temporaires<span id="tempHpView" class="big">0</span><span id="tempHpSource" class="temp-source">aucun</span></div>
+<section class="kentaro-top">
+  <header class="kentaro-identity">
+    <div class="identity-copy">
+      <div class="company-kicker">Compagnie Créole</div>
+      <h1><span class="ken">KENTARO</span></h1>
+      <div class="subtitle">Dhampire • Occultiste 10 • Lame Maudite</div>
+      <div class="identity-tags"><span>Solinar & Sélhane</span><span id="curseView">Malédiction prête</span></div>
+    </div>
+    <div class="kentaro-signature" aria-hidden="true"><img src="assets/icons/favicon-kentaro.png?v=3" alt=""></div>
+  </header>
+  <section class="kentaro-vitals" aria-label="État de Kentaro">
+    <div class="vital hp-vital"><small>PV</small><div class="hp-controls"><button id="hpMinus">−</button><input id="hpInput" type="number" min="0" max="103" value="103"><button id="hpPlus">+</button></div><span class="vital-sub">/ 103</span></div>
+    <div class="vital temp-vital"><small>PV temp</small><b id="tempHpView">0</b><span id="tempHpSource" class="vital-sub">aucun</span></div>
+    <div class="vital"><small>CA</small><b>18</b><span class="vital-sub">Armure</span></div>
+    <div class="vital"><small>Initiative</small><b>+2</b><span class="vital-sub">DEX</span></div>
+    <div class="vital"><small>DD sorts</small><b>16</b><span class="vital-sub">Occultiste</span></div>
+    <div class="vital"><small>Att. sort</small><b>+8</b><span class="vital-sub">Sorts</span></div>
+    <div class="vital"><small>Lames</small><b>+10</b><span class="vital-sub">Solinar / Sélhane</span></div>
+  </section>
 </section>
 
 <div class="turn-economy">
@@ -217,6 +243,11 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 </section>
 
 <section class="panel" data-panel="spells">
+<div class="pact-resource-strip">
+  <div><small>RESSOURCE DE PACTE</small><b>Emplacements N5</b><span>Repos court ou long</span></div>
+  <strong id="slotView">2/2</strong>
+  <div id="slots" class="slotrow pact-slots" aria-label="Emplacements de pacte"></div>
+</div>
 <div class="grid two" style="margin-top:8px">
 <article class="card art-card spell-art-card" id="agathysCard"><img class="item-art" src="assets/icons/11_Armure_Agathys.webp" alt="" aria-hidden="true"><div class="action-title">Armure d’Agathys</div><div class="meta">Avec un slot de pacte N5 : 25 PV temporaires • tant qu’il en reste, une créature qui te touche au corps-à-corps subit 25 froid.</div><div class="row"><button data-spell="Armure d’Agathys" data-agathys="1">Lancer N5</button><button id="agathysHit">Je suis touché au CàC</button></div></article>
 <article class="card violet art-card spell-art-card"><img class="item-art" src="assets/icons/12_Malefice.webp" alt="" aria-hidden="true"><div class="action-title">Maléfice</div><div class="meta">Concentration • moins prioritaire avec cette construction.</div><button data-spell="Maléfice" data-conc="1">Lancer</button></article>
@@ -596,7 +627,7 @@ function render(){
  if(!S.turnPhase)S.turnPhase='kentaro';if(typeof S.spectreActionUsed!=='boolean')S.spectreActionUsed=false;if(typeof S.spectreMoveUsed!=='boolean')S.spectreMoveUsed=false;if(!Number.isFinite(S.spectreTurnDamage))S.spectreTurnDamage=0;if(!S.spectreActive&&S.turnPhase==='spectre')S.turnPhase='kentaro';if(!Array.isArray(S.recentTargets))S.recentTargets=[];S.recentTargets=S.recentTargets.filter(x=>x&&String(x.name||'').trim()).slice(0,3);
  q('#hpView').textContent=S.hp;q('#hpInput').value=S.hp;q('#slotView').textContent=S.slots+'/2';
  q('#tempHpView').textContent=S.tempHp||0;q('#tempHpSource').textContent=S.tempHp?(S.tempSource||'source inconnue'):'aucun';
- q('#curseView').textContent=S.curse?'Active':(S.curseReady?'Prête':'Utilisée');q('#curseToggle').textContent='☠ Malédiction '+(S.curse?'ON':'OFF');q('#curseToggle').classList.toggle('on',S.curse);
+ q('#curseView').textContent='Malédiction '+(S.curse?'active':(S.curseReady?'prête':'utilisée'));q('#curseToggle').textContent='☠ Malédiction '+(S.curse?'ON':'OFF');q('#curseToggle').classList.toggle('on',S.curse);
  q('#shroudToggle').textContent='◐ Voile spirituel '+(S.shroud?'ON':'OFF');q('#shroudToggle').classList.toggle('on',S.shroud);const app=q('#app');if(app)app.classList.toggle('shroud-on',!!S.shroud);
  q('#manualDice').textContent=S.manualDice?'🎲 Jets manuels':'🎲 Jets auto';q('#manualDice').classList.toggle('on',S.manualDice);
  q('#currentTarget').value=S.currentTarget||'';q('#targetAC').value=S.targetAC||'';q('#curseTarget').value=S.curseTarget||'';q('#currentTarget').disabled=!!S.pendingHit;q('#targetAC').disabled=!!S.pendingHit;q('#rememberTarget').disabled=!!S.pendingHit;q('#curseTarget').disabled=!!S.pendingHit||!!S.curse;q('#sameTarget').disabled=!!S.pendingHit||!!S.curse;
