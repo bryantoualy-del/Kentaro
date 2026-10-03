@@ -144,7 +144,7 @@ function setTargets(list,requestedSelected){
  api.subscribe(event=>{if(!active||event.type==='companion:ready')return;
    const currentTarget=selectedTarget(),isAttack=event.type.startsWith('attack:'),isSave=event.type==='save:request',attackId=String(event.payload?.attackId||'');if(isAttack&&conditionMechanics.incapacitated){if(event.type==='attack:rolled'||event.type==='attack:pending-hit'){say('Attaque non envoyée · état incapacitant actif.');rpgJournal('Attaque bloquée · état incapacitant actif','miss','ÉTAT')}return}
    if(isAttack&&(event.type==='attack:rolled'||event.type==='attack:pending-hit')&&attackId&&currentTarget&&!attackTargetLocks.has(attackId))attackTargetLocks.set(attackId,{...currentTarget});
-   const lockedTarget=attackId?attackTargetLocks.get(attackId):null,target=isAttack?(lockedTarget||currentTarget):currentTarget;
+   const lockedTarget=attackId?attackTargetLocks.get(attackId):null,target=(isAttack||isSave)?(lockedTarget||currentTarget):currentTarget;
    if(isAttack&&!target){
      if(event.type==='attack:rolled'||event.type==='attack:pending-hit'){say('Attaque non envoyée · sélectionne d’abord une cible Encounter.');rpgJournal('Attaque non envoyée · aucune cible sélectionnée','miss','CIBLE REQUISE');installTargetDock().classList.add('open')}
      else{say('Résolution non envoyée · cible de l’attaque introuvable.');rpgJournal('Résolution bloquée · cible de l’attaque introuvable','miss','RPG CONNECT')}
