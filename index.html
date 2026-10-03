@@ -491,7 +491,7 @@ function rememberTarget(name=S.currentTarget,ac=S.targetAC,redraw=true){
 }
 function selectRecentTarget(index){
  if(S.pendingHit)return log('⚠️ Confirme ou annule l’attaque avant de changer de cible.');
- const target=S.recentTargets?.[index];if(!target)return;S.currentTarget=target.name||'';S.targetAC=target.ac||'';rememberTarget(S.currentTarget,S.targetAC,true)
+ const target=S.recentTargets?.[index];if(!target)return;S.currentTarget=target.name||'';S.targetAC=target.ac||'';rememberTarget(S.currentTarget,S.targetAC,true);if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')
 }
 function renderRecentTargets(){
  const host=q('#recentTargets');if(!host)return;if(!Array.isArray(S.recentTargets))S.recentTargets=[];host.replaceChildren();
@@ -719,7 +719,7 @@ function castSpellButton(b){
  render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
 }
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
-q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#currentTarget').onchange=()=>{const old=S.recentTargets?.find(x=>cleanName(x?.name)===cleanName(S.currentTarget));if(!S.targetAC&&old?.ac)S.targetAC=old.ac;rememberTarget()};
+q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#currentTarget').onchange=()=>{const old=S.recentTargets?.find(x=>cleanName(x?.name)===cleanName(S.currentTarget));if(!S.targetAC&&old?.ac)S.targetAC=old.ac;rememberTarget();if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')};
 q('#targetAC').oninput=e=>{S.targetAC=e.target.value;render()};q('#targetAC').onchange=()=>rememberTarget();q('#curseTarget').oninput=e=>{S.curseTarget=e.target.value;render()};
 q('#sameTarget').onclick=()=>{if(!cleanName(S.currentTarget))return log('❌ Renseigne d’abord la cible attaquée.');S.curseTarget=S.currentTarget;rememberTarget();save(true)};
 q('#rememberTarget').onclick=e=>{if(!rememberTarget())return log('❌ Renseigne d’abord une cible à mémoriser.');const button=e.currentTarget,old=button.textContent;button.textContent='✓ Mémorisée';setTimeout(()=>button.textContent=old,1000)};
@@ -730,7 +730,7 @@ function requestBladeSave(p,sun){
  if(!p?.attackId||!window.CompanionAPI?.emitLocal)return false;
  if(sun&&p.nat!==20)return false;
  const effect=sun
-   ?{attackId:p.attackId,ability:'CON',dc:15,source:'Solinar renforcée',condition:'Aveuglé',durationType:'sourceTurnEnd',remaining:2,sourceCharacterId:'kentaro',allowedCreatureTypes:['fiélon','mort-vivant']}
+   ?{attackId:p.attackId,ability:'CON',dc:15,source:'Solinar renforcée',condition:'Aveuglé',durationType:'sourceTurnEnd',remaining:2,sourceCharacterId:'kentaro',allowedCreatureTypes:['fiélon','mort-vivant'],requiresNatural20:true,triggerNat:p.nat}
    :{attackId:p.attackId,ability:'SAG',dc:15,source:'Sélhane renforcée',condition:'Halo lunaire — désavantage contre Kentaro',durationType:'untilEnd',attackAgainstCharacterId:'kentaro',consumeOnMatch:true};
  window.CompanionAPI.emitLocal('save:request',effect,p.attackId+':blade-save');
  return true
