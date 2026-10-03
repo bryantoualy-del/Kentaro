@@ -744,20 +744,21 @@ function confirmPendingBlade(hit){
    render();return log(`${name}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
  }
  const cursed=curseAppliesTo(target),crit=!!p.crit;
- const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,sealDamage=0,parts=[];
+ const w=roll(crit?2:1,8,4),elem=roll(crit?2:1,6);let extra=0,markDamage=0,sealRadiant=0,sealPsychic=0,parts=[];
  if(cursed){extra+=4;parts.push('Malédiction +4')}
  if(S.shroud){const sh=roll(crit?4:2,8);extra+=sh.total;parts.push(`Voile ${sh.total}`)}
  if(sun){S.solHit=true;S.solTarget=target}else{S.selHit=true;S.selTarget=target}
  if(S.solHit&&S.selHit&&bladesShareTarget()&&!S.seal){
-   const se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
-   sealDamage=se.total+me.total;bladeEclipseFx(sun?'sun':'moon');
+   const mark=roll(1,6),se=roll(1,8),me=roll(1,8);S.seal=true;S.sealTarget=target;S.sealExpiresAfterTurn=S.turn+1;
+   markDamage=mark.total;sealRadiant=se.total;sealPsychic=me.total;bladeEclipseFx(sun?'sun':'moon');
+   parts.push(`Marque +${markDamage} ${sun?'radiants':'psychiques'}`);parts.push(`Sceau +${sealRadiant} radiants +${sealPsychic} psychiques`);
  } else fx(sun?'sun':'moon');
- const damage=w.total+elem.total+extra,totalDamage=damage+sealDamage;
- addTurnDamage(damage,sun?'Solinar':'Sélhane');if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
+ const damage=w.total+elem.total+extra,sealDamage=sealRadiant+sealPsychic,totalDamage=damage+markDamage+sealDamage;
+ addTurnDamage(damage,sun?'Solinar':'Sélhane');if(markDamage)addTurnDamage(markDamage,'Marque de l’Éclipse');if(sealDamage)addTurnDamage(sealDamage,'Sceau d’Éclipse');
  S.lastCrit=crit;S.lastCritBlade=crit?(sun?'Solinar':'Sélhane'):'';
- if(p.attackId&&window.CompanionAPI?.emitLocal){const bladeType=sun?'radiants':'psychiques';window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'kentaro',amount:totalDamage,components:[{amount:totalDamage,type:bladeType}],source:name},p.attackId+':damage');requestBladeSave(p,sun);window.__lastResolvedAttack={attackId:p.attackId,at:Date.now(),source:name}}
+ if(p.attackId&&window.CompanionAPI?.emitLocal){const bladeType=sun?'radiants':'psychiques',components=[{amount:w.total,type:'tranchants'},{amount:elem.total,type:bladeType}];if(markDamage)components.push({amount:markDamage,type:bladeType});if(sealRadiant)components.push({amount:sealRadiant,type:'radiants'});if(sealPsychic)components.push({amount:sealPsychic,type:'psychiques'});window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'kentaro',amount:totalDamage,components,source:name},p.attackId+':damage');requestBladeSave(p,sun);window.__lastResolvedAttack={attackId:p.attackId,at:Date.now(),source:name}}
  render();
- log(`${name}${crit?" — ✦ CRITIQUE":""}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${damage}${parts.length?` • ${parts.join(" • ")}`:""}${sealDamage?`\n✦ Sceau d’Éclipse : +${sealDamage}`:""}\nTOTAL : ${damage+sealDamage}`);
+ log(`${name}${crit?" — ✦ CRITIQUE":""}\nConfirmation : TOUCHÉ\nAttaque : ${p.total}\nDégâts : ${damage}${parts.length?` • ${parts.join(" • ")}`:""}\nTOTAL : ${totalDamage}`);
  if(crit&&S.slots>0)setTimeout(()=>{if(confirm(`Critique avec ${sun?"Solinar":"Sélhane"}. Dépenser un Châtiment occulte maintenant pour 12d8 ?`))q('#smiteCrit').click()},80)
 }
 function eldritchRay(){
