@@ -730,7 +730,7 @@ function requestBladeSave(p,sun){
  if(!p?.attackId||!window.CompanionAPI?.emitLocal)return false;
  if(sun&&p.nat!==20)return false;
  const effect=sun
-   ?{attackId:p.attackId,ability:'CON',dc:15,source:'Solinar renforcée',condition:'Aveuglé',durationType:'sourceTurnEnd',sourceCharacterId:'kentaro',allowedCreatureTypes:['fiélon','mort-vivant']}
+   ?{attackId:p.attackId,ability:'CON',dc:15,source:'Solinar renforcée',condition:'Aveuglé',durationType:'sourceTurnEnd',remaining:2,sourceCharacterId:'kentaro',allowedCreatureTypes:['fiélon','mort-vivant']}
    :{attackId:p.attackId,ability:'SAG',dc:15,source:'Sélhane renforcée',condition:'Halo lunaire — désavantage contre Kentaro',durationType:'untilEnd',attackAgainstCharacterId:'kentaro',consumeOnMatch:true};
  window.CompanionAPI.emitLocal('save:request',effect,p.attackId+':blade-save');
  return true
