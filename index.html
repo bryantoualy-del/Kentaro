@@ -698,21 +698,30 @@ function blade(which,mode='action',rollGroup=which){
  render();
  log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
 }
+function encounterSaveContext(label){
+ const s=window.RPGConnect?.getStatus?.()||{};if(!s.connected)return{connected:false,target:null};
+ if(!s.target){log('❌ '+label+' : sélectionne d’abord une cible Encounter dans RPG Connect.');return{connected:true,target:null}}
+ return{connected:true,target:s.target}
+}
 function castSynapticStatic(){
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
+ const net=encounterSaveContext('Perturbations synaptiques');if(net.connected&&!net.target)return;
  const before=snap();
  if(!useMainAction('Perturbations synaptiques','spell'))return render();
- const targets=Math.max(1,parseInt(q('#synTargets').value,10)||1);
- const failed=Math.max(0,Math.min(targets,parseInt(q('#synFails').value,10)||0));
- const successes=targets-failed;
  undo.push(before);if(undo.length>40)undo.shift();
  if(!useSlot())return render();
- const r=roll(8,6);
- const half=Math.floor(r.total/2);
- const total=r.total*failed+half*successes;
+ const r=roll(8,6),half=Math.floor(r.total/2);
+ if(net.connected){
+   window.RPGConnect?.requestSave?.({ability:'INT',dc:16,source:'Perturbations synaptiques',halfOnSuccess:true,damage:r.total,damageType:'psychiques',components:[{amount:r.total,type:'psychiques'}],condition:{name:'Perturbations synaptiques',durationType:'rounds',remaining:10,source:'Perturbations synaptiques'},failureEffect:'−1d6 aux jets d’attaque, tests de caractéristiques et JdS de concentration pendant 1 min'});
+   render();fx('synaptic');log(`🧠 Perturbations synaptiques
+Jet : ${r.total} psychiques (${r.dice.join('+')})
+Cible Encounter : ${net.target.name}
+JS INT DD16 transmis au MJ · moitié (${half}) sur réussite.
+Dégâts et effet appliqués uniquement après résolution Encounter.`);return
+ }
+ const targets=Math.max(1,parseInt(q('#synTargets').value,10)||1),failed=Math.max(0,Math.min(targets,parseInt(q('#synFails').value,10)||0)),successes=targets-failed,total=r.total*failed+half*successes;
  addTurnDamage(total,`Perturbations synaptiques — ${targets} cible${targets>1?'s':''}`);
- render();
- fx('synaptic');
+ render();fx('synaptic');
  log(`🧠 Perturbations synaptiques
 Jet : ${r.total} psychiques (${r.dice.join('+')})
 Cibles : ${targets}
@@ -723,7 +732,8 @@ Réussite : ${successes} × ${half}
 function castSpellButton(b){
  const name=b.dataset.spell;
  if(name==='Perturbations synaptiques')return castSynapticStatic();
- const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name);
+ const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name),saveNet=name==='Bannissement'?encounterSaveContext('Bannissement'):{connected:false,target:null};
+ if(saveNet.connected&&!saveNet.target)return;
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
  const before=snap();
  if(bonus){if(!useBonusAction(name,true))return render()}else{if(!useMainAction(name,'spell'))return render()}
@@ -732,7 +742,8 @@ function castSpellButton(b){
  if(b.dataset.agathys){if(!setTempHp(25,"Armure d’Agathys")){undo.pop();restore(before);return}S.agathys=true;S.agathysDamage=25}
  const fxBySpell={'Armure d’Agathys':'agathys','Maléfice':'hex','Foulée brumeuse':'misty','Invisibilité':'invisible','Voile spirituel':'shroud','Porte dimensionnelle':'door','Ombre d’égarement':'shadow','Bannissement':'banish','Perturbations synaptiques':'synaptic'};
  fx(fxBySpell[name]||'spell');
- render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
+ if(name==='Bannissement'&&saveNet.connected)window.RPGConnect?.requestSave?.({ability:'CHA',dc:16,source:'Bannissement',condition:{name:'Banni',durationType:'indefinite',source:'Bannissement'}});
+ render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.${name==='Bannissement'&&saveNet.connected?' · JS CHA DD16 envoyé à Encounter.':''}`)
 }
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
 q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#currentTarget').onchange=()=>{const old=S.recentTargets?.find(x=>cleanName(x?.name)===cleanName(S.currentTarget));if(!S.targetAC&&old?.ac)S.targetAC=old.ac;rememberTarget();if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')};
