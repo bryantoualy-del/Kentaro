@@ -828,7 +828,7 @@ render();load(true);
 <script src="kentaro-social.js?v=5"></script>
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
-<script src="companion-api.js?v=15"></script><script src="rpg-connect-icon-registry.js?v=3"></script><script src="rpg-connect-client.js?v=32"></script>
+<script src="companion-api.js?v=15"></script><script src="rpg-connect-icon-registry.js?v=3"></script><script src="rpg-connect-client.js?v=31"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script id="rpg-hud-v9-script">
 (()=>{if(window.__rpgHudV9)return;window.__rpgHudV9=true;
@@ -850,11 +850,11 @@ function boot(){
    let txt="";
    if(ribbon){const t=norm(ribbon.querySelector(".title,.rt,[class*='title']")?.textContent);const b=norm(ribbon.querySelector(".body,.rb,[class*='body']")?.textContent);txt=norm([t,b].filter(Boolean).join(" · "));}
    if(!txt){const net=document.querySelector("[data-rpg-state],#rpgStatus,#rpg-status,.rpg-status");txt=norm(net?.textContent)||"Hors ligne";}
-   const t=tone(txt);strip.dataset.tone=t;setText(strip.querySelector(".rpgstate"),txt.replace(/^rpg connect\s*[·:–-]?\s*/i,"")||"Hors ligne");
+   const t=tone(txt);strip.dataset.tone=t;setText(strip.querySelector(".rpgstate"),txt.replace(/^rpg connect\s*[·:–-]?\s*/i,"")||"Hors ligne";
    const miniClass=t==="idle"?"":t;if(mini.className!==miniClass)mini.className=miniClass;setText(mini,(/hors ligne|déconnect|deconnect/i.test(txt)?"○":"●")+" RPG");
    if(ribbon){if(urgent(txt))ribbon.removeAttribute("data-rpg-passive");else ribbon.setAttribute("data-rpg-passive","1");}
  };
- let refreshQueued=false;const scheduleRefresh=()=>{if(refreshQueued)return;refreshQueued=true;const run=()=>{refreshQueued=false;refresh()};if(typeof requestAnimationFrame==="function")requestAnimationFrame(run);else setTimeout(run,32)};const mo=new MutationObserver(scheduleRefresh);mo.observe(document.body,{subtree:true,childList:true,characterData:true});window.addEventListener("rpg-connect:authority",scheduleRefresh);refresh();
+ const mo=new MutationObserver(refresh);mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class","style","hidden"]});refresh();
 }
 document.readyState==="loading"?document.addEventListener("DOMContentLoaded",boot):boot();
 })();
