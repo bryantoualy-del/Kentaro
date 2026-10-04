@@ -463,20 +463,23 @@ function bladeEclipseFx(blade){
 }
 function getRibbonTone(t){
  const x=(t||'').toLowerCase();
- const warnKeys=['déjà utilisée','déjà utilisé','déjà dépensée','déjà dépensé','aucun emplacement','aucune cible','aucun dégât','pas assez','plus de','plus d’',"plus d'",'non disponible','conservés','conservé','rien à annuler'];
- const errKeys=['raté','perdue','perdu','échoue','échec','concentration rompue'];
- if(warnKeys.some(k=>x.includes(k)))return 'warn';
- if(errKeys.some(k=>x.includes(k)))return 'error';
- return 'success';
+ const healKeys=['soins reçus','soins :','pv récupérés','pv rendus','pv soignés'];
+ const damageKeys=['dégâts reçus','dégâts rapides','pv perdus','pv perdu'];
+ const neutralKeys=['déjà utilisée','déjà utilisé','déjà dépensée','déjà dépensé','aucun emplacement','aucune cible','aucun dégât','pas assez','plus de','plus d’',"plus d'",'non disponible','conservés','conservé','rien à annuler','raté','perdue','perdu','échoue','échec','concentration rompue','annulée','annulé'];
+ if(healKeys.some(k=>x.includes(k)))return 'heal';
+ if(damageKeys.some(k=>x.includes(k)))return 'damage';
+ if(neutralKeys.some(k=>x.includes(k)))return 'neutral';
+ return 'info';
 }
 function log(t){
  if(!Array.isArray(S.journal))S.journal=[];S.journal.push(String(t));if(S.journal.length>300)S.journal=S.journal.slice(-300);
  const el=q('#log');if(el){el.textContent=S.journal.join('\n\n')||'Prêt. Que l’éclipse tombe.';el.scrollTop=el.scrollHeight}
  q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');
- r.classList.remove('tone-warn','tone-error');
+ r.classList.remove('tone-warn','tone-error','tone-neutral','tone-damage','tone-heal');
  const tone=getRibbonTone(t);
- if(tone==='warn')r.classList.add('tone-warn');
- else if(tone==='error')r.classList.add('tone-error');
+ if(tone==='neutral')r.classList.add('tone-neutral');
+ else if(tone==='damage')r.classList.add('tone-damage');
+ else if(tone==='heal')r.classList.add('tone-heal');
  const badge=q('#lastBadge');if(badge)badge.classList.remove('show');if(!S.pendingHit)r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>{r.classList.remove('show');if(badge)badge.classList.add('show')},7000);save(true)
 }
 function cleanName(x){return (x||'').trim().toLowerCase()}
@@ -833,8 +836,8 @@ q('#setTempManual').onclick=()=>{push();if(!setTempHp(Number(q('#tempManual').va
 q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
 q('#stoneVision').onclick=()=>{if(!S.stoneReady)return log('❌ Vision de la Pierre déjà utilisée aujourd’hui.');push();S.stoneReady=false;fx('vision');render();log('👁 Vision de la Pierre activée : 12 s • rayon 18 m • avantage sur la prochaine attaque.')};
 q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').value==='__custom'?'block':'none'};q('#ringStoreManual').onclick=()=>storeInRing(ringSpellName(),Number(q('#ringLevel').value),false);q('#ringStoreKentaro').onclick=()=>storeInRing(ringSpellName(),5,true);q('#ringClear').onclick=()=>{if(!S.ring.length)return log('ℹ️ L’anneau est déjà vide.');push();S.ring=[];render();log('💍 Anneau vidé.')};
-q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');};
-q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
+q('#shortRest').onclick=()=>window.CompanionRestConfirm('short','Ressources de repos court restaurées.',()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');});
+q('#longRest').onclick=()=>window.CompanionRestConfirm('long','PV et ressources de repos long restaurés.',()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')});
 function headerHpAdjust(mode){const raw=prompt(mode==='damage'?'Combien de dégâts Kentaro subit-il ?':'Combien de PV Kentaro récupère-t-il ?','5');if(raw===null)return;const n=Math.floor(Number(raw));if(!Number.isFinite(n)||n<=0)return log('❌ Valeur de PV invalide.');if(mode==='damage'){processIncomingDamage(n,{source:'Dégâts rapides',melee:false});save();return}push();const healed=Math.min(n,S.maxHp-S.hp);S.hp=Math.min(S.maxHp,S.hp+n);render();save();log(`💚 Soins : +${healed} PV • ${S.hp}/${S.maxHp} PV.`)}q('#hpDamage').onclick=()=>headerHpAdjust('damage');q('#hpHeal').onclick=()=>headerHpAdjust('heal');q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
 function setHeaderTemp(value){const n=Math.max(0,Math.floor(Number(value)||0));push();if(!setTempHp(n,'Manuel')){undo.pop();render();return false}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`);save();return true}
 q('#tempHpInput').onchange=()=>setHeaderTemp(q('#tempHpInput').value);
@@ -859,6 +862,7 @@ render();load(true);
 <script src="kentaro-social.js?v=5"></script>
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
+<link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=audit1"></script>
 <script src="companion-api.js?v=15"></script><script src="rpg-connect-icon-registry.js?v=3"></script><script src="rpg-connect-client.js?v=rollback2330-1"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
