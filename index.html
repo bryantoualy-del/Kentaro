@@ -11,10 +11,10 @@
 <link rel="icon" href="/Kentaro/favicon.ico?v=3" sizes="any">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-kentaro.png?v=3">
 <link rel="shortcut icon" href="/Kentaro/favicon.ico?v=3">
-<link rel="apple-touch-icon" href="/Kentaro/apple-touch-icon-kentaro-v3.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/Kentaro/apple-touch-icon-152x152.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/Kentaro/apple-touch-icon-167x167.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/Kentaro/apple-touch-icon-kentaro-v3.png">
+<link rel="apple-touch-icon" href="/Kentaro/apple-touch-icon-kentaro-v4.png?v=4">
+<link rel="apple-touch-icon" sizes="152x152" href="/Kentaro/apple-touch-icon-152x152.png?v=4">
+<link rel="apple-touch-icon" sizes="167x167" href="/Kentaro/apple-touch-icon-167x167.png?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="/Kentaro/apple-touch-icon-kentaro-v4.png?v=4">
 <title>Kentaro - Compagnon</title>
 <style>
 :root{
@@ -152,7 +152,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
 .pact-resource-strip{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;align-items:center;gap:12px;margin:4px 0 10px;padding:10px 12px;border:1px solid #514769;border-radius:12px;background:linear-gradient(90deg,rgba(44,34,60,.72),rgba(14,18,27,.84),rgba(30,48,72,.58))}
 .pact-resource-strip>div:first-child{display:grid;gap:1px}.pact-resource-strip small{font-size:9px;letter-spacing:.12em;color:#b6a0d5}.pact-resource-strip b{font-size:14px;color:#eee5f7}.pact-resource-strip span{font-size:10px;color:#929baa}.pact-resource-strip>strong{font-size:21px;color:#f0c36d}.pact-slots{margin:0!important;justify-content:flex-end!important}.pact-slots .pip{width:26px;height:26px;min-height:26px}
 @media(max-width:1100px) and (min-width:601px){.kentaro-top{grid-template-columns:1fr}.kentaro-vitals{grid-template-columns:2fr repeat(3,minmax(0,1fr));gap:6px;padding:9px}.kentaro-vitals .vital{padding:7px 6px;border-radius:9px}.kentaro-vitals .vital small{font-size:8px;letter-spacing:.045em}.kentaro-vitals .vital b{font-size:17px}.kentaro-vitals .vital-sub{font-size:8px}.temp-vital{grid-column:span 2;overflow:hidden}.hp-main-row input{height:32px;min-height:32px}.hp-actions button{height:27px;min-height:27px;font-size:9px}.temp-hp-direct{height:34px;min-height:34px;font-size:15px}}
-@media(max-width:600px){.kentaro-identity{min-height:104px;padding:14px 92px 14px 14px}.kentaro-signature{width:76px;height:76px;right:2px}.kentaro-signature img{width:100%;height:100%}.kentaro-identity h1{font-size:34px;letter-spacing:.085em}.kentaro-vitals{grid-template-columns:repeat(3,1fr)}.hp-vital,.temp-vital{grid-column:1/-1}.pact-resource-strip{grid-template-columns:1fr auto}.pact-slots{grid-column:1/-1;justify-content:flex-start!important}}
+@media(max-width:767px){.kentaro-top{display:block;margin-bottom:8px}.kentaro-identity{min-height:0;padding:12px 76px 12px 12px;border-radius:13px 13px 0 0}.kentaro-signature{width:60px;height:60px;right:8px}.kentaro-signature img{width:100%;height:100%}.kentaro-identity h1{font-size:1.65rem;line-height:1;letter-spacing:.07em}.kentaro-identity .subtitle{font-size:.78rem}.identity-tags{gap:5px;margin-top:7px}.identity-tags span{padding:3px 7px;font-size:9px}.kentaro-vitals{border-radius:0 0 13px 13px;grid-template-columns:repeat(3,minmax(0,1fr));padding:8px;gap:6px}.kentaro-vitals .vital{padding:8px 6px}.kentaro-vitals .vital small{font-size:8px;letter-spacing:.045em}.kentaro-vitals .vital b{font-size:17px}.kentaro-vitals .vital-sub{font-size:8px}.hp-vital{grid-column:1/-1}.temp-vital{grid-column:auto}.hp-main-row input{height:34px;min-height:34px}.hp-actions button{height:29px;min-height:29px;font-size:10px}.temp-hp-direct{height:34px;min-height:34px;font-size:15px}.pact-resource-strip{grid-template-columns:1fr auto}.pact-slots{grid-column:1/-1;justify-content:flex-start!important}}
 </style>
 <link rel="stylesheet" href="social-dice.css?v=3"><link rel="stylesheet" href="rpg-connect-client.css?v=rollback2330-1">
 <link rel="stylesheet" href="companion-turnbar.css?v=2">
@@ -463,20 +463,23 @@ function bladeEclipseFx(blade){
 }
 function getRibbonTone(t){
  const x=(t||'').toLowerCase();
- const warnKeys=['déjà utilisée','déjà utilisé','déjà dépensée','déjà dépensé','aucun emplacement','aucune cible','aucun dégât','pas assez','plus de','plus d’',"plus d'",'non disponible','conservés','conservé','rien à annuler'];
- const errKeys=['raté','perdue','perdu','échoue','échec','concentration rompue'];
- if(warnKeys.some(k=>x.includes(k)))return 'warn';
- if(errKeys.some(k=>x.includes(k)))return 'error';
- return 'success';
+ const healKeys=['soins reçus','soins :','pv récupérés','pv rendus','pv soignés'];
+ const damageKeys=['dégâts reçus','dégâts rapides','pv perdus','pv perdu'];
+ const neutralKeys=['déjà utilisée','déjà utilisé','déjà dépensée','déjà dépensé','aucun emplacement','aucune cible','aucun dégât','pas assez','plus de','plus d’',"plus d'",'non disponible','conservés','conservé','rien à annuler','raté','perdue','perdu','échoue','échec','concentration rompue','annulée','annulé'];
+ if(healKeys.some(k=>x.includes(k)))return 'heal';
+ if(damageKeys.some(k=>x.includes(k)))return 'damage';
+ if(neutralKeys.some(k=>x.includes(k)))return 'neutral';
+ return 'info';
 }
 function log(t){
  if(!Array.isArray(S.journal))S.journal=[];S.journal.push(String(t));if(S.journal.length>300)S.journal=S.journal.slice(-300);
  const el=q('#log');if(el){el.textContent=S.journal.join('\n\n')||'Prêt. Que l’éclipse tombe.';el.scrollTop=el.scrollHeight}
  q('#lastResult').textContent=t;const r=q('#kentaro-ribbon');
- r.classList.remove('tone-warn','tone-error');
+ r.classList.remove('tone-warn','tone-error','tone-neutral','tone-damage','tone-heal');
  const tone=getRibbonTone(t);
- if(tone==='warn')r.classList.add('tone-warn');
- else if(tone==='error')r.classList.add('tone-error');
+ if(tone==='neutral')r.classList.add('tone-neutral');
+ else if(tone==='damage')r.classList.add('tone-damage');
+ else if(tone==='heal')r.classList.add('tone-heal');
  const badge=q('#lastBadge');if(badge)badge.classList.remove('show');if(!S.pendingHit)r.classList.add('show');clearTimeout(ribbonTimer);if(!S.pendingHit)ribbonTimer=setTimeout(()=>{r.classList.remove('show');if(badge)badge.classList.add('show')},7000);save(true)
 }
 function cleanName(x){return (x||'').trim().toLowerCase()}
@@ -683,21 +686,30 @@ function blade(which,mode='action',rollGroup=which){
  render();
  log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
 }
+function encounterSaveContext(label){
+ const s=window.RPGConnect?.getStatus?.()||{};if(!s.connected)return{connected:false,target:null};
+ if(!s.target){log('❌ '+label+' : sélectionne d’abord une cible Encounter dans RPG Connect.');return{connected:true,target:null}}
+ return{connected:true,target:s.target}
+}
 function castSynapticStatic(){
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
+ const net=encounterSaveContext('Perturbations synaptiques');if(net.connected&&!net.target)return;
  const before=snap();
  if(!useMainAction('Perturbations synaptiques','spell'))return render();
- const targets=Math.max(1,parseInt(q('#synTargets').value,10)||1);
- const failed=Math.max(0,Math.min(targets,parseInt(q('#synFails').value,10)||0));
- const successes=targets-failed;
  undo.push(before);if(undo.length>40)undo.shift();
  if(!useSlot())return render();
- const r=roll(8,6);
- const half=Math.floor(r.total/2);
- const total=r.total*failed+half*successes;
+ const r=roll(8,6),half=Math.floor(r.total/2);
+ if(net.connected){
+   window.RPGConnect?.requestSave?.({ability:'INT',dc:16,source:'Perturbations synaptiques',halfOnSuccess:true,damage:r.total,damageType:'psychiques',components:[{amount:r.total,type:'psychiques'}],condition:{name:'Perturbations synaptiques',durationType:'rounds',remaining:10,source:'Perturbations synaptiques'},failureEffect:'−1d6 aux jets d’attaque, tests de caractéristiques et JdS de concentration pendant 1 min'});
+   render();fx('synaptic');log(`🧠 Perturbations synaptiques
+Jet : ${r.total} psychiques (${r.dice.join('+')})
+Cible Encounter : ${net.target.name}
+JS INT DD16 transmis au MJ · moitié (${half}) sur réussite.
+Dégâts et effet appliqués uniquement après résolution Encounter.`);return
+ }
+ const targets=Math.max(1,parseInt(q('#synTargets').value,10)||1),failed=Math.max(0,Math.min(targets,parseInt(q('#synFails').value,10)||0)),successes=targets-failed,total=r.total*failed+half*successes;
  addTurnDamage(total,`Perturbations synaptiques — ${targets} cible${targets>1?'s':''}`);
- render();
- fx('synaptic');
+ render();fx('synaptic');
  log(`🧠 Perturbations synaptiques
 Jet : ${r.total} psychiques (${r.dice.join('+')})
 Cibles : ${targets}
@@ -708,7 +720,8 @@ Réussite : ${successes} × ${half}
 function castSpellButton(b){
  const name=b.dataset.spell;
  if(name==='Perturbations synaptiques')return castSynapticStatic();
- const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name);
+ const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name),saveNet=name==='Bannissement'?encounterSaveContext('Bannissement'):{connected:false,target:null};
+ if(saveNet.connected&&!saveNet.target)return;
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
  const before=snap();
  if(bonus){if(!useBonusAction(name,true))return render()}else{if(!useMainAction(name,'spell'))return render()}
@@ -717,7 +730,8 @@ function castSpellButton(b){
  if(b.dataset.agathys){if(!setTempHp(25,"Armure d’Agathys")){undo.pop();restore(before);return}S.agathys=true;S.agathysDamage=25}
  const fxBySpell={'Armure d’Agathys':'agathys','Maléfice':'hex','Foulée brumeuse':'misty','Invisibilité':'invisible','Voile spirituel':'shroud','Porte dimensionnelle':'door','Ombre d’égarement':'shadow','Bannissement':'banish','Perturbations synaptiques':'synaptic'};
  fx(fxBySpell[name]||'spell');
- render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.`)
+ if(name==='Bannissement'&&saveNet.connected)window.RPGConnect?.requestSave?.({ability:'CHA',dc:16,source:'Bannissement',condition:{name:'Banni',durationType:'indefinite',source:'Bannissement'}});
+ render();log(`✨ ${name} lancé avec un emplacement de pacte N5 • ${bonus?'action bonus':'Action'}${b.dataset.conc?' • concentration':''}${b.dataset.agathys?' • 25 PV temporaires':''}.${name==='Bannissement'&&saveNet.connected?' · JS CHA DD16 envoyé à Encounter.':''}`)
 }
 qa('.tab').forEach(b=>b.onclick=()=>{qa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab))});
 q('#currentTarget').oninput=e=>{S.currentTarget=e.target.value;render()};q('#currentTarget').onchange=()=>{const old=S.recentTargets?.find(x=>cleanName(x?.name)===cleanName(S.currentTarget));if(!S.targetAC&&old?.ac)S.targetAC=old.ac;rememberTarget();if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')};
@@ -822,8 +836,8 @@ q('#setTempManual').onclick=()=>{push();if(!setTempHp(Number(q('#tempManual').va
 q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
 q('#stoneVision').onclick=()=>{if(!S.stoneReady)return log('❌ Vision de la Pierre déjà utilisée aujourd’hui.');push();S.stoneReady=false;fx('vision');render();log('👁 Vision de la Pierre activée : 12 s • rayon 18 m • avantage sur la prochaine attaque.')};
 q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').value==='__custom'?'block':'none'};q('#ringStoreManual').onclick=()=>storeInRing(ringSpellName(),Number(q('#ringLevel').value),false);q('#ringStoreKentaro').onclick=()=>storeInRing(ringSpellName(),5,true);q('#ringClear').onclick=()=>{if(!S.ring.length)return log('ℹ️ L’anneau est déjà vide.');push();S.ring=[];render();log('💍 Anneau vidé.')};
-q('#shortRest').onclick=()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');};
-q('#longRest').onclick=()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')};
+q('#shortRest').onclick=()=>window.CompanionRestConfirm('short','Ressources de repos court restaurées.',()=>{push();S.slots=2;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');});
+q('#longRest').onclick=()=>window.CompanionRestConfirm('long','PV et ressources de repos long restaurés.',()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')});
 function headerHpAdjust(mode){const raw=prompt(mode==='damage'?'Combien de dégâts Kentaro subit-il ?':'Combien de PV Kentaro récupère-t-il ?','5');if(raw===null)return;const n=Math.floor(Number(raw));if(!Number.isFinite(n)||n<=0)return log('❌ Valeur de PV invalide.');if(mode==='damage'){processIncomingDamage(n,{source:'Dégâts rapides',melee:false});save();return}push();const healed=Math.min(n,S.maxHp-S.hp);S.hp=Math.min(S.maxHp,S.hp+n);render();save();log(`💚 Soins : +${healed} PV • ${S.hp}/${S.maxHp} PV.`)}q('#hpDamage').onclick=()=>headerHpAdjust('damage');q('#hpHeal').onclick=()=>headerHpAdjust('heal');q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
 function setHeaderTemp(value){const n=Math.max(0,Math.floor(Number(value)||0));push();if(!setTempHp(n,'Manuel')){undo.pop();render();return false}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`);save();return true}
 q('#tempHpInput').onchange=()=>setHeaderTemp(q('#tempHpInput').value);
@@ -848,6 +862,7 @@ render();load(true);
 <script src="kentaro-social.js?v=5"></script>
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
+<link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=audit1"></script>
 <script src="companion-api.js?v=15"></script><script src="rpg-connect-icon-registry.js?v=3"></script><script src="rpg-connect-client.js?v=rollback2330-1"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
