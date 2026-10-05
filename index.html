@@ -693,14 +693,14 @@ function encounterSaveContext(label){
 }
 function castSynapticStatic(){
  if(S.slots<1)return log('❌ Aucun emplacement de pacte restant.');
- const net=encounterSaveContext('Perturbations synaptiques');if(net.connected&&!net.target)return;
+ window.RPGConnect?.prepareTargets?.({targetMode:'multi',open:false});const net=encounterSaveContext('Perturbations synaptiques');if(net.connected&&!net.target){window.RPGConnect?.openTargetPicker?.();return;}
  const before=snap();
  if(!useMainAction('Perturbations synaptiques','spell'))return render();
  undo.push(before);if(undo.length>40)undo.shift();
  if(!useSlot())return render();
  const r=roll(8,6),half=Math.floor(r.total/2);
  if(net.connected){
-   window.RPGConnect?.requestSave?.({ability:'INT',dc:16,source:'Perturbations synaptiques',halfOnSuccess:true,damage:r.total,damageType:'psychiques',components:[{amount:r.total,type:'psychiques'}],condition:{name:'Perturbations synaptiques',durationType:'rounds',remaining:10,source:'Perturbations synaptiques'},failureEffect:'−1d6 aux jets d’attaque, tests de caractéristiques et JdS de concentration pendant 1 min'});
+   window.RPGConnect?.requestSave?.({ability:'INT',dc:16,source:'Perturbations synaptiques',targetMode:'multi',damageRollMode:'shared',halfOnSuccess:true,damage:r.total,damageType:'psychiques',components:[{amount:r.total,type:'psychiques'}],condition:{name:'Perturbations synaptiques',durationType:'rounds',remaining:10,source:'Perturbations synaptiques'},failureEffect:'−1d6 aux jets d’attaque, tests de caractéristiques et JdS de concentration pendant 1 min'});
    render();fx('synaptic');log(`🧠 Perturbations synaptiques
 Jet : ${r.total} psychiques (${r.dice.join('+')})
 Cible Encounter : ${net.target.name}
@@ -863,7 +863,7 @@ render();load(true);
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
 <link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=audit1"></script>
-<script src="companion-api.js?v=stabilization-20261005-2"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-connect-client.js?v=stabilization-20261005-2"></script>
+<script src="companion-api.js?v=stabilization-20261005-2"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-connect-client.js?v=stabilization-20261005-2"></script><script src="rpg-multi-target.js?v=multi-20261005-1"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
 </body></html>
