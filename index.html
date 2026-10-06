@@ -265,7 +265,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
       <input id="synFails" class="compact-input" type="number" min="0" value="1" inputmode="numeric">
     </label>
   </div>
-  <div class="meta">Les autres cibles sont comptées comme réussissant le JS et prennent la moitié des dégâts.</div>
+  <div class="meta" data-synaptic-offline-help>Les autres cibles sont comptées comme réussissant le JS et prennent la moitié des dégâts.</div>
   <button data-spell="Perturbations synaptiques">Lancer + dégâts</button>
 </article>
 </div>
@@ -863,7 +863,7 @@ render();load(true);
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
 <link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=audit1"></script>
-<script src="companion-api.js?v=stabilization-20261005-2"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-connect-client.js?v=stabilization-20261005-2"></script><script src="rpg-multi-target.js?v=multi-20261005-1"></script>
+<script src="companion-api.js?v=stabilization-20261005-2"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-connect-client.js?v=stabilization-20261005-2"></script><script src="rpg-multi-target.js?v=multi-20261005-1"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-multi-target-ui.js?v=20261006-1"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
 </body></html>
