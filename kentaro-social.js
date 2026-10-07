@@ -25,6 +25,7 @@ const profile={
     ['Social','Charme prédateur : avantage aux tests de Charisme contre une cible éligible après 1 minute de conversation']
   ]
 };
+window.KentaroSocialSaves=()=>({...profile.saves});
 
 let pane='skills',mode='normal';
 
