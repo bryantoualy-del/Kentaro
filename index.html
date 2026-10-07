@@ -873,4 +873,8 @@ render();load(true);
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
 <script src="rpg-health.js?v=summons-20261006-1"></script>
-<script src="rpg-summons-client.js?v=1"></script></body></html>
+<script src="rpg-summons-client.js?v=1"></script><script src="rpg-triggered-effects.js"></script>
+<script>
+window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.attack||{};if(q.kind!=='damage-received'||!a.hit||a.mode!=='melee'||!a.attackerId||before.temp<=0||String(before.tempSource).replace(/[’']/g,'').toLowerCase()!=='armure dagathys'||before.tempMetadata?.expiresAt&&before.tempMetadata.expiresAt<=q.occurredAt)return [];const amount=Number(q.before.tempMetadata?.originalAmount)||Number(S.agathysDamage)||25;return amount>0?[{kind:'damage',source:'Armure d’Agathys',targetId:a.attackerId,amount,damageType:'froid',reaction:false}]:[]};
+</script>
+</body></html>
