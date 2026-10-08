@@ -879,7 +879,7 @@ render();load(true);
 <script>
 window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.attack||{};if(q.kind!=='damage-received'||!a.hit||a.mode!=='melee'||!a.attackerId||before.temp<=0||String(before.tempSource).replace(/[’']/g,'').toLowerCase()!=='armure dagathys'||before.tempMetadata?.expiresAt&&before.tempMetadata.expiresAt<=q.occurredAt)return [];const amount=Number(q.before.tempMetadata?.originalAmount)||Number(S.agathysDamage)||25;return amount>0?[{kind:'damage',source:'Armure d’Agathys',targetId:a.attackerId,amount,damageType:'froid',reaction:false}]:[]};
 </script>
-<script src="mj-journal-model.js?v=1"></script><script src="rpg-undo.js?v=1"></script><script src="rpg-group.js?v=group-20261007-1"></script>
+<script src="mj-journal-model.js?v=1"></script><script src="rpg-undo.js?v=2"></script><script src="rpg-group.js?v=group-20261007-1"></script>
 <script src="rpg-resources.js?v=group-20261007-1"></script>
 <script src="rpg-native-reactions.js"></script><script src="rpg-opportunities.js?v=session-reliability-1"></script>
 <script src="rpg-instruction.js"></script>
