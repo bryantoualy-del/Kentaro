@@ -216,7 +216,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
       <div class="action-title">🎯 Cible</div>
       <div class="target-fields">
         <div><span class="label-mini">Cible attaquée</span><input id="currentTarget" class="compact-input" placeholder="Ex : Othrion"></div>
-        <div><span class="label-mini">CA cible</span><input id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
+        <div hidden aria-hidden="true"><span class="label-mini">CA cible</span><input hidden aria-hidden="true" id="targetAC" class="compact-input" type="number" min="1" max="40" placeholder="CA"></div>
         <div><span class="label-mini">Cible maudite</span><div class="curse-target-row"><input id="curseTarget" class="compact-input" placeholder="Nom de la cible"><button id="sameTarget" type="button" title="Utiliser la cible attaquée">Même cible</button></div></div>
       </div>
       <div class="recent-targets"><div class="recent-targets-head"><span>Cibles récentes</span><button id="rememberTarget" type="button">＋ Mémoriser</button></div><div id="recentTargets" class="recent-target-list"></div></div>
@@ -495,18 +495,18 @@ function rememberTarget(name=S.currentTarget,ac=S.targetAC,redraw=true){
 }
 function selectRecentTarget(index){
  if(S.pendingHit)return log('⚠️ Confirme ou annule l’attaque avant de changer de cible.');
- const target=S.recentTargets?.[index];if(!target)return;S.currentTarget=target.name||'';S.targetAC=target.ac||'';rememberTarget(S.currentTarget,S.targetAC,true);if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')
+ const target=S.recentTargets?.[index];if(!target)return;S.currentTarget=target.name||'';S.targetAC='';rememberTarget(S.currentTarget,S.targetAC,true);if(window.RPGConnect?.getStatus?.().connected&&!window.RPGConnect.selectTargetByName?.(S.currentTarget,true))log('⚠️ Cible locale modifiée, mais aucune cible Encounter unique ne correspond à « '+S.currentTarget+' ».')
 }
 function renderRecentTargets(){
  const host=q('#recentTargets');if(!host)return;if(!Array.isArray(S.recentTargets))S.recentTargets=[];host.replaceChildren();
- if(!S.recentTargets.length){const empty=document.createElement('div');empty.className='recent-target-empty';empty.textContent='Une cible et sa CA apparaîtront ici après mémorisation ou attaque.';host.appendChild(empty);return}
+ if(!S.recentTargets.length){const empty=document.createElement('div');empty.className='recent-target-empty';empty.textContent='Les cibles apparaîtront ici après mémorisation ou attaque.';host.appendChild(empty);return}
  S.recentTargets.slice(0,3).forEach((target,index)=>{
   const row=document.createElement('div');row.className='recent-target';
   const main=document.createElement('button');main.type='button';main.className='recent-target-main'+(cleanName(target.name)===cleanName(S.currentTarget)?' active':'');main.dataset.targetIndex=index;main.disabled=!!S.pendingHit;
   const name=document.createElement('span');name.className='recent-target-name';name.textContent=target.name;
   const meta=document.createElement('span');meta.className='recent-target-meta';const marks=[];
   if(cleanName(S.curseTarget)===cleanName(target.name))marks.push('☠');if(S.solHit&&cleanName(S.solTarget)===cleanName(target.name))marks.push('☀');if(S.selHit&&cleanName(S.selTarget)===cleanName(target.name))marks.push('☾');if(S.sealTarget&&cleanName(S.sealTarget)===cleanName(target.name))marks.push('✦');
-  meta.innerHTML=`${target.ac?`CA ${target.ac}`:'CA ?'}${marks.length?` <span class="recent-target-marks">${marks.join(' ')}</span>`:''}`;main.append(name,meta);
+  meta.innerHTML=`${marks.length?` <span class="recent-target-marks">${marks.join(' ')}</span>`:''}`;main.append(name,meta);
   const remove=document.createElement('button');remove.type='button';remove.className='recent-target-remove';remove.dataset.forgetTarget=index;remove.title=`Oublier ${target.name}`;remove.textContent='×';remove.disabled=!!S.pendingHit;row.append(main,remove);host.appendChild(row)
  })
 }
@@ -684,7 +684,7 @@ function blade(which,mode='action',rollGroup=which){
  pendingBefore=before;
  S.pendingHit={attackKind:'weapon',kind:'blade',which,name,total:hitRoll,nat,crit,detail:rr.detail,target:S.currentTarget,cursed,undoBefore:before};
  render();
- log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
+ log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}\nEst-ce que l’attaque touche ?`);
 }
 function encounterSaveContext(label){
  const s=window.RPGConnect?.getStatus?.()||{};if(!s.connected)return{connected:false,target:null};
@@ -789,7 +789,7 @@ function eldritchRay(){
  const attack=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19);
  if(rr.nat===1){undo.push(before);if(undo.length>40)undo.shift();S.eldritchCount=ray;emitNetworkAutoMiss(`Décharge occulte — rayon ${ray}`,rr.nat,attack);render();return log(`🔴 Décharge occulte — Rayon ${ray}\n1 naturel → ÉCHEC AUTOMATIQUE.`)}
  pendingBefore=before;S.pendingHit={kind:'eldritch',ray,total:attack,nat:rr.nat,detail:rr.detail,crit,cursed,target:S.currentTarget,undoBefore:before};
- render();log(`🔴 Décharge occulte — Rayon ${ray}${crit?" — ✦ CRITIQUE":""}\nAttaque : ${rr.detail} +8 = ${attack}${S.targetAC?` • CA repère ${S.targetAC}`:""}\nEst-ce que l’attaque touche ?`);
+ render();log(`🔴 Décharge occulte — Rayon ${ray}${crit?" — ✦ CRITIQUE":""}\nAttaque : ${rr.detail} +8 = ${attack}\nEst-ce que l’attaque touche ?`);
 }
 function confirmPendingEldritch(hit){
  const p=S.pendingHit;if(!p)return;
@@ -870,8 +870,8 @@ render();load(true);
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
 <link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=audit1"></script>
-<script src="companion-api.js?v=mj-20261007-1"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-reactions.js"></script><script src="rpg-concentration.js?v=mj-20261007-1"></script><script src="rpg-player-saves.js?v=mj-20261007-1"></script>
-<script src="rpg-connect-client.js?v=mj-20261007-1"></script><script src="rpg-multi-target.js?v=multi-20261005-1"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=mj-20261007-1"></script><script src="rpg-multi-target-ui.js?v=summons-20261006-1"></script>
+<script src="companion-api.js?v=mj-20261007-1"></script><script src="rpg-connect-icon-registry.js?v=5"></script><script src="rpg-reactions.js?v=session-reliability-1"></script><script src="rpg-concentration.js?v=mj-20261007-1"></script><script src="rpg-player-saves.js?v=mj-20261007-1"></script>
+<script src="rpg-turn-start.js?v=1"></script><script src="rpg-connect-client.js?v=session-reliability-1"></script><script src="rpg-multi-target.js?v=multi-20261005-1"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=mj-20261007-1"></script><script src="rpg-multi-target-ui.js?v=summons-20261006-1"></script>
 <script src="social-dice.js?v=2"></script><script type="module" src="dice-engine.js?v=3"></script>
 <script src="companion-turnbar.js?v=4"></script>
 <script src="rpg-health.js?v=mj-20261007-1"></script>
@@ -881,7 +881,7 @@ window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.atta
 </script>
 <script src="mj-journal-model.js?v=1"></script><script src="rpg-undo.js?v=1"></script><script src="rpg-group.js?v=group-20261007-1"></script>
 <script src="rpg-resources.js?v=group-20261007-1"></script>
-<script src="rpg-native-reactions.js"></script><script src="rpg-opportunities.js"></script>
+<script src="rpg-native-reactions.js"></script><script src="rpg-opportunities.js?v=session-reliability-1"></script>
 <script src="rpg-instruction.js"></script>
 <script src="rpg-weapon-gate.js"></script>
 </body></html>
