@@ -874,4 +874,78 @@ window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.atta
 <script src="rpg-weapon-gate.js"></script>
 <script src="rpg-combat-effects-client.js?v=kentaro-20261008"></script>
 <script src="kentaro-combat.js?v=20261008-1"></script>
+<style id="kentaro-ipad-compact">
+@media(min-width:1000px) and (orientation:landscape){
+/* Kentaro: compact landscape tablet layout */
+.wrap{padding:10px!important;max-width:none!important}.shell{padding:8px!important}
+.kentaro-top{grid-template-columns:minmax(290px,.9fr) minmax(0,2.2fr)!important;gap:9px!important;margin-bottom:8px!important}
+.kentaro-identity{min-height:106px!important;padding:12px 86px 12px 14px!important}
+.kentaro-identity h1{font-size:35px!important;letter-spacing:.07em!important;margin:4px 0!important}
+.kentaro-signature{width:80px!important;height:80px!important;right:4px!important}
+.company-kicker{font-size:10px!important}.identity-tags{margin-top:6px!important}
+.kentaro-vitals{grid-template-columns:minmax(145px,1.5fr) minmax(95px,1fr) repeat(5,minmax(55px,.7fr))!important;padding:6px!important;gap:5px!important}
+.kentaro-vitals .vital{padding:6px!important}.vital b{font-size:20px!important}.vital small{font-size:9px!important}.temp-vital{grid-column:auto!important}
+.hp-actions button{min-height:30px!important;height:30px!important}.vital-sub{font-size:9px!important}
+.statebar{margin:5px 0!important;gap:5px!important}.statebar>*{font-size:10px!important;padding:3px 8px!important}
+.tabs{margin:7px 0 8px!important;gap:5px!important;flex-wrap:nowrap!important}.tabs .tab{font-size:12px!important;min-width:0!important;padding:8px 11px!important;flex:0 0 auto!important}.tabs .rpg-group-launch{margin-left:auto!important;font-size:12px!important;padding:8px 12px!important;min-height:44px!important}
+[data-panel=combat]>.wonq-section-head{display:none!important}.rpg-combat-tools{margin:0 0 8px!important;min-height:0!important}.rpg-combat-tools button{font-size:12px!important;min-height:36px!important;padding:6px 12px!important}
+.combat-layout{grid-template-columns:245px minmax(0,1fr)!important;gap:9px!important;align-items:start!important}
+.target-card{padding:12px!important}.target-fields{gap:6px!important}.label-mini{font-size:11px!important}.compact-input{min-height:40px!important;padding:8px!important;font-size:13px!important}.recent-targets{margin-top:8px!important}.recent-targets-head{font-size:10px!important}#rememberTarget{font-size:10px!important;min-height:34px!important;padding:4px 7px!important}#recentTargets{font-size:11px!important;min-height:0!important}.modebar{gap:6px!important;margin-top:8px!important}.modebar button{min-height:40px!important;font-size:12px!important;width:100%!important}.statusbox,.seal-banner{font-size:11px!important;padding:8px!important}.seal-art{width:44px!important;height:44px!important}
+.attack-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.attack-grid .card{min-height:0!important;padding:12px!important;display:flex!important;flex-direction:column!important;gap:5px!important}.attack-grid .action-title{font-size:19px!important;line-height:1.1!important}.attack-grid .meta{font-size:11px!important;line-height:1.35!important;margin:0!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}.attack-grid .blade-card{padding-right:12px!important}.blade-card .action-title{padding-right:52px!important}.blade-card .item-art{width:65px!important;height:65px!important;right:8px!important;top:0!important;transform:none!important;padding:0!important;opacity:.95!important}.blade-save-note{padding-right:42px!important;min-height:30px!important}
+.attack-roll-options{display:grid!important;grid-template-columns:.8fr 1fr 1.15fr 1fr!important;gap:4px!important;margin:4px 0!important;width:100%!important}.attack-roll-options .toggle{font-size:10px!important;padding:5px 4px!important;min-height:40px!important;width:auto!important;min-width:0!important}.attack-manual-roll{display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important}.attack-manual-roll input{width:27px!important;font-size:10px!important;padding:0!important}
+.attack-grid .row{margin:2px 0 0!important;gap:5px!important}.attack-grid .row button,.attack-grid>.card>button{min-height:40px!important;padding:7px 10px!important;font-size:12px!important;flex:1!important}.blade-card .row button{width:100%!important;font-size:14px!important;font-weight:700!important}.attack-grid .card:nth-child(3) .meta{min-height:30px!important}.attack-grid .card:nth-child(4) .row{margin-top:auto!important}
+#cc-turnbar-standard{margin:0!important}#cc-turnbar-standard button{min-height:44px!important}.utility-bar{margin-top:9px!important;padding-top:8px!important}.utility-bar button{font-size:11px!important;min-height:38px!important}
+.attack-grid>.card{grid-column:auto!important}.attack-roll-options{max-width:100%!important}.kentaro-top{height:112px!important}.kentaro-identity,.kentaro-vitals{height:112px!important;min-height:0!important}.kentaro-identity .subtitle{font-size:10px!important;white-space:nowrap!important}.identity-tags span{font-size:9px!important;padding:3px 6px!important}.hp-main-row b{font-size:12px!important}.kentaro-identity{padding-right:75px!important}.kentaro-signature{width:66px!important;height:66px!important}.hp-actions{margin-top:3px!important}.tabs .rpg-group-launch{border-color:#b88642!important;color:#e1ac5d!important;background:linear-gradient(145deg,#34291d,#131218)!important;font-weight:700!important}
+.statebar{display:flex!important;align-items:center!important;height:36px!important}.statebar [data-opportunity]{margin-left:auto!important;min-height:34px!important;font-size:11px!important;padding:5px 10px!important;background:linear-gradient(145deg,#352517,#151218)!important;border-color:#bd873d!important;color:#e7b66a!important}.rpg-combat-tools:empty{display:none!important}.target-stack{height:auto!important;position:static!important}.target-card{height:auto!important}.attack-column{align-self:start!important}.attack-grid{align-items:stretch!important}.compact-recents{margin-top:8px;border-top:1px solid #393541;padding-top:6px;font-size:11px;color:#c9ab78}.compact-recents summary{min-height:34px;cursor:pointer;display:list-item;padding:8px 0}.card .blade-save-note{padding-right:55px!important}.attack-manual-roll input{width:35px!important;min-width:35px!important}.attack-manual-roll{font-size:9px!important}.statebar span{border-radius:999px}.blade-card .item-art{top:4px!important;width:58px!important;height:58px!important}
+.attack-grid .card{padding:9px 11px!important;gap:3px!important}.attack-grid .action-title{font-size:18px!important}.attack-grid .meta{font-size:11px!important;line-height:1.25!important}.attack-roll-options{margin:2px 0!important}.attack-grid .card .row{margin-top:0!important}.blade-save-note{min-height:28px!important}.attack-grid .card:nth-child(3) .meta{min-height:28px!important}#cc-turnbar-standard [data-cc-turnbar-next],#cc-turnbar-standard .cc-turnbar-next{background:linear-gradient(135deg,#d9a74e,#a77427)!important;color:#17120b!important}
+#cc-turnbar-standard .cc-turn-next{background:linear-gradient(135deg,#d9a74e,#a77427)!important;color:#17120b!important;border-color:#d9a74e!important}
+
+/* Keep the two tactical controls together; leave the RPG launcher untouched. */
+.tabs .kentaro-tablet-tools{display:flex!important;gap:5px!important;margin-left:auto!important;flex-shrink:0!important}
+.tabs .kentaro-tablet-tools .rpg-group-launch{margin:0!important;font-size:11px!important;min-height:44px!important;height:44px!important;padding:8px 10px!important;white-space:nowrap!important}
+.tabs .tab{padding:8px 9px!important;font-size:11px!important}
+#bite{flex:0 0 auto!important;height:44px!important;min-height:44px!important;margin-top:8px!important;width:100%!important}
+.blade-card .action-title,.card .blade-save-note{padding-right:68px!important}
+.blade-card .item-art{top:8px!important;right:10px!important;width:58px!important;height:58px!important}
+.target-card #sealStatus{position:relative!important;padding-right:62px!important;min-height:60px!important}
+.target-card #sealStatus .seal-art{position:absolute!important;right:8px!important;top:8px!important;float:none!important;margin:0!important;width:44px!important;height:44px!important}
+.kentaro-identity .identity-copy{width:100%!important}.kentaro-identity h1{font-size:32px!important}.kentaro-identity .subtitle{white-space:normal!important}
+.attack-grid .card .meta{overflow-wrap:anywhere!important}
+.tabs{position:relative!important;top:auto!important}
+
+.kentaro-vitals .vital:last-child{padding-top:22px!important}
+@media(max-width:1100px){.tabs .tab{font-size:10px!important;padding:8px 7px!important}.tabs .kentaro-tablet-tools .rpg-group-launch{font-size:10px!important;padding:8px 7px!important}.kentaro-top{grid-template-columns:290px minmax(0,1fr)!important}.kentaro-vitals{grid-template-columns:140px 90px repeat(5,minmax(0,1fr))!important}.combat-layout{grid-template-columns:220px minmax(0,1fr)!important}.attack-roll-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+}
+</style>
+<script>
+
+// Move existing controls, preserving their handlers and the mobile layout.
+(()=>{
+ const tablet=matchMedia('(min-width:1000px) and (orientation:landscape)');
+ let tools,home,recents,fold;
+ const app=document.querySelector('#app');
+ function arrange(){
+  observer.disconnect();
+  const nav=app.querySelector('.tabs');
+  const nativeTools=app.querySelector('.rpg-combat-tools');
+  if(tablet.matches&&nav&&nativeTools){
+   if(!tools){
+    const group=nativeTools.querySelector('.rpg-group-launch:not([data-opportunity])');
+    const opportunity=nativeTools.querySelector('[data-opportunity]');
+    if(group&&opportunity){home=nativeTools;tools=document.createElement('div');tools.className='kentaro-tablet-tools';tools.setAttribute('aria-label','Outils tactiques');tools.append(group,opportunity);nav.append(tools)}
+   }
+   recents=app.querySelector('.recent-targets');
+   if(recents&&!fold){fold=document.createElement('details');fold.className='compact-recents';const summary=document.createElement('summary');summary.textContent='Cibles récentes';recents.before(fold);fold.append(summary,recents)}
+  }else if(!tablet.matches){
+   if(tools){home.append(...tools.children);tools.remove();tools=null}
+   if(fold){fold.before(recents);fold.remove();fold=null}
+  }
+  observer.observe(app,{childList:true,subtree:true});
+ }
+ const observer=new MutationObserver(arrange);
+ tablet.addEventListener('change',arrange);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange,{once:true});else arrange();
+})();
+
+</script>
 </body></html>
