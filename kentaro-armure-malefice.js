@@ -7,7 +7,7 @@
  const save=()=>localStorage.setItem(KEY,JSON.stringify(ledger)),valid=v=>/^[1-6]$/.test(String(v??'').trim());
  const dialog=document.createElement('dialog');dialog.id='kentaroArmorHexesDialog';dialog.className='kentaro-armor-hexes';dialog.setAttribute('aria-labelledby','kentaroArmorTitle');document.body.append(dialog);
  const style=document.createElement('style');style.textContent=`
- #kentaroArmorHexesDialog{position:fixed;inset:auto;margin:auto;width:min(460px,calc(100vw - 28px));max-height:min(80dvh,670px);overflow:auto;background:linear-gradient(155deg,#251a30 0%,#16131e 85%);color:#f7ecda;border:1px solid #bc9b62;border-radius:17px;padding:22px;box-shadow:0 24px 90px #000b;z-index:99999;font:inherit}
+ #kentaroArmorHexesDialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(460px,calc(100vw - 28px));max-height:min(80dvh,670px);overflow:auto;background:linear-gradient(155deg,#251a30 0%,#16131e 85%);color:#f7ecda;border:1px solid #bc9b62;border-radius:17px;padding:22px;box-shadow:0 24px 90px #000b;z-index:99999;font:inherit}
  #kentaroArmorHexesDialog::backdrop{background:#06020cbb;backdrop-filter:blur(5px)}
  #kentaroArmorHexesDialog h2{font-size:1.2rem;line-height:1.2;color:#efcf8d;margin:0 0 12px}
  #kentaroArmorHexesDialog p{line-height:1.4;margin:0 0 14px}
