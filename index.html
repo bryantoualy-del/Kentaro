@@ -442,7 +442,7 @@ function runFx(type){
    clearTimeout(stage._fxTimer);stage.className='';void stage.offsetWidth;
    stage.className=type==='eclipse'?'play fx-eclipse':'play kind-'+type;
    stage.dataset.lastFx=type;
-   const stageDuration=type==='door'?2200:type==='lazarus'||type==='spectre-summon'?1500:type==='spectre-drain'?900:type==='sun'||type==='moon'?1050:1100;
+   const stageDuration=type==='door'?2200:type==='lazarus'?2200:type==='spectre-summon'?1500:type==='spectre-drain'?900:type==='sun'||type==='moon'?1050:1100;
    stage._fxTimer=setTimeout(()=>stage.className='',stageDuration);
  }
  const o=q('#fxOverlay'); if(!o)return;
@@ -853,7 +853,7 @@ render();load(true);
 <script src="kentaro-journal.js?v=2"></script>
 <script src="kentaro-session.js?v=12"></script>
 <script src="kentaro-backup.js?v=2"></script>
-<script src="kentaro-fx.js?v=11"></script>
+<script src="kentaro-fx.js?v=lazarus-20261010"></script>
 <script src="kentaro-social.js?v=6"></script>
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=1"></script>
@@ -872,8 +872,8 @@ window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.atta
 <script src="rpg-native-reactions.js"></script><script src="rpg-opportunities.js?v=session-reliability-1"></script>
 <script src="rpg-instruction.js"></script>
 <script src="rpg-weapon-gate.js"></script>
-<script src="rpg-combat-effects-client.js?v=kentaro-20261010-no-banner"></script>
-<script src="kentaro-combat.js?v=20261009-controls-2"></script>
+<script src="rpg-combat-effects-client.js?v=lazarus-20261010"></script>
+<script src="kentaro-combat.js?v=lazarus-20261010"></script>
 <style id="kentaro-ipad-compact">
 @media(min-width:1000px) and (orientation:landscape){
 /* Kentaro: compact landscape tablet layout */
