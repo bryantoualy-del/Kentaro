@@ -21,17 +21,17 @@ function flash(button,text){const old=button.textContent;button.textContent=text
 desk.querySelector('#backupExport').onclick=e=>{api.save(true);api.log('↓ Sauvegarde complète exportée.');const stamp=new Date().toISOString().slice(0,10);download(JSON.stringify(payload(),null,2),`kentaro-sauvegarde-complete-${stamp}.json`);flash(e.currentTarget,'Exportée ✓')};
 desk.querySelector('#backupImport').onclick=()=>{file.value='';file.click()};
 file.onchange=async()=>{
- const selected=file.files?.[0];if(!selected)return;if(selected.size>25*1024*1024)return alert('Cette sauvegarde dépasse 25 Mo et ne peut pas être importée.');
+ const selected=file.files?.[0];if(!selected)return;if(selected.size>25*1024*1024)return RPGDialogs.alert('Cette sauvegarde dépasse 25 Mo et ne peut pas être importée.');
  try{
   const storage=validate(JSON.parse(await selected.text()));
-  if(!confirm('Restaurer cette sauvegarde complète ? L’état actuel sera conservé pour permettre une annulation.'))return;
+  if(!(await RPGDialogs.confirm('Restaurer cette sauvegarde complète ? L’état actuel sera conservé pour permettre une annulation.')))return;
   const before=payload();localStorage.setItem(RECOVERY,JSON.stringify(before));
   try{apply(storage)}catch(error){apply(before.storage);throw error}
   location.reload();
- }catch(error){alert(`Import impossible : ${error.message||'fichier invalide'}`)}
+ }catch(error){RPGDialogs.alert(`Import impossible : ${error.message||'fichier invalide'}`)}
 };
-rollback.onclick=()=>{
- try{const stored=localStorage.getItem(RECOVERY),storage=validate(JSON.parse(stored));if(!confirm('Revenir à l’état présent avant le dernier import ?'))return;apply(storage);localStorage.removeItem(RECOVERY);location.reload()}catch(error){alert(`Restauration impossible : ${error.message||'sauvegarde de secours invalide'}`)}
+rollback.onclick=async ()=>{
+ try{const stored=localStorage.getItem(RECOVERY),storage=validate(JSON.parse(stored));if(!(await RPGDialogs.confirm('Revenir à l’état présent avant le dernier import ?')))return;apply(storage);localStorage.removeItem(RECOVERY);location.reload()}catch(error){RPGDialogs.alert(`Restauration impossible : ${error.message||'sauvegarde de secours invalide'}`)}
 };
 const style=document.createElement('style');style.textContent=`
 .backup-desk{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:11px 13px;border:1px solid #45413d;border-radius:12px;background:linear-gradient(135deg,#121116,#0b0c10)}.backup-copy{display:grid;gap:2px;min-width:0}.backup-copy span{color:#c79c61;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase}.backup-copy b{color:#eee3d3;font-size:.9rem}.backup-copy small{color:#90877f;line-height:1.35}.backup-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.backup-actions button{min-height:40px;white-space:nowrap}.backup-actions .backup-rollback{border-color:#744b43;color:#deb6ad}

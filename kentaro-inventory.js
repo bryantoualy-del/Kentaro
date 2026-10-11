@@ -102,9 +102,9 @@ async function importCustomIcon(file){
  const key=`local-${Date.now().toString(36)}`,label=(file.name.replace(/\.[^.]+$/,'').trim()||'Icône personnelle').slice(0,36);
  api.push();normalize().customIcons.push({key,label,dataUrl});editorIconKey=key;$('#inventoryEditIcon').value=key;api.save(true);renderIconPicker();api.log(`✦ Icône « ${label} » ajoutée au catalogue local et incluse dans les prochains exports.`);
 }
-function removeSelectedCustomIcon(){
+async function removeSelectedCustomIcon(){
  const key=editorIconKey,icon=getIconChoice(key);if(!icon.custom)return;
- if(!confirm(`Supprimer l’icône « ${icon.label} » du catalogue ? Les objets qui l’utilisent reprendront leur icône par défaut.`))return;
+ if(!(await RPGDialogs.confirm(`Supprimer l’icône « ${icon.label} » du catalogue ? Les objets qui l’utilisent reprendront leur icône par défaut.`)))return;
  api.push();const inv=normalize();inv.customIcons=inv.customIcons.filter(x=>x.key!==key);inv.custom.forEach(item=>{if(item.iconKey===key)item.iconKey='generic'});Object.values(inv.items).forEach(item=>{if(item.iconKey===key)item.iconKey='original'});editorIconKey=editorFixed?'original':'generic';$('#inventoryEditIcon').value=editorIconKey;api.save(true);renderIconPicker();api.render();api.log(`✦ Icône « ${icon.label} » supprimée du catalogue local.`);
 }
 function exportInventory(){
@@ -127,14 +127,14 @@ function cleanImportedInventory(raw){
 async function importInventory(file){
  try{
   const parsed=JSON.parse(await file.text()),clean=cleanImportedInventory(parsed);
-  if(!confirm('Remplacer l’inventaire actuel par celui de ce fichier ? L’état de combat ne sera pas modifié.'))return;
+  if(!(await RPGDialogs.confirm('Remplacer l’inventaire actuel par celui de ce fichier ? L’état de combat ne sera pas modifié.')))return;
   api.push();api.state.inventory=clean;api.render();api.log(`↑ Inventaire importé : ${allItems().filter(x=>Number(x.qty)>0).length} objets recensés. L’état de combat est inchangé.`);
- }catch(error){alert(error?.message||'Impossible d’importer ce fichier.');api.log('❌ Import de l’inventaire impossible : fichier invalide.')}
+ }catch(error){RPGDialogs.alert(error?.message||'Impossible d’importer ce fichier.');api.log('❌ Import de l’inventaire impossible : fichier invalide.')}
 }
 $$('[data-inventory-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.inventoryView)));
 $('#inventorySearch')?.addEventListener('input',renderObjects);$('#inventoryCategory')?.addEventListener('change',renderObjects);$('#inventoryAdd')?.addEventListener('click',()=>openEditor());
 $('#inventoryExport')?.addEventListener('click',exportInventory);$('#inventoryImport')?.addEventListener('click',()=>$('#inventoryImportFile')?.click());$('#inventoryImportFile')?.addEventListener('change',async e=>{const file=e.target.files?.[0];e.target.value='';if(file)await importInventory(file)});
-$('#inventoryIconUpload')?.addEventListener('click',()=>$('#inventoryIconFile')?.click());$('#inventoryIconFile')?.addEventListener('change',async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{await importCustomIcon(file)}catch(error){alert(error?.message||'Impossible d’ajouter cette icône.');api.log('❌ Import de l’icône impossible.')}});$('#inventoryIconRemove')?.addEventListener('click',removeSelectedCustomIcon);
+$('#inventoryIconUpload')?.addEventListener('click',()=>$('#inventoryIconFile')?.click());$('#inventoryIconFile')?.addEventListener('change',async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{await importCustomIcon(file)}catch(error){RPGDialogs.alert(error?.message||'Impossible d’ajouter cette icône.');api.log('❌ Import de l’icône impossible.')}});$('#inventoryIconRemove')?.addEventListener('click',removeSelectedCustomIcon);
 $('#inventoryEditor .inventory-close')?.addEventListener('click',e=>{e.preventDefault();$('#inventoryEditor').close()});
 $('#inventoryCancel')?.addEventListener('click',()=>$('#inventoryEditor').close());
 $('#inventoryForm')?.addEventListener('submit',e=>{

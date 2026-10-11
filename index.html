@@ -172,6 +172,7 @@ button,input{font:inherit}button{min-height:44px;border:1px solid #41495f;backgr
   box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 0 18px rgba(225,166,64,.32)!important;
 }
 </style>
+<script src="rpg-dialogs.js?v=4-lot1-dialogs"></script>
 </head>
 <body>
 <div id="fxOverlay" aria-hidden="true"></div>
@@ -536,11 +537,11 @@ function askNat(label,autoAdv=false,group='sun'){
  }
  const a=d(20);return {nat:a,detail:String(a)}
 }
-function setTempHp(amount,source){
+async function setTempHp(amount,source){
  amount=Math.max(0,Number(amount)||0);
  if(amount===0){S.tempHp=0;S.tempSource='';S.agathys=false;render();return true}
  if(S.tempHp>0 && S.tempSource && S.tempSource!==source){
-   const ok=confirm(`Tu as déjà ${S.tempHp} PV temp (${S.tempSource}). Remplacer par ${amount} PV temp (${source}) ?`);
+   const ok=(await RPGDialogs.confirm(`Tu as déjà ${S.tempHp} PV temp (${S.tempSource}). Remplacer par ${amount} PV temp (${source}) ?`));
    if(!ok){log(`ℹ️ PV temporaires conservés : ${S.tempHp} (${S.tempSource}).`);return false}
  }
  S.tempHp=amount;S.tempSource=source;
@@ -720,9 +721,9 @@ Cibles : ${targets}
 Réussite : ${successes} × ${half}
 💥 Dégâts totaux comptabilisés : ${total}`);
 }
-function castSpellButton(b){
+async function castSpellButton(b){
  const name=b.dataset.spell;if(!window.KentaroCombat?.handlesSpell(name))S.spellCastRevision=(S.spellCastRevision||0)+1;
- if(b.dataset.agathys&&window.RPGHealth?.online()){if(RPGHealth.busy()||S.slots<1||S.actionUsed||S.bonusSpell||S.turnPhase==='spectre')return log('❌ Action ou emplacement indisponible.');RPGHealth.perform({family:'tempHp:request',source:'Armure d’Agathys',amount:25,targetIds:[RPGHealth.getContext().healthActorId],metadata:{originalAmount:25,expiresAt:Date.now()+3600000}},()=>{useMainAction(name,'spell');S.slots--});return;}
+ if(b.dataset.agathys&&window.RPGHealth?.online()){if(RPGHealth.busy()||S.slots<1||S.actionUsed||S.bonusSpell||S.turnPhase==='spectre')return log('❌ Action ou emplacement indisponible.');(await RPGHealth.perform({family:'tempHp:request',source:'Armure d’Agathys',amount:25,targetIds:[RPGHealth.getContext().healthActorId],metadata:{originalAmount:25,expiresAt:Date.now()+3600000}},()=>{useMainAction(name,'spell');S.slots--}));return;}
  if(name==='Perturbations synaptiques')return castSynapticStatic();
  const bonus=['Maléfice','Foulée brumeuse','Voile spirituel'].includes(name),saveNet=name==='Bannissement'?encounterSaveContext('Bannissement'):{connected:false,target:null};
  if(saveNet.connected&&!saveNet.target)return;
@@ -732,7 +733,7 @@ function castSpellButton(b){
  if(bonus){if(!useBonusAction(name,true))return render()}else{if(!useMainAction(name,'spell'))return render()}
  undo.push(before);if(undo.length>40)undo.shift();
  if(!useSlot())return;if(b.dataset.conc)startConcentration(name);
- if(b.dataset.agathys){if(!setTempHp(25,"Armure d’Agathys")){undo.pop();restore(before);return}S.agathys=true;S.agathysDamage=25}
+ if(b.dataset.agathys){if(!(await setTempHp(25,"Armure d’Agathys"))){undo.pop();restore(before);return}S.agathys=true;S.agathysDamage=25}
  const fxBySpell={'Armure d’Agathys':'agathys','Maléfice':'hex','Foulée brumeuse':'misty','Invisibilité':'invisible','Voile spirituel':'shroud','Porte dimensionnelle':'door','Ombre d’égarement':'shadow','Bannissement':'banish','Perturbations synaptiques':'synaptic'};
  fx(fxBySpell[name]||'spell');
  if(name==='Bannissement'&&saveNet.connected)window.RPGConnect?.requestSave?.({ability:'CHA',dc:16,source:'Bannissement',condition:{name:'Banni',durationType:'indefinite',source:'Bannissement'}});
@@ -755,7 +756,7 @@ function requestBladeSave(p,sun){
  window.CompanionAPI.emitLocal('save:request',effect,p.attackId+':blade-save');
  return true
 }
-function confirmPendingBlade(hit){
+async function confirmPendingBlade(hit){
  if(!S.pendingHit)return;
  const p=S.pendingHit,before=pendingBefore||p.undoBefore;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
  const sun=p.which==='sun',name=p.name,target=p.target||'';
@@ -763,7 +764,7 @@ function confirmPendingBlade(hit){
    if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
    render();return log(`${name}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
  }
- return window.KentaroCombat.resolveBlade(p,before);
+ return (await window.KentaroCombat.resolveBlade(p,before));
 
 }
 function eldritchRay(){
@@ -780,12 +781,15 @@ function eldritchRay(){
  pendingBefore=before;S.pendingHit={kind:'eldritch',ray,total:attack,nat:rr.nat,detail:rr.detail,crit,cursed,target:S.currentTarget,undoBefore:before};
  render();log(`🔴 Décharge occulte — Rayon ${ray}${crit?" — ✦ CRITIQUE":""}\nAttaque : ${rr.detail} +8 = ${attack}\nEst-ce que l’attaque touche ?`);
 }
-function confirmPendingEldritch(hit){
+async function confirmPendingEldritch(hit){
  const p=S.pendingHit;if(!p)return;
  const before=pendingBefore||p.undoBefore;S.pendingHit=null;pendingBefore=null;if(before){undo.push(before);if(undo.length>40)undo.shift()}
  S.eldritchCount=Math.max(S.eldritchCount||0,p.ray||1);
  if(hit){
-   const r=roll(p.crit?2:1,10,4+(p.cursed?4:0)),extra=window.KentaroCombat.attackExtras(S.currentTargetId||window.RPGConnect?.getStatus()?.target?.id||S.currentTarget,p.crit);r.total+=extra.components.reduce((n,c)=>n+c.amount,0);
+   const generation=window.RPGResolution.getState().generation;
+   const r=roll(p.crit?2:1,10,4+(p.cursed?4:0)),extra=(await window.KentaroCombat.attackExtras(S.currentTargetId||window.RPGConnect?.getStatus()?.target?.id||S.currentTarget,p.crit));
+   if(window.RPGResolution.getState().generation!==generation){window.RPGResolution.archive('eldritch-awaiting-shroud',{...p,before,rolledDamage:r});return;}
+   r.total+=extra.components.reduce((n,c)=>n+c.amount,0);
    addTurnDamage(r.total,`Décharge occulte — rayon ${p.ray}`);
    if(p.attackId&&window.CompanionAPI?.emitLocal)window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'kentaro',amount:r.total,components:[{amount:r.total-extra.components.reduce((n,c)=>n+c.amount,0),type:'force'},...extra.components],shroudHit:extra.shroudHit,source:`Décharge occulte — rayon ${p.ray}`},p.attackId+':damage');
    fx('eldritch');
@@ -796,9 +800,9 @@ function confirmPendingEldritch(hit){
  log(`🔴 Décharge occulte — Rayon ${p.ray}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
 }
 function confirmPendingSpectre(hit){const p=S.pendingHit;if(!p||p.kind!=='spectre')return;const before=pendingBefore||p.undoBefore;if(before){undo.push(before);if(undo.length>40)undo.shift()}S.pendingHit=null;pendingBefore=null;S.spectreActionUsed=true;if(hit){const r=roll(p.crit?6:3,6);S.spectreTurnDamage=(S.spectreTurnDamage||0)+r.total;if(p.attackId&&window.CompanionAPI?.emitLocal)window.CompanionAPI.emitLocal('attack:damage',{attackId:p.attackId,actor:'spectre',amount:r.total,components:[{amount:r.total,type:'nécrotiques'}],source:'Spectre — Absorption de vie'},p.attackId+':damage');render();fx('spectre-drain');return log(`👻 Spectre — Absorption de vie\nConfirmation : TOUCHÉ${p.crit?' • CRITIQUE':''}\nAttaque : ${p.total}\nDégâts : ${r.total} nécrotiques (${r.dice.join('+')}).`)}render();log(`👻 Spectre — Absorption de vie\nConfirmation : RATÉ\nAttaque : ${p.total}.`)}
-function confirmPendingAttack(hit){if(!S.pendingHit)return;window.__lastAttackHit=hit;if(S.pendingHit.kind==='eldritch')return confirmPendingEldritch(hit);if(S.pendingHit.kind==='spectre')return confirmPendingSpectre(hit);return confirmPendingBlade(hit)}
-q('#confirmHit').onclick=(e)=>{e.stopPropagation();if(window.RPGConnect?.getStatus?.().controlled)return log('⏳ Validation MJ en attente dans Encounter.');confirmPendingAttack(true)};
-q('#confirmMiss').onclick=(e)=>{e.stopPropagation();if(window.RPGConnect?.getStatus?.().controlled)return log('⏳ Validation MJ en attente dans Encounter.');confirmPendingAttack(false)};
+async function confirmPendingAttack(hit){if(!S.pendingHit)return;window.__lastAttackHit=hit;if(S.pendingHit.kind==='eldritch')return (await confirmPendingEldritch(hit));if(S.pendingHit.kind==='spectre')return confirmPendingSpectre(hit);return (await confirmPendingBlade(hit))}
+q('#confirmHit').onclick=async (e)=>{e.stopPropagation();if(window.RPGConnect?.getStatus?.().controlled)return log('⏳ Validation MJ en attente dans Encounter.');(await confirmPendingAttack(true))};
+q('#confirmMiss').onclick=async (e)=>{e.stopPropagation();if(window.RPGConnect?.getStatus?.().controlled)return log('⏳ Validation MJ en attente dans Encounter.');(await confirmPendingAttack(false))};
 q('#confirmCancel').onclick=(e)=>{e.stopPropagation();if(window.RPGConnect?.getStatus?.().controlled)return log('⏳ Attaque transmise à Encounter · résolution verrouillée côté joueur.');if(!S.pendingHit)return;const before=pendingBefore||S.pendingHit.undoBefore;S.pendingHit=null;pendingBefore=null;if(before)restore(before);log('↶ Attaque annulée : économie d’action et état du tour restaurés.')};
 
 function beginNextKentaroTurn(){const spectreSummary=S.spectreActive?`\n👻 Spectre : ${S.spectreActionUsed?'action utilisée':'action conservée'} • ${S.spectreTurnDamage||0} dégâts`:'';S.turn++;S.turnPhase='kentaro';S.solHit=S.selHit=S.seal=false;S.solTargetsHit=[];S.selTargetsHit=[];S.solTarget=S.selTarget='';S.solTargetId=S.selTargetId='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';resetEconomy();resetTurnSummary();resetSpectreEconomy();if(S.sealTarget&&S.turn>S.sealExpiresAfterTurn){S.sealTarget='';S.sealExpiresAfterTurn=0}render();document.querySelector('.tab[data-tab="combat"]')?.click();log(`${spectreSummary}\n\n↻ Tour ${S.turn} de Kentaro : Action, action bonus et réaction restaurées.`)}
@@ -812,30 +816,30 @@ q('#spectreInvoke').onclick=()=>{if(window.RPGHealth?.authoritative()&&!RPGHealt
 q('#spectre').onclick=()=>{if(window.RPGHealth?.online()&&!RPGSummons.attackAllowed('spectre'))return log('Spectre absent ou état incapacitant.');if(window.RPGHealth?.authoritative()&&!RPGHealth.online())return log('Connexion Encounter requise.');if(!requireEncounterTarget())return;window.__lastResolvedAttack=null;if(!S.spectreActive)return log('❌ Le spectre n’est pas actif.');if(S.turnPhase!=='spectre')return log('ℹ️ Le Spectre agit après Kentaro : utilise « Passer au Spectre ».');if(S.spectreActionUsed)return log('❌ Le Spectre a déjà utilisé son action ce tour.');if(S.pendingHit)return log('⚠️ Confirme ou annule d’abord l’attaque en cours.');rememberTarget(S.currentTarget,S.targetAC,false);const before=snap(),rr=askNat('Spectre — Absorption de vie');if(!rr)return;pendingBefore=before;const total=rr.nat+8,crit=rr.nat===20;if(rr.nat===1){undo.push(before);if(undo.length>40)undo.shift();S.spectreActionUsed=true;emitNetworkAutoMiss('Spectre — Absorption de vie',rr.nat,total);render();return log(`👻 Spectre — Absorption de vie\nJet ${rr.detail} +8 = ${total} → ÉCHEC AUTOMATIQUE (1 naturel).`)}S.pendingHit={kind:'spectre',actor:'spectre',nat:rr.nat,total,crit,target:S.currentTarget,undoBefore:before};render();log(`👻 Spectre — Absorption de vie${crit?' — ✦ CRITIQUE':''}\nAttaque : ${rr.detail} +8 = ${total}${S.targetAC?` • CA repère ${S.targetAC}`:''}${S.currentTarget?` • ${S.currentTarget}`:''}\nEst-ce que l’attaque touche ?`)};
 q('#spectreActionCell').onclick=()=>q('#spectre').click();q('#spectreMoveCell').onclick=()=>{if(S.turnPhase!=='spectre'||S.spectreMoveUsed)return;push();S.spectreMoveUsed=true;render();log('👻 Spectre : déplacement de vol jusqu’à 15 m utilisé.')};
 q('#spectreTake').onclick=()=>{if(!S.spectreActive)return;if(window.RPGHealth?.authoritative()){return RPGSummons.damage('spectre',Math.max(0,Number(q('#spectreDmg').value)||0))}let x=Math.max(0,Number(q('#spectreDmg').value)||0);push();const t=Math.min(S.spectreTemp,x);S.spectreTemp-=t;x-=t;S.spectreHp=Math.max(0,S.spectreHp-x);if(S.spectreHp===0)S.spectreActive=false;render();log(`👻 Spectre reçoit ${Number(q('#spectreDmg').value)||0} dégâts → ${S.spectreHp} PV / ${S.spectreTemp} PV temp.`)};
-qa('[data-spell]').forEach(b=>b.onclick=()=>castSpellButton(b));
+qa('[data-spell]').forEach(b=>b.onclick=async ()=>(await castSpellButton(b)));
 q('#agathysHit').onclick=()=>{if(S.agathys&&S.tempHp>0&&S.tempSource==="Armure d’Agathys")log(`❄ Armure d’Agathys est active : utilise le bloc « Dégâts reçus » de Défense et coche « CàC » pour appliquer automatiquement son retour de ${S.agathysDamage} froid.`);else log('ℹ️ Armure d’Agathys n’est pas active avec ses PV temporaires.')};
 q('#incomingDamage').oninput=updateDamagePreview;q('#incomingMelee').onchange=updateDamagePreview;
 q('#applyDamage').onclick=()=>processIncomingDamage(Number(q('#incomingDamage').value)||0,{source:'dégâts reçus',melee:!!q('#incomingMelee').checked});
 qa('[data-quick-damage]').forEach(button=>button.onclick=()=>{const amount=Number(button.dataset.quickDamage)||0;q('#incomingDamage').value=amount;updateDamagePreview();processIncomingDamage(amount,{source:`dégâts rapides (${amount})`,melee:!!q('#incomingMelee').checked})});
-q('#lazarus').onclick=()=>{if(window.RPGHealth?.online()){if(RPGHealth.busy()||S.reactionUsed)return;RPGHealth.perform({family:'tempHp:request',source:'Tombeau de Lazarus',amount:100,targetIds:[RPGHealth.getContext().healthActorId],metadata:{note:'Monolithe d’ambre · Kentaro inactif 1 tour selon sa fiche, suivi MJ'}},()=>{useReaction('Tombeau de Lazarus')});return;}const before=snap();if(!useReaction('Tombeau de Lazarus'))return render();undo.push(before);render();fx('lazarus');if(setTempHp(100,'Tombeau de Lazarus'))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.');else{undo.pop();restore(before)}};
+q('#lazarus').onclick=async ()=>{if(window.RPGHealth?.online()){if(RPGHealth.busy()||S.reactionUsed)return;(await RPGHealth.perform({family:'tempHp:request',source:'Tombeau de Lazarus',amount:100,targetIds:[RPGHealth.getContext().healthActorId],metadata:{note:'Monolithe d’ambre · Kentaro inactif 1 tour selon sa fiche, suivi MJ'}},()=>{useReaction('Tombeau de Lazarus')}));return;}const before=snap();if(!useReaction('Tombeau de Lazarus'))return render();undo.push(before);render();fx('lazarus');if((await setTempHp(100,'Tombeau de Lazarus')))log('🟧 Tombeau de Lazarus : 100 PV temporaires • monolithe d’ambre • Kentaro inactif 1 tour selon sa fiche.');else{undo.pop();restore(before)}};
 
-q('#bite').onclick=()=>{if(window.RPGHealth?.online()){if(RPGHealth.busy()||!S.biteReady)return;RPGHealth.perform({family:'tempHp:request',source:'Soif ténébreuse',amount:4,targetIds:[RPGHealth.getContext().healthActorId]},()=>{S.biteReady=false});return;}if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if(setTempHp(4,'Soif ténébreuse'))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.');else{S.biteReady=true;undo.pop();save(true)}};
-q('#setTempManual').onclick=()=>{push();if(!setTempHp(Number(q('#tempManual').value)||0,'Manuel')){undo.pop();return}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
+q('#bite').onclick=async ()=>{if(window.RPGHealth?.online()){if(RPGHealth.busy()||!S.biteReady)return;(await RPGHealth.perform({family:'tempHp:request',source:'Soif ténébreuse',amount:4,targetIds:[RPGHealth.getContext().healthActorId]},()=>{S.biteReady=false}));return;}if(!S.biteReady)return log('❌ Soif ténébreuse déjà utilisée depuis le dernier repos court/long.');push();S.biteReady=false;if((await setTempHp(4,'Soif ténébreuse')))log('🩸 Soif ténébreuse : 1 perforant + 4 nécrotiques • 4 PV temporaires.');else{S.biteReady=true;undo.pop();save(true)}};
+q('#setTempManual').onclick=async ()=>{push();if(!(await setTempHp(Number(q('#tempManual').value)||0,'Manuel'))){undo.pop();return}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`)};
 q('#clearTemp').onclick=()=>{push();S.tempHp=0;S.tempSource='';S.agathys=false;render();log('🛡 PV temporaires effacés.')};
 q('#stoneVision').onclick=()=>{if(!S.stoneReady)return log('❌ Vision de la Pierre déjà utilisée aujourd’hui.');push();S.stoneReady=false;fx('vision');render();log('👁 Vision de la Pierre activée : 12 s • rayon 18 m • avantage sur la prochaine attaque.')};
 q('#ringSpell').onchange=()=>{q('#ringCustom').style.display=q('#ringSpell').value==='__custom'?'block':'none'};q('#ringStoreManual').onclick=()=>storeInRing(ringSpellName(),Number(q('#ringLevel').value),false);q('#ringStoreKentaro').onclick=()=>storeInRing(ringSpellName(),5,true);q('#ringClear').onclick=()=>{if(!S.ring.length)return log('ℹ️ L’anneau est déjà vide.');push();S.ring=[];render();log('💍 Anneau vidé.')};
 q('#shortRest').onclick=()=>window.CompanionRestConfirm('short','Ressources de repos court restaurées.',()=>{push();S.slots=2;S.smiteUsedTurn=0;S.curseReady=true;S.curse=false;S.curseTarget='';S.biteReady=true;S.rayStepReady=true;S.solTargetId=S.selTargetId='';S.kentaroLocalEffects=(S.kentaroLocalEffects||[]).filter(e=>e.concentration&&e.kind!=='spiritShroud');S.currentTarget='';S.targetAC='';S.solHit=S.selHit=S.seal=false;S.solTargetsHit=[];S.selTargetsHit=[];S.solTarget=S.selTarget='';S.sealTarget='';S.sealExpiresAfterTurn=0;S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.turnPhase='kentaro';if(S.shroud){S.shroud=false;if(S.concSpell==='Voile spirituel'){S.conc=false;S.concSpell=''}}S.turn=1;resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('☕ Repos court : ressources restaurées et données de combat remises à zéro. Voile spirituel prend fin. Les autres concentrations, PV, PV temporaires et objets sont conservés.');});
 q('#longRest').onclick=()=>window.CompanionRestConfirm('long','PV et ressources de repos long restaurés.',()=>{push();const ring=S.ring||[];Object.assign(S,{hp:103,tempHp:0,tempSource:'',slots:2,smiteUsedTurn:0,curse:false,curseReady:true,curseTarget:'',shroud:false,conc:false,concSpell:'',solHit:false,selHit:false,solTargetsHit:[],selTargetsHit:[],solTarget:'',selTarget:'',seal:false,sealTarget:'',sealExpiresAfterTurn:0,turn:1,biteReady:true,stoneReady:true,rayStepReady:true,stoneUntil:0,kentaroLocalEffects:[],ring,lastCrit:false,lastCritBlade:'',pendingHit:null,agathys:false,spectreActive:false,spectreHp:22,spectreTemp:5,turnPhase:'kentaro',spectreActionUsed:false,spectreMoveUsed:false,spectreTurnDamage:0,actionUsed:false,actionKind:'',actionLabel:'',attackCount:0,bonusUsed:false,bonusLabel:'',bonusSpell:false,reactionUsed:false,reactionLabel:'',turnDamage:0,turnEvents:[],eldritchCount:0});render();log('🌙 Repos long : ressources restaurées. Les sorts stockés dans l’anneau sont conservés.')});
-function headerHpAdjust(mode){const raw=prompt(mode==='damage'?'Combien de dégâts Kentaro subit-il ?':'Combien de PV Kentaro récupère-t-il ?','5');if(raw===null)return;const n=Math.floor(Number(raw));if(!Number.isFinite(n)||n<=0)return log('❌ Valeur de PV invalide.');if(mode==='damage'){processIncomingDamage(n,{source:'Dégâts rapides',melee:false});save();return}push();const healed=Math.min(n,S.maxHp-S.hp);S.hp=Math.min(S.maxHp,S.hp+n);render();save();log(`💚 Soins : +${healed} PV • ${S.hp}/${S.maxHp} PV.`)}q('#hpDamage').onclick=()=>headerHpAdjust('damage');q('#hpHeal').onclick=()=>headerHpAdjust('heal');q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
-function setHeaderTemp(value){const n=Math.max(0,Math.floor(Number(value)||0));push();if(!setTempHp(n,'Manuel')){undo.pop();render();return false}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`);save();return true}
-q('#tempHpInput').onchange=()=>setHeaderTemp(q('#tempHpInput').value);
-q('#resetSave').onclick=()=>{if(!confirm('Effacer la sauvegarde locale de Kentaro sur cet appareil ?\n\nCela supprimera le combat, le journal, le carnet et les sessions archivées. Les fichiers déjà importés dans Obsidian ne seront pas supprimés.'))return;const keys=[SAVE,'kentaro-social-v2','kentaro-session-v1','kentaro-session-v2','kentaro-session-v3','kentaro-backup-recovery-v1'];for(const key of keys)localStorage.removeItem(key);q('#saveStatus').textContent='Sauvegarde locale : effacée.';location.reload()};function undoKentaro(){const x=S.pendingHit?(pendingBefore||S.pendingHit.undoBefore):undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')}
+async function headerHpAdjust(mode){const raw=(await RPGDialogs.prompt(mode==='damage'?'Combien de dégâts Kentaro subit-il ?':'Combien de PV Kentaro récupère-t-il ?','5'));if(raw===null)return;const n=Math.floor(Number(raw));if(!Number.isFinite(n)||n<=0)return log('❌ Valeur de PV invalide.');if(mode==='damage'){processIncomingDamage(n,{source:'Dégâts rapides',melee:false});save();return}push();const healed=Math.min(n,S.maxHp-S.hp);S.hp=Math.min(S.maxHp,S.hp+n);render();save();log(`💚 Soins : +${healed} PV • ${S.hp}/${S.maxHp} PV.`)}q('#hpDamage').onclick=async ()=>(await headerHpAdjust('damage'));q('#hpHeal').onclick=async ()=>(await headerHpAdjust('heal'));q('#hpInput').onchange=()=>{push();S.hp=Math.max(0,Math.min(103,parseInt(q('#hpInput').value)||0));render();save()};
+async function setHeaderTemp(value){const n=Math.max(0,Math.floor(Number(value)||0));push();if(!(await setTempHp(n,'Manuel'))){undo.pop();render();return false}log(`🛡 PV temporaires définis manuellement : ${S.tempHp}.`);save();return true}
+q('#tempHpInput').onchange=async ()=>(await setHeaderTemp(q('#tempHpInput').value));
+q('#resetSave').onclick=async ()=>{if(!(await RPGDialogs.confirm('Effacer la sauvegarde locale de Kentaro sur cet appareil ?\n\nCela supprimera le combat, le journal, le carnet et les sessions archivées. Les fichiers déjà importés dans Obsidian ne seront pas supprimés.')))return;const keys=[SAVE,'kentaro-social-v2','kentaro-session-v1','kentaro-session-v2','kentaro-session-v3','kentaro-backup-recovery-v1'];for(const key of keys)localStorage.removeItem(key);q('#saveStatus').textContent='Sauvegarde locale : effacée.';location.reload()};function undoKentaro(){const x=S.pendingHit?(pendingBefore||S.pendingHit.undoBefore):undo.pop();if(!x)return log('ℹ️ Rien à annuler.');restore(x);log('↶ Dernière modification annulée.')}
 q('#undoLast').onclick=undoKentaro;q('#toggleHistory').onclick=()=>{const t=q('.tab[data-tab="journal"]');if(t)t.click();window.KentaroSession?.selectView?.('mechanical')};
 q('#newCombat').onclick=()=>{push();S.solHit=S.selHit=S.seal=false;S.solTargetsHit=[];S.selTargetsHit=[];S.solTarget=S.selTarget='';S.solTargetId=S.selTargetId='';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.sealTarget='';S.sealExpiresAfterTurn=0;S.curse=false;S.curseTarget='';S.shroud=false;S.conc=false;S.concSpell='';S.lastCrit=false;S.turn=1;S.turnPhase='kentaro';resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('⚔ Nouveau combat : états temporaires de combat effacés ; PV, PV temp et ressources conservés.')};
 q('#clearLog').onclick=()=>{push();S.journal=[];q('#log').textContent='Prêt. Que l’éclipse tombe.';q('#lastResult').textContent='Prêt. Que l’éclipse tombe.';q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.remove('show');save(true)};q('#ribbonDismiss').onclick=()=>{q('#kentaro-ribbon').classList.remove('show');q('#lastBadge').classList.add('show')};q('#lastBadge').onclick=()=>{q('#lastBadge').classList.remove('show');q('#kentaro-ribbon').classList.add('show')};
 const socialNotes=q('#socialNotes'),socialRelations=q('#socialRelations'),charmTarget=q('#charmTarget'),prepareCharm=q('#prepareCharm'),resetCharm=q('#resetCharm');
 if(socialNotes)socialNotes.oninput=e=>{S.socialNotes=e.target.value;save(true)};if(socialRelations)socialRelations.oninput=e=>{S.socialRelations=e.target.value;save(true)};if(charmTarget)charmTarget.oninput=e=>{S.charmTarget=e.target.value;save(true)};if(prepareCharm)prepareCharm.onclick=()=>{push();S.charmTarget=charmTarget?.value.trim()||'';S.charmPrepared=true;render();log(`♜ Charme prédateur préparé${S.charmTarget?' pour '+S.charmTarget:''}. Rappel : conversation préalable d’environ 1 minute.`)};if(resetCharm)resetCharm.onclick=()=>{push();S.charmPrepared=false;S.charmTarget='';render();log('♜ Préparation de Charme prédateur réinitialisée.')};
-window.__CompanionBridge={concentrationProfile:()=>({modifier:3,advantage:true}),id:'kentaro',name:'Kentaro',emitsAttackDamage:true,maxHp:103,initiative:{bonus:2,mode:'normal'},economy:s=>({action:s.actionUsed,bonus:s.bonusUsed,reaction:s.reactionUsed}),read:()=>S,healthRefresh:()=>{render();save()},ac:s=>Number(s.baseArmorAc)||18,inventory:()=>window.KentaroInventoryCommands?.getItems?.()||[],resources:s=>({slots:s.slots,curseReady:s.curseReady,biteReady:s.biteReady,stoneReady:s.stoneReady,rayStepReady:s.rayStepReady,smiteUsedTurn:s.smiteUsedTurn,ring:s.ring}),statuses:s=>[s.curse?'malédiction':null,s.shroud?'voile spirituel':null,s.spectreActive?'spectre':null].filter(Boolean),defenses:s=>({resistances:['nécrotiques'],immunities:[],vulnerabilities:['radiants'],conditionImmunities:[],sources:[{kind:'resistance',type:'nécrotiques',source:'Dhampire'},{kind:'vulnerability',type:'radiants',source:'Dhampire'}]}),custom:s=>({spellCastRevision:s.spellCastRevision||0,spectre:{active:s.spectreActive,hp:s.spectreHp,temp:s.spectreTemp},target:s.currentTarget,recentTargets:s.recentTargets,curseTarget:s.curseTarget,phase:s.turnPhase}),cancelPending:()=>{S.pendingHit=null;q('#hitModal')?.classList.remove('show');},pending:()=>S.pendingHit,lastHit:()=>window.__lastAttackHit??null,commands:{damage:(n,o)=>processIncomingDamage(n,o),heal:n=>{push();S.hp=Math.min(S.maxHp,S.hp+n);render();log('Soins reçus : +'+n+' PV.')},setHP:n=>{push();S.hp=Math.min(S.maxHp,n);render();save()},setTemporaryHP:n=>{push();const ok=setTempHp(n,'Manuel');if(ok)save(true);else undo.pop();return ok},setResource:(k,v)=>{if(!['slots','spectreHp','spectreTemp'].includes(k))throw Error('Ressource inconnue');push();S[k]=v;render();save()},changeResource:(k,d)=>window.__CompanionBridge.commands.setResource(k,Math.max(0,(S[k]||0)+d)),setTarget:t=>{if(S.pendingHit||S.rpgKentaroAttack)return false;S.currentTargetId=t?.id||'';S.currentTarget=t?.name||'';S.targetAC=t?.ac||'';if(S.currentTarget)rememberTarget(S.currentTarget,S.targetAC,false);render();save(true);return true},setRollMode:m=>{if(m!=='normal'&&m!=='manual')throw Error('Mode indisponible');S.manualDice=m==='manual';render();save()},resetCombat:()=>{push();S.turn=1;S.turnPhase='kentaro';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.solHit=S.selHit=S.seal=false;S.solTargetsHit=[];S.selTargetsHit=[];S.solTarget=S.selTarget='';resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('⚔ Prépa Fight · données de tour réinitialisées · Tour 1.')},nextTurn:nextKentaroTurn,clearConcentration:()=>{push();S.conc=false;S.concSpell='';S.shroud=false;render();save()},setConcentration:name=>{push();S.conc=!!name;S.concSpell=name||'';render();save()},addInventoryItem:item=>window.KentaroInventoryCommands.add(item),updateInventory:item=>window.KentaroInventoryCommands.update(item),removeInventoryItem:id=>window.KentaroInventoryCommands.remove(id),applyHitDecision:hit=>confirmPendingAttack(hit),undo:undoKentaro}};
+window.__CompanionBridge={concentrationProfile:()=>({modifier:3,advantage:true}),id:'kentaro',name:'Kentaro',emitsAttackDamage:true,maxHp:103,initiative:{bonus:2,mode:'normal'},economy:s=>({action:s.actionUsed,bonus:s.bonusUsed,reaction:s.reactionUsed}),read:()=>S,healthRefresh:()=>{render();save()},ac:s=>Number(s.baseArmorAc)||18,inventory:()=>window.KentaroInventoryCommands?.getItems?.()||[],resources:s=>({slots:s.slots,curseReady:s.curseReady,biteReady:s.biteReady,stoneReady:s.stoneReady,rayStepReady:s.rayStepReady,smiteUsedTurn:s.smiteUsedTurn,ring:s.ring}),statuses:s=>[s.curse?'malédiction':null,s.shroud?'voile spirituel':null,s.spectreActive?'spectre':null].filter(Boolean),defenses:s=>({resistances:['nécrotiques'],immunities:[],vulnerabilities:['radiants'],conditionImmunities:[],sources:[{kind:'resistance',type:'nécrotiques',source:'Dhampire'},{kind:'vulnerability',type:'radiants',source:'Dhampire'}]}),custom:s=>({spellCastRevision:s.spellCastRevision||0,spectre:{active:s.spectreActive,hp:s.spectreHp,temp:s.spectreTemp},target:s.currentTarget,recentTargets:s.recentTargets,curseTarget:s.curseTarget,phase:s.turnPhase}),cancelPending:()=>{S.pendingHit=null;q('#hitModal')?.classList.remove('show');},pending:()=>S.pendingHit,lastHit:()=>window.__lastAttackHit??null,commands:{damage:(n,o)=>processIncomingDamage(n,o),heal:n=>{push();S.hp=Math.min(S.maxHp,S.hp+n);render();log('Soins reçus : +'+n+' PV.')},setHP:n=>{push();S.hp=Math.min(S.maxHp,n);render();save()},setTemporaryHP:async n=>{push();const ok=(await setTempHp(n,'Manuel'));if(ok)save(true);else undo.pop();return ok},setResource:(k,v)=>{if(!['slots','spectreHp','spectreTemp'].includes(k))throw Error('Ressource inconnue');push();S[k]=v;render();save()},changeResource:(k,d)=>window.__CompanionBridge.commands.setResource(k,Math.max(0,(S[k]||0)+d)),setTarget:t=>{if(S.pendingHit||S.rpgKentaroAttack)return false;S.currentTargetId=t?.id||'';S.currentTarget=t?.name||'';S.targetAC=t?.ac||'';if(S.currentTarget)rememberTarget(S.currentTarget,S.targetAC,false);render();save(true);return true},setRollMode:m=>{if(m!=='normal'&&m!=='manual')throw Error('Mode indisponible');S.manualDice=m==='manual';render();save()},resetCombat:()=>{push();S.turn=1;S.turnPhase='kentaro';S.pendingHit=null;S.eldritchRun=null;S.eldritchCount=0;S.lastCrit=false;S.lastCritBlade='';S.solHit=S.selHit=S.seal=false;S.solTargetsHit=[];S.selTargetsHit=[];S.solTarget=S.selTarget='';resetEconomy();resetTurnSummary();resetSpectreEconomy();render();log('⚔ Prépa Fight · données de tour réinitialisées · Tour 1.')},nextTurn:nextKentaroTurn,clearConcentration:()=>{push();S.conc=false;S.concSpell='';S.shroud=false;render();save()},setConcentration:name=>{push();S.conc=!!name;S.concSpell=name||'';render();save()},addInventoryItem:item=>window.KentaroInventoryCommands.add(item),updateInventory:item=>window.KentaroInventoryCommands.update(item),removeInventoryItem:id=>window.KentaroInventoryCommands.remove(id),applyHitDecision:async hit=>(await confirmPendingAttack(hit)),undo:undoKentaro}};
 window.__CompanionBridge.nativeReactionAttack=()=>blade('sun','reaction','sun');
 window.__CompanionBridge.hasteAttack=()=>blade('sun','haste','sun');
 window.__CompanionBridge.summons=()=>{if(!S.spectreActive)return [];if(!S.spectreInstanceId){S.spectreInstanceId=crypto.randomUUID();save()}return [{kind:'spectre',instanceId:S.spectreInstanceId,hp:S.spectreHp,temp:S.spectreTemp,actionUsed:S.spectreActionUsed}]};
@@ -847,34 +851,34 @@ window.KentaroAPI={state:S,log,save,render,snapshot:snap,push,restore,fx,occultB
 render();load(true);
 })();
 </script>
-<script src="kentaro-modern-ui.js?v=4-lot1"></script>
-<script src="kentaro-icons.js?v=4-lot1"></script>
-<script src="kentaro-inventory.js?v=4-lot1"></script>
-<script src="kentaro-journal.js?v=4-lot1"></script>
-<script src="kentaro-session.js?v=4-lot1"></script>
-<script src="kentaro-backup.js?v=4-lot1"></script>
-<script src="kentaro-fx.js?v=4-lot1"></script>
-<script src="kentaro-social.js?v=4-lot1"></script>
+<script src="kentaro-modern-ui.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-icons.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-inventory.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-journal.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-session.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-backup.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-fx.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-social.js?v=4-lot1-dialogs"></script>
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
-<script src="kentaro-shell.js?v=4-lot1"></script>
-<link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=4-lot1"></script>
-<script src="companion-api.js?v=4-lot1"></script>
-<script src="rpg-resolution.js?v=4-lot1"></script><script src="rpg-connect-icon-registry.js?v=4-lot1"></script><script src="rpg-reactions.js?v=4-lot1"></script><script src="kentaro-armure-malefice.js?v=4-lot1"></script><script src="rpg-concentration.js?v=4-lot1"></script><script src="rpg-player-saves.js?v=4-lot1"></script>
-<script src="rpg-turn-start.js?v=4-lot1"></script><script src="rpg-connect-client.js?v=4-lot1"></script><script src="rpg-multi-target.js?v=4-lot1"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=4-lot1"></script><script src="rpg-multi-target-ui.js?v=4-lot1"></script>
-<script src="social-dice.js?v=4-lot1"></script><script type="module" src="dice-engine.js?v=4-lot1"></script>
-<script src="companion-turnbar.js?v=4-lot1"></script>
-<script src="rpg-health.js?v=4-lot1"></script>
-<script src="rpg-summons-client.js?v=4-lot1"></script><script src="rpg-triggered-effects.js?v=4-lot1"></script>
+<script src="kentaro-shell.js?v=4-lot1-dialogs"></script>
+<link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=4-lot1-dialogs"></script>
+<script src="companion-api.js?v=4-lot1-dialogs"></script>
+<script src="rpg-resolution.js?v=4-lot1-dialogs"></script><script src="rpg-connect-icon-registry.js?v=4-lot1-dialogs"></script><script src="rpg-reactions.js?v=4-lot1-dialogs"></script><script src="kentaro-armure-malefice.js?v=4-lot1-dialogs"></script><script src="rpg-concentration.js?v=4-lot1-dialogs"></script><script src="rpg-player-saves.js?v=4-lot1-dialogs"></script>
+<script src="rpg-turn-start.js?v=4-lot1-dialogs"></script><script src="rpg-connect-client.js?v=4-lot1-dialogs"></script><script src="rpg-multi-target.js?v=4-lot1-dialogs"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=4-lot1-dialogs"></script><script src="rpg-multi-target-ui.js?v=4-lot1-dialogs"></script>
+<script src="social-dice.js?v=4-lot1-dialogs"></script><script type="module" src="dice-engine.js?v=4-lot1-dialogs"></script>
+<script src="companion-turnbar.js?v=4-lot1-dialogs"></script>
+<script src="rpg-health.js?v=4-lot1-dialogs"></script>
+<script src="rpg-summons-client.js?v=4-lot1-dialogs"></script><script src="rpg-triggered-effects.js?v=4-lot1-dialogs"></script>
 <script>
 window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.attack||{};if(q.kind!=='damage-received'||!a.hit||a.mode!=='melee'||!a.attackerId||before.temp<=0||String(before.tempSource).replace(/[’']/g,'').toLowerCase()!=='armure dagathys'||before.tempMetadata?.expiresAt&&before.tempMetadata.expiresAt<=q.occurredAt)return [];const amount=Number(q.before.tempMetadata?.originalAmount)||Number(window.KentaroAPI?.state?.agathysDamage)||25;return amount>0?[{kind:'damage',source:'Armure d’Agathys',targetId:a.attackerId,amount,damageType:'froid',reaction:false}]:[]};
 </script>
-<script src="mj-journal-model.js?v=4-lot1"></script><script src="rpg-undo.js?v=4-lot1"></script><script src="rpg-group.js?v=4-lot1"></script>
-<script src="rpg-resources.js?v=4-lot1"></script>
-<script src="rpg-native-reactions.js?v=4-lot1"></script><script src="rpg-opportunities.js?v=4-lot1"></script>
-<script src="rpg-instruction.js?v=4-lot1"></script>
-<script src="rpg-weapon-gate.js?v=4-lot1"></script>
-<script src="rpg-combat-effects-client.js?v=4-lot1"></script>
-<script src="kentaro-combat.js?v=4-lot1"></script>
+<script src="mj-journal-model.js?v=4-lot1-dialogs"></script><script src="rpg-undo.js?v=4-lot1-dialogs"></script><script src="rpg-group.js?v=4-lot1-dialogs"></script>
+<script src="rpg-resources.js?v=4-lot1-dialogs"></script>
+<script src="rpg-native-reactions.js?v=4-lot1-dialogs"></script><script src="rpg-opportunities.js?v=4-lot1-dialogs"></script>
+<script src="rpg-instruction.js?v=4-lot1-dialogs"></script>
+<script src="rpg-weapon-gate.js?v=4-lot1-dialogs"></script>
+<script src="rpg-combat-effects-client.js?v=4-lot1-dialogs"></script>
+<script src="kentaro-combat.js?v=4-lot1-dialogs"></script>
 <style id="kentaro-ipad-compact">
 @media(min-width:1000px) and (orientation:landscape){
 /* Kentaro: compact landscape tablet layout */
