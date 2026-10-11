@@ -23,7 +23,7 @@
   };
   function state(){
     const s=bridge.read(),eco=bridge.economy?.(s)||s.economy||s.eco||s.used||{},used=bridge.used!==false;
-    const effectMirror=window.RPGConnect?.getStatus?.().connected&&window.RPGHealth?.getContext?.().combatId?s.rpgCombatEffectMirror:null;
+    const effectMirror=window.RPGConnect?.getStatus?.().controlled&&window.RPGHealth?.getContext?.().combatId?s.rpgCombatEffectMirror:null;
     const available=k=>effectMirror?.actionsBlocked?false:eco[k]===undefined?null:used?!eco[k]:!!eco[k];
     const hp=number(s.hp)??0,max=number(s.maxHp)??bridge.maxHp,temp=number(s.tempHp??s.temp)??0;
     const rawConcentration=s.concentration??s.concSpell??s.conc,concentrationName=typeof rawConcentration==='string'?rawConcentration.trim():rawConcentration&&typeof rawConcentration==='object'?String(rawConcentration.name||rawConcentration.spell||''):rawConcentration===true?'Concentration':'';if(s.rpgConcentrationName!==concentrationName){s.rpgConcentrationName=concentrationName;s.rpgConcentrationInstance=concentrationName?crypto.randomUUID():null;}
@@ -134,7 +134,7 @@
       if(!actions[event.type])throw Error('Commande non prise en charge');actions[event.type]();seen.add(event.id);return true;},
     undo:()=>{if(window.RPGUndo?.authoritative())return window.RPGUndo.request();if(apiUndo.length&&bridge.restore){bridge.restore(apiUndo.pop());sync();emit('undo:performed',{});return true}const result=call('undo');emit('undo:performed',{});return result},subscribe:fn=>{if(typeof fn!=='function')throw TypeError('Fonction attendue');listeners.add(fn);return()=>listeners.delete(fn)},
     unsubscribe:fn=>listeners.delete(fn),sync,emitLocal:emit});
-  window.CompanionAPI=api;previous=state();damageCursor=Number(previous?.turn?.damage)||0;emit('companion:ready',{version:1});
+  window.RPGResolutionAPIAdapter=()=>{clearTimeout(pendingMissingTimer);pendingMissingTimer=null;pendingId=null;pendingKey=null;pendingDamageBaseline=null;damageWaiters.length=0;damageCursor=Number(state().turn.damage)||0;};window.CompanionAPI=api;previous=state();damageCursor=Number(previous?.turn?.damage)||0;emit('companion:ready',{version:1});
   // Existing character interfaces own their rules and rendering. Observe their
   // completed UI changes so local actions also enter the same event stream.
   const observer=new MutationObserver(sync);
