@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kentaro">
-<link rel="manifest" href="/Kentaro/site.webmanifest?v=3">
-<link rel="icon" href="/Kentaro/favicon.ico?v=3" sizes="any">
+<link rel="manifest" href="./site.webmanifest?v=3">
+<link rel="icon" href="./favicon.ico?v=3" sizes="any">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-kentaro.png?v=3">
-<link rel="shortcut icon" href="/Kentaro/favicon.ico?v=3">
-<link rel="apple-touch-icon" href="/Kentaro/apple-touch-icon-kentaro-v4.png?v=4">
-<link rel="apple-touch-icon" sizes="152x152" href="/Kentaro/apple-touch-icon-152x152.png?v=4">
-<link rel="apple-touch-icon" sizes="167x167" href="/Kentaro/apple-touch-icon-167x167.png?v=4">
-<link rel="apple-touch-icon" sizes="180x180" href="/Kentaro/apple-touch-icon-kentaro-v4.png?v=4">
+<link rel="shortcut icon" href="./favicon.ico?v=3">
+<link rel="apple-touch-icon" href="./apple-touch-icon-kentaro-v4.png?v=4">
+<link rel="apple-touch-icon" sizes="152x152" href="./apple-touch-icon-152x152.png?v=4">
+<link rel="apple-touch-icon" sizes="167x167" href="./apple-touch-icon-167x167.png?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-kentaro-v4.png?v=4">
 <title>Kentaro - Compagnon</title>
 <style>
 :root{
@@ -530,7 +530,7 @@ function askNat(label,autoAdv=false,group='sun'){
    return {nat:n,detail:`manuel ${n}`,manual:true}
  }
  let mode=S.attackRollModes[group]||'normal';
- if(window.KentaroCombat?.nextAdvantage(label))autoAdv=true;if(autoAdv)mode=mode==='dis'?'normal':'adv';if(!label.includes('Spectre'))mode=window.RPGHealth?.weaponRollMode(mode)||mode;if(label.includes('Spectre')&&window.RPGHealth?.online())mode=RPGSummons.rollMode('spectre',mode);
+ if(window.KentaroCombat?.nextAdvantage(label))autoAdv=true;if(!label.includes('Spectre'))mode=window.RPGHealth?.weaponRollMode(mode,{adv:autoAdv})||(autoAdv?(mode==='dis'?'normal':'adv'):mode);if(label.includes('Spectre')&&window.RPGHealth?.online())mode=RPGSummons.rollMode('spectre',mode);
  if(mode==='adv'||mode==='dis'){
    const a=d(20),b=d(20),n=mode==='adv'?Math.max(a,b):Math.min(a,b);
    return {nat:n,detail:`${a}/${b} → ${n} · ${mode==='adv'?'avantage':'désavantage'}`}
@@ -661,11 +661,11 @@ function resolveHit(nat,total,crit){
 }
 function requireEncounterTarget(){
  const status=window.RPGConnect?.getStatus?.();
- if(status?.connected&&!status.target){log('🎯 Sélectionne d’abord une cible Encounter. Aucune action d’attaque n’a été consommée.');document.getElementById('rpg-target-dock')?.classList.add('open');return false}
+ if(status?.controlled&&!status.target){log('🎯 Sélectionne d’abord une cible Encounter. Aucune action d’attaque n’a été consommée.');document.getElementById('rpg-target-dock')?.classList.add('open');return false}
  return true
 }
 function emitNetworkAutoMiss(label,nat,total){
- const status=window.RPGConnect?.getStatus?.();if(!status?.connected||!status.target||!window.CompanionAPI?.emitLocal)return null;
+ const status=window.RPGConnect?.getStatus?.();if(!status?.controlled||!status.target||!window.CompanionAPI?.emitLocal)return null;
  const attackId='kentaro-auto-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6);
  window.CompanionAPI.emitLocal('attack:rolled',{attackId,actor:/Spectre/.test(label)?'spectre':'kentaro',roll:total,total,nat,detail:String(nat),crit:false,name:label},attackId+':rolled');
  window.CompanionAPI.emitLocal('attack:miss',{attackId,actor:'kentaro',automatic:true,reason:'natural-1'},attackId+':miss');
@@ -680,13 +680,13 @@ function blade(which,mode='action',rollGroup=which){
  if(mode==='action'){if(!useAttackAction())return render()}else if(mode==='bonus'){if(!useBonusAction('3e attaque',false))return render()}else if(mode==='reaction'){if(!useReaction('Attaque de réaction'))return render()}
  const sun=which==='sun',name=sun?'☀ Solinar':'☾ Sélhane',adv=sealAdvantage();
  const rr=askNat(name,adv,rollGroup);if(!rr){restore(before);return log('ℹ️ Jet annulé.')}
- const nat=rr.nat,hitRoll=nat+10,cursed=curseApplies(),crit=nat===20||(cursed&&nat===19);
+ const bless=window.RPGPlayerSaves?.takeAttackBless?.()||0;if(bless)rr.detail+=' + Bénédiction (1d4 = '+bless+')';const nat=rr.nat,hitRoll=nat+10+bless,cursed=curseApplies(),crit=nat===20||(cursed&&nat===19);
  if(nat===1){
    if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
    undo.push(before);if(undo.length>40)undo.shift();emitNetworkAutoMiss(name,nat,hitRoll);render();return log(`${name}\nJet ${rr.detail} +10 = ${hitRoll} → ÉCHEC AUTOMATIQUE (1 naturel).`);
  }
  pendingBefore=before;
- S.pendingHit={attackKind:'weapon',kind:'blade',mode,targetId:S.currentTargetId,which,name,total:hitRoll,nat,crit,detail:rr.detail,target:S.currentTarget,cursed,undoBefore:before};
+ S.pendingHit={attackKind:'weapon',kind:'blade',mode,targetId:S.currentTargetId,which,name,total:hitRoll,blessRoll:bless,nat,crit,detail:rr.detail,target:S.currentTarget,cursed,undoBefore:before};
  render();
  log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}\nEst-ce que l’attaque touche ?`);
 }
@@ -776,9 +776,9 @@ function eldritchRay(){
  else if(!(S.actionKind==='cantrip'&&S.actionLabel==='Décharge occulte'))return log('❌ Décharge occulte n’est plus disponible ce tour.');
  const ray=(S.eldritchCount||0)+1,cursed=curseApplies(),rr=askNat(`Décharge occulte — rayon ${ray}`,false,'eldritch');
  if(!rr){restore(before);return log('ℹ️ Jet annulé.')}
- const attack=rr.nat+8,crit=rr.nat===20||(cursed&&rr.nat===19);
+ const bless=window.RPGPlayerSaves?.takeAttackBless?.()||0;if(bless)rr.detail+=' + Bénédiction (1d4 = '+bless+')';const attack=rr.nat+8+bless,crit=rr.nat===20||(cursed&&rr.nat===19);
  if(rr.nat===1){undo.push(before);if(undo.length>40)undo.shift();S.eldritchCount=ray;emitNetworkAutoMiss(`Décharge occulte — rayon ${ray}`,rr.nat,attack);render();return log(`🔴 Décharge occulte — Rayon ${ray}\n1 naturel → ÉCHEC AUTOMATIQUE.`)}
- pendingBefore=before;S.pendingHit={kind:'eldritch',ray,total:attack,nat:rr.nat,detail:rr.detail,crit,cursed,target:S.currentTarget,undoBefore:before};
+ pendingBefore=before;S.pendingHit={kind:'eldritch',ray,total:attack,blessRoll:bless,nat:rr.nat,detail:rr.detail,crit,cursed,target:S.currentTarget,undoBefore:before};
  render();log(`🔴 Décharge occulte — Rayon ${ray}${crit?" — ✦ CRITIQUE":""}\nAttaque : ${rr.detail} +8 = ${attack}\nEst-ce que l’attaque touche ?`);
 }
 async function confirmPendingEldritch(hit){
@@ -862,12 +862,12 @@ render();load(true);
 <link rel="stylesheet" href="companion-v3-shell.css?v=2">
 <script src="kentaro-shell.js?v=4-lot1-dialogs"></script>
 <link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=4-lot1-dialogs"></script>
-<script src="companion-api.js?v=4-lot3v2"></script>
-<script src="rpg-resolution.js?v=4-lot3v2"></script><script src="rpg-connect-icon-registry.js?v=4-lot1-dialogs"></script><script src="rpg-reactions.js?v=4-lot1-dialogs"></script><script src="kentaro-armure-malefice.js?v=4-lot1-dialogs"></script><script src="rpg-concentration.js?v=4-lot1-dialogs"></script><script src="rpg-player-saves.js?v=4-lot1-dialogs"></script>
-<script src="rpg-turn-start.js?v=4-lot3v2"></script><script src="rpg-correction-schema.js?v=4-lot3v2"></script><script src="rpg-corrections.js?v=4-lot3v2"></script><script src="rpg-connect-client.js?v=20261013-haste-menu"></script><script src="rpg-multi-target.js?v=4-lot1-dialogs"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=4-lot1-dialogs"></script><script src="rpg-multi-target-ui.js?v=4-lot1-dialogs"></script>
+<script src="companion-api.js?v=20261014-lot4-final"></script>
+<script src="rpg-resolution.js?v=20261014-lot4-final"></script><script src="rpg-connect-icon-registry.js?v=4-lot1-dialogs"></script><script src="rpg-reactions.js?v=4-lot1-dialogs"></script><script src="kentaro-armure-malefice.js?v=4-lot1-dialogs"></script><script src="rpg-concentration.js?v=20261014-lot4-final"></script><script src="rpg-player-saves.js?v=20261014-lot4-final"></script>
+<script src="rpg-turn-start.js?v=4-lot3v2"></script><script src="rpg-correction-schema.js?v=4-lot3v2"></script><script src="rpg-corrections.js?v=4-lot3v2"></script><script src="rpg-connect-client.js?v=20261014-lot4-final"></script><script src="rpg-multi-target.js?v=4-lot1-dialogs"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=4-lot1-dialogs"></script><script src="rpg-multi-target-ui.js?v=4-lot1-dialogs"></script>
 <script src="social-dice.js?v=4-lot1-dialogs"></script><script type="module" src="dice-engine.js?v=4-lot1-dialogs"></script>
 <script src="companion-turnbar.js?v=4-lot1-dialogs"></script>
-<script src="rpg-health.js?v=4-lot1-dialogs"></script>
+<script src="rpg-health.js?v=20261014-lot4-final"></script>
 <script src="rpg-summons-client.js?v=4-lot1-dialogs"></script><script src="rpg-triggered-effects.js?v=4-lot1-dialogs"></script>
 <script>
 window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.attack||{};if(q.kind!=='damage-received'||!a.hit||a.mode!=='melee'||!a.attackerId||before.temp<=0||String(before.tempSource).replace(/[’']/g,'').toLowerCase()!=='armure dagathys'||before.tempMetadata?.expiresAt&&before.tempMetadata.expiresAt<=q.occurredAt)return [];const amount=Number(q.before.tempMetadata?.originalAmount)||Number(window.KentaroAPI?.state?.agathysDamage)||25;return amount>0?[{kind:'damage',source:'Armure d’Agathys',targetId:a.attackerId,amount,damageType:'froid',reaction:false}]:[]};
@@ -877,8 +877,8 @@ window.__CompanionBridge.triggeredEffects=q=>{const before=q.before||{},a=q.atta
 <script src="rpg-native-reactions.js?v=4-lot1-dialogs"></script><script src="rpg-opportunities.js?v=4-lot1-dialogs"></script>
 <script src="rpg-instruction.js?v=4-lot1-dialogs"></script>
 <script src="rpg-weapon-gate.js?v=4-lot1-dialogs"></script>
-<script src="rpg-combat-effects-client.js?v=20261013-haste-menu"></script>
-<script src="kentaro-combat.js?v=4-lot3v2"></script>
+<script src="rpg-combat-effects-client.js?v=20261014-lot4-final"></script>
+<script src="kentaro-combat.js?v=20261014-lot4-final"></script>
 <style id="kentaro-ipad-compact">
 @media(min-width:1000px) and (orientation:landscape){
 /* Kentaro: compact landscape tablet layout */
@@ -979,5 +979,6 @@ window.CompanionRestConfirm=(kind,detail,apply)=>{
 </script>
 
 <link rel="stylesheet" href="rpg-activity.css?v=20261013-haste-menu">
-<script src="rpg-journal-ui.js?v=20261013-haste-menu"></script><script src="rpg-activity.js?v=20261013-haste-menu"></script>
+<script src="rpg-journal-ui.js?v=20261014-lot4-final"></script><script src="rpg-activity.js?v=20261013-haste-menu"></script>
+<script src="rpg-combat-fx.js?v=20261014-lot4-final"></script>
 </body></html>
