@@ -107,7 +107,7 @@ async function planImport(vault, entries, manifest) {
   const sourceId = manifest.source || 'kentaro';
   const receiptPath = `98 - Archives/Imports Kentaro/${sourceId}-${manifest.session.id}.md`;
   if (vault.getAbstractFileByPath(receiptPath)) return [];
-  let receipt;
+  let receipt, sessionNote;
   const routes = {session:'01 - Sessions/', person:'02 - Personnages/PNJ/', media:'99 - Médias/', receipt:'98 - Archives/Imports Kentaro/', registry:'02 - Personnages/PNJ/'};
   const sessionKey = `${sourceId}_id: "${manifest.session.id}"`;
   const identities = new Set();
@@ -129,7 +129,14 @@ async function planImport(vault, entries, manifest) {
         finalPath=renamedPath(vault,destination);
       }
     }
+    if(route.kind==='session' && existing && outcome==='rename'){
+      const candidates=vault.getMarkdownFiles().filter(f=>f.path.startsWith('01 - Sessions/'));
+      for(const file of candidates){
+        if((await vault.read(file)).split(/\r?\n/).includes(sessionKey)){outcome='skip';finalPath=file.path;break;}
+      }
+    }
     const item={ route, source, destination, finalPath, outcome, bytes: entries.get(source) };
+    if(route.kind==='session')sessionNote=splitPath(finalPath).name.replace(/\.md$/i,'');
     if(route.kind==='receipt')receipt=item;else plan.push(item);
   }
   for (const update of Array.isArray(manifest.personUpdates) ? manifest.personUpdates : []) {
@@ -139,7 +146,7 @@ async function planImport(vault, entries, manifest) {
     const willCreate = plan.some(item => item.route.kind === 'person' && item.destination === destination && item.outcome !== 'skip');
     if (willCreate) continue;
     if (!existing) continue;
-    const sessionId = manifest.session.id;
+    const sessionId = sourceId==='kentaro' ? manifest.session.id : sourceId+'-'+manifest.session.id;
     if (!sessionId) continue;
     const marker = `<!-- KENTARO:SESSION:${sessionId}:START -->`;
     let alreadyMerged = false;
@@ -153,7 +160,7 @@ async function planImport(vault, entries, manifest) {
         id: `${sessionId}-${index}`,
         kind: String(fact.kind || 'information'),
         label: String(fact.label || 'Information'),
-        text: String(fact.text || '').trim(),
+        text: fact.kind==='appearance' && sessionNote ? `[[${sessionNote}]]` : String(fact.text || '').trim(),
         selected: fact.kind !== 'status' && fact.defaultSelected !== false
       }));
     plan.push({
@@ -161,7 +168,7 @@ async function planImport(vault, entries, manifest) {
       destination,
       finalPath: destination,
       outcome: alreadyMerged ? 'merged-skip' : 'merge',
-      update: { ...update, sessionId },
+      update: { ...update, sessionId, sessionNote:sessionNote || update.sessionNote },
       facts
     });
   }
@@ -172,7 +179,7 @@ async function planImport(vault, entries, manifest) {
     const willCreate = plan.some(item => item.route.kind === 'registry' && item.destination === destination && item.outcome !== 'skip');
     if (willCreate) continue;
     if (!existing) continue;
-    const sessionId = manifest.session.id;
+    const sessionId = sourceId==='kentaro' ? manifest.session.id : sourceId+'-'+manifest.session.id;
     if (!sessionId) continue;
     const entries = (Array.isArray(update.entries) ? update.entries : [])
       .filter(entry => entry && String(entry.text || '').trim())
@@ -189,7 +196,7 @@ async function planImport(vault, entries, manifest) {
       destination,
       finalPath: destination,
       outcome: current.includes(marker) ? 'merged-skip' : 'merge',
-      update: { ...update, sessionId },
+      update: { ...update, sessionId, sessionNote:sessionNote || update.sessionNote },
       entries
     });
   }
@@ -202,7 +209,8 @@ function personSessionBlock(update, facts) {
   const start = `<!-- KENTARO:SESSION:${update.sessionId}:START -->`;
   const end = `<!-- KENTARO:SESSION:${update.sessionId}:END -->`;
   const sessionLink = update.sessionNote ? `[[${update.sessionNote}]]` : (update.sessionTitle || 'Session de Kentaro');
-  const lines = facts.map(fact => `- **${fact.label} :** ${fact.text}`);
+  const plain = value=>String(value).replace(/<!--/g,'&lt;!--');
+  const lines = facts.map(fact => `- **${plain(fact.label)} :** ${plain(fact.text)}`);
   return `${start}\n### ${sessionLink}\n\n${lines.join('\n')}\n${end}`;
 }
 
@@ -213,44 +221,34 @@ function registrySessionBlock(update, entries) {
   return `${start}\n### ${sessionLink}\n\n${entries.map(entry => `- ${entry.text}`).join('\n')}\n${end}`;
 }
 
-async function mergePersonUpdate(vault, item) {
-  const file = vault.getAbstractFileByPath(item.finalPath);
-  if (!file) throw new Error(`Fiche PNJ introuvable après import : ${item.finalPath}`);
-  const facts = item.facts.filter(fact => fact.selected);
-  if (!facts.length) return false;
-  const current = await vault.read(file);
-  const sessionMarker = `<!-- KENTARO:SESSION:${item.update.sessionId}:START -->`;
-  if (current.includes(sessionMarker)) return false;
-  const autoStart = '<!-- KENTARO:AUTO:START -->';
-  const autoEnd = '<!-- KENTARO:AUTO:END -->';
-  const block = personSessionBlock(item.update, facts);
-  let next;
-  if (current.includes(autoStart) && current.includes(autoEnd)) {
-    next = current.replace(autoEnd, () => `${block}\n\n${autoEnd}`);
-  } else {
-    next = `${current.trimEnd()}\n\n## Suivi automatique Kentaro\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
-  }
-  await vault.modify(file, next);
-  return true;
+async function appendProtectedBlock(vault, item, scope, heading, block) {
+  const file=vault.getAbstractFileByPath(item.finalPath);
+  if (!file) throw Error('Fiche introuvable après la prévisualisation.');
+  const prefix=scope ? 'KENTARO:'+scope+':' : 'KENTARO:';
+  const start='<!-- '+prefix+'AUTO:START -->', end='<!-- '+prefix+'AUTO:END -->';
+  const marker=block.split('\n')[0];
+  let changed=false;
+  await vault.process(file,current=>{
+    if(current.includes(marker))return current;
+    const first=current.indexOf(start), last=current.indexOf(end);
+    if(first===-1 && last===-1){
+      changed=true;
+      return current+'\n\n## '+heading+'\n\n'+start+'\n'+block+'\n\n'+end+'\n';
+    }
+    if(first<0 || last<first || first!==current.lastIndexOf(start) || last!==current.lastIndexOf(end))
+      throw Error('Balises automatiques ambiguës. La fiche est conservée.');
+    changed=true;
+    return current.slice(0,last)+block+'\n\n'+current.slice(last);
+  });
+  return changed;
 }
-
-async function mergeRegistryUpdate(vault, item) {
-  const file = vault.getAbstractFileByPath(item.finalPath);
-  if (!file) throw new Error(`Registre des Absents introuvable après import : ${item.finalPath}`);
-  const current = await vault.read(file);
-  const sessionMarker = `<!-- KENTARO:REGISTRY:${item.update.sessionId}:START -->`;
-  if (current.includes(sessionMarker)) return false;
-  const autoStart = '<!-- KENTARO:REGISTRY:AUTO:START -->';
-  const autoEnd = '<!-- KENTARO:REGISTRY:AUTO:END -->';
-  const block = registrySessionBlock(item.update, item.entries);
-  let next;
-  if (current.includes(autoStart) && current.includes(autoEnd)) {
-    next = current.replace(autoEnd, () => `${block}\n\n${autoEnd}`);
-  } else {
-    next = `${current.trimEnd()}\n\n## Entrées consignées en séance\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
-  }
-  await vault.modify(file, next);
-  return true;
+async function mergePersonUpdate(vault,item){
+  const facts=item.facts.filter(f=>f.selected);
+  if(!facts.length)return false;
+  return appendProtectedBlock(vault,item,'','Suivi automatique de la Compagnie',personSessionBlock(item.update,facts));
+}
+async function mergeRegistryUpdate(vault,item){
+  return appendProtectedBlock(vault,item,'REGISTRY','Entrées consignées en séance',registrySessionBlock(item.update,item.entries));
 }
 
 async function applyImport(vault, plan) {
