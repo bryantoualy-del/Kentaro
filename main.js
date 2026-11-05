@@ -17,7 +17,7 @@ function decode(bytes) {
 
 function safePath(value) {
   const path = normalizePath(String(value || '').normalize('NFC')).replace(/^\/+/, '');
-  if (!path || path.includes('../') || path.includes('\\') || !ALLOWED_ROOTS.some(root => path.startsWith(root))) {
+  if (!path || path.split('/').some(part=>part==='..'||part==='.') || path.includes('\\') || !ALLOWED_ROOTS.some(root => path.startsWith(root))) {
     throw new Error(`Destination non autorisée : ${value || '(vide)'}`);
   }
   return path;
@@ -583,7 +583,10 @@ class CreatePnjFromNotesModal extends Modal {
     for (const value of ['Inconnu', 'Allié', 'Compagnon', 'Contact', 'Rival', 'Ennemi']) category.createEl('option', { text: value, value });
     const status = field('Statut');
     status.placeholder = 'Actif, disparu, hostile…';
-    const note = field('Ce que Kentaro sait', 'textarea');
+    const metadata=this.sourceFile && this.app.metadataCache.getFileCache(this.sourceFile)?.frontmatter;
+    const owner=Object.keys(companions).find(id=>companions[id]===metadata?.personnage)||'kentaro';
+    const nameOfCompanion=companions[owner];
+    const note = field('Ce que '+nameOfCompanion+' sait', 'textarea');
     note.value = this.selection;
     note.placeholder = 'Colle ou résume ici les informations connues.';
     const actions = contentEl.createDiv({ cls: 'kentaro-import-actions' });
@@ -605,7 +608,7 @@ class CreatePnjFromNotesModal extends Modal {
       try {
         await ensureFolder(this.app.vault, '02 - Personnages/PNJ');
         const source = this.sourceFile ? `[[${this.sourceFile.basename}]]` : '';
-        const body = `---\ntype: pnj\naliases: []\nrace:\ngenre:\ngroupe:\nlieu:\nstatut: ${yamlText(status.value || 'actif')}\nrelation_kentaro: ${yamlText(category.value || 'Inconnu')}\npremiere_rencontre:\nillustration:\ntags:\n  - pnj\n---\n# ${cleanName}\n\n## En bref\n\n${note.value.trim() || '_À compléter._'}\n\n## Ce que Kentaro sait\n\n- **Statut :** ${status.value.trim() || 'Inconnu'}\n- **Relation :** ${category.value || 'Inconnu'}\n${source ? `- **Source :** ${source}\n` : ''}\n## Motivation\n\n- À découvrir.\n\n## Relations\n\n- [[Kentaro]]\n\n## Secrets ou incertitudes\n\n- [ ] À confirmer :\n\n## Apparitions\n\n${source ? `- ${source}` : '- À compléter.'}\n`;
+        const body = `---\ntype: pnj\naliases: []\nrace:\ngenre:\ngroupe:\nlieu:\nstatut: ${yamlText(status.value || 'actif')}\nrelation_${owner}: ${yamlText(category.value || 'Inconnu')}\npremiere_rencontre:\nillustration:\ntags:\n  - pnj\n---\n# ${cleanName}\n\n## En bref\n\n${note.value.trim() || '_À compléter._'}\n\n## Ce que ${nameOfCompanion} sait\n\n- **Statut :** ${status.value.trim() || 'Inconnu'}\n- **Relation :** ${category.value || 'Inconnu'}\n${source ? `- **Source :** ${source}\n` : ''}\n## Motivation\n\n- À découvrir.\n\n## Relations\n\n- [[${nameOfCompanion}]]\n\n## Secrets ou incertitudes\n\n- [ ] À confirmer :\n\n## Apparitions\n\n${source ? `- ${source}` : '- À compléter.'}\n`;
         const file = await this.app.vault.create(path, body);
         new Notice(`Fiche PNJ créée : ${cleanName}`);
         this.close();

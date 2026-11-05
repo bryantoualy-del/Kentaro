@@ -22,7 +22,8 @@ test('Les ZIP réels de Kentaro et Kobe partagent le coffre et protègent le con
  assert(!JSON.stringify(kobe.manifest).includes('Absent'));
  const go=async z=>applyImport(v,await planImport(v,z.entries,z.manifest));
  await go(legacy);
- const person='02 - Personnages/PNJ/Roark.md',privateText='# Roark\n\n## Mes secrets\nÀ conserver.\n';
+ const person='02 - Personnages/PNJ/Roark.md',privateText=v.files.get(person)+'\n## Mes secrets\nÀ conserver.\n';
+ assert.match(privateText,/La Compagnie le connaît déjà/);
  v.files.set(person,privateText);
  const media=kobe.manifest.routes.find(r=>r.kind==='media').destination;
  v.files.set(media,Buffer.from('portrait préexistant'));
@@ -35,7 +36,7 @@ test('Les ZIP réels de Kentaro et Kobe partagent le coffre et protègent le con
  await applyImport(v,plan);
  assert.equal(v.files.get(session),'Session manuelle');
  assert(v.files.get(person).startsWith(privateText));
- assert.match(v.files.get(person),/Vu aux Trois Soupapes/);assert.doesNotMatch(v.files.get(person),/Statut proposé|\*\*Relation/);
+ assert.match(v.files.get(person),/Vu aux Trois Soupapes/);assert.doesNotMatch(v.files.get(person).slice(privateText.length),/Statut proposé|\*\*Relation/);
  assert.equal(v.files.get(media).toString(),'portrait préexistant');
  assert.equal((await planImport(v,kobe.entries,kobe.manifest)).length,0);
  assert.equal((await planImport(v,legacy.entries,legacy.manifest)).length,0);
