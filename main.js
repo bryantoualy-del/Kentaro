@@ -3,7 +3,7 @@
 const { Plugin, Modal, Notice, normalizePath } = require('obsidian');
 
 const SCHEMA = 'kentaro.obsidian-import';
-const KENTARO_URL = 'https://bryantoualy-del.github.io/Kentaro/';
+const companions = { kentaro: 'Kentaro', kobe: 'Kobe' };
 const ALLOWED_ROOTS = [
   '01 - Sessions/',
   '02 - Personnages/PNJ/',
@@ -61,12 +61,14 @@ async function readZipEntries(buffer) {
 }
 
 function parseManifest(entries) {
-  const raw = entries.get('_kentaro-import.json');
+  const raw = entries.get('_compagnie-import.json') || entries.get('_kentaro-import.json');
   if (!raw) throw new Error('Ce ZIP ne contient pas le manifeste Kentaro.');
   let manifest;
   try { manifest = JSON.parse(decode(raw)); }
   catch (_) { throw new Error('Le manifeste Kentaro est illisible.'); }
-  if (manifest.schema !== SCHEMA || !Array.isArray(manifest.routes)) {
+  if (manifest.schema === SCHEMA) manifest.source = 'kentaro';
+  else if (manifest.schema !== 'compagnie.obsidian-import' || !Object.hasOwn(companions,manifest.source)) throw Error('Source du Companion inconnue.');
+  if (!Array.isArray(manifest.routes) || !/^[a-zA-Z0-9_-]{1,180}$/.test(manifest.session?.id || '')) {
     throw new Error('Ce paquet n’est pas un export de session Kentaro compatible.');
   }
   return manifest;
@@ -102,38 +104,42 @@ function renamedPath(vault, path) {
 
 async function planImport(vault, entries, manifest) {
   const plan = [];
-  const createdAt = Date.parse(manifest.createdAt || '') || Date.now();
+  const sourceId = manifest.source || 'kentaro';
+  const receiptPath = `98 - Archives/Imports Kentaro/${sourceId}-${manifest.session.id}.md`;
+  if (vault.getAbstractFileByPath(receiptPath)) return [];
+  let receipt;
+  const routes = {session:'01 - Sessions/', person:'02 - Personnages/PNJ/', media:'99 - Médias/', receipt:'98 - Archives/Imports Kentaro/', registry:'02 - Personnages/PNJ/'};
+  const sessionKey = `${sourceId}_id: "${manifest.session.id}"`;
+  const identities = new Set();
   for (const route of manifest.routes) {
     const source = String(route.source || '').normalize('NFC');
     if (!entries.has(source)) throw new Error(`Fichier annoncé mais absent : ${source}`);
-    const destination = safePath(route.destination);
+    let destination = safePath(route.destination);
+    if (!Object.hasOwn(routes,route.kind) || !destination.startsWith(routes[route.kind])) throw Error('Destination incompatible avec le type de fichier.');
+    if (route.kind === 'receipt') destination = receiptPath;
+    if (identities.has(destination)) throw Error('Destination en double.');
+    identities.add(destination);
     const existing = vault.getAbstractFileByPath(destination);
     let outcome = 'create';
     let finalPath = destination;
     if (existing) {
-      switch (route.conflict) {
-        case 'skip-existing': outcome = 'skip'; break;
-        case 'keep-newest': {
-          const stat = await vault.adapter.stat(destination);
-          outcome = !stat || createdAt > stat.mtime ? 'replace' : 'skip';
-          break;
-        }
-        case 'rename':
-        case 'ask':
-        default:
-          outcome = 'rename';
-          finalPath = renamedPath(vault, destination);
+      outcome = 'skip';
+      if (route.kind === 'session' && !(await vault.read(existing)).split(/\r?\n/).includes(sessionKey)) {
+        outcome='rename';
+        finalPath=renamedPath(vault,destination);
       }
     }
-    plan.push({ route, source, destination, finalPath, outcome, bytes: entries.get(source) });
+    const item={ route, source, destination, finalPath, outcome, bytes: entries.get(source) };
+    if(route.kind==='receipt')receipt=item;else plan.push(item);
   }
   for (const update of Array.isArray(manifest.personUpdates) ? manifest.personUpdates : []) {
     const destination = safePath(update.destination);
+    if (!destination.startsWith('02 - Personnages/PNJ/')) throw Error('Fiche PNJ hors dossier.');
     const existing = vault.getAbstractFileByPath(destination);
     const willCreate = plan.some(item => item.route.kind === 'person' && item.destination === destination && item.outcome !== 'skip');
     if (willCreate) continue;
     if (!existing) continue;
-    const sessionId = String(update.sessionId || manifest.session?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    const sessionId = manifest.session.id;
     if (!sessionId) continue;
     const marker = `<!-- KENTARO:SESSION:${sessionId}:START -->`;
     let alreadyMerged = false;
@@ -148,7 +154,7 @@ async function planImport(vault, entries, manifest) {
         kind: String(fact.kind || 'information'),
         label: String(fact.label || 'Information'),
         text: String(fact.text || '').trim(),
-        selected: fact.defaultSelected !== false
+        selected: fact.kind !== 'status' && fact.defaultSelected !== false
       }));
     plan.push({
       route: { kind: 'person-merge' },
@@ -161,11 +167,12 @@ async function planImport(vault, entries, manifest) {
   }
   for (const update of Array.isArray(manifest.registryUpdates) ? manifest.registryUpdates : []) {
     const destination = safePath(update.destination);
+    if (!destination.startsWith('02 - Personnages/PNJ/')) throw Error('Fiche PNJ hors dossier.');
     const existing = vault.getAbstractFileByPath(destination);
     const willCreate = plan.some(item => item.route.kind === 'registry' && item.destination === destination && item.outcome !== 'skip');
     if (willCreate) continue;
     if (!existing) continue;
-    const sessionId = String(update.sessionId || manifest.session?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    const sessionId = manifest.session.id;
     if (!sessionId) continue;
     const entries = (Array.isArray(update.entries) ? update.entries : [])
       .filter(entry => entry && String(entry.text || '').trim())
@@ -186,6 +193,8 @@ async function planImport(vault, entries, manifest) {
       entries
     });
   }
+  if (!receipt) throw Error('Reçu d’import absent.');
+  plan.push(receipt);
   return plan;
 }
 
@@ -217,7 +226,7 @@ async function mergePersonUpdate(vault, item) {
   const block = personSessionBlock(item.update, facts);
   let next;
   if (current.includes(autoStart) && current.includes(autoEnd)) {
-    next = current.replace(autoEnd, `${block}\n\n${autoEnd}`);
+    next = current.replace(autoEnd, () => `${block}\n\n${autoEnd}`);
   } else {
     next = `${current.trimEnd()}\n\n## Suivi automatique Kentaro\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
   }
@@ -236,7 +245,7 @@ async function mergeRegistryUpdate(vault, item) {
   const block = registrySessionBlock(item.update, item.entries);
   let next;
   if (current.includes(autoStart) && current.includes(autoEnd)) {
-    next = current.replace(autoEnd, `${block}\n\n${autoEnd}`);
+    next = current.replace(autoEnd, () => `${block}\n\n${autoEnd}`);
   } else {
     next = `${current.trimEnd()}\n\n## Entrées consignées en séance\n\n${autoStart}\n${block}\n\n${autoEnd}\n`;
   }
@@ -262,8 +271,8 @@ async function applyImport(vault, plan) {
     if (item.outcome === 'skip') { result.skip += 1; continue; }
     const { folder } = splitPath(item.finalPath);
     if (folder) await ensureFolder(vault, folder);
-    if (item.outcome === 'replace') await vault.adapter.writeBinary(item.finalPath, item.bytes.buffer.slice(item.bytes.byteOffset, item.bytes.byteOffset + item.bytes.byteLength));
-    else await vault.createBinary(item.finalPath, item.bytes.buffer.slice(item.bytes.byteOffset, item.bytes.byteOffset + item.bytes.byteLength));
+    if (vault.getAbstractFileByPath(item.finalPath)) throw Error('Le coffre a changé. Rouvrez l’aperçu avant de poursuivre.');
+    await vault.createBinary(item.finalPath, item.bytes.buffer.slice(item.bytes.byteOffset, item.bytes.byteOffset + item.bytes.byteLength));
     result[item.outcome] += 1;
     if (item.route.kind === 'session') result.sessionPath = item.finalPath;
   }
@@ -294,7 +303,7 @@ class KentaroImportModal extends Modal {
   renderPicker(error = '') {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl('h2', { text: 'Importer une session Kentaro', cls: 'modal-title' });
+    contentEl.createEl('h2', { text: 'Importer une session de la Compagnie', cls: 'modal-title' });
     const hero = contentEl.createDiv({ cls: 'kentaro-import-hero' });
     hero.createDiv({ text: '◐', cls: 'kentaro-import-mark' });
     const copy = hero.createDiv();
@@ -330,6 +339,8 @@ class KentaroImportModal extends Modal {
     contentEl.createEl('h2', { text: 'Vérifier l’import', cls: 'modal-title' });
     const session = this.manifest.session || {};
     const sessionBox = contentEl.createDiv({ cls: 'kentaro-import-session' });
+    sessionBox.createEl('small', {text: companions[this.manifest.source]});
+    if(!this.plan.length)sessionBox.createEl('p',{text:'Cette session a déjà été importée.'});
     sessionBox.createEl('strong', { text: session.title || 'Session de Kentaro' });
     sessionBox.createEl('div', { text: `${session.date || 'Date inconnue'} · ${fileName}` });
     const summary = contentEl.createDiv({ cls: 'kentaro-import-summary' });
@@ -457,9 +468,9 @@ class PrepareKentaroSessionModal extends Modal {
       .map(file => {
         const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter || {};
         return {
-          id: String(frontmatter.kentaro_id || `obsidian-${file.path}`),
+          id: String(frontmatter.kentaro_id || frontmatter.kobe_id || `obsidian-${file.path}`),
           name: String(frontmatter.nom || file.basename),
-          category: String(frontmatter.relation_kentaro || 'Inconnu'),
+          relations: frontmatter, category: String(frontmatter.relation_kentaro || 'Inconnu'),
           status: String(frontmatter.statut || ''),
           path: file.path
         };
@@ -473,9 +484,13 @@ class PrepareKentaroSessionModal extends Modal {
   render() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl('h2', { text: 'Préparer une session Kentaro' });
+    contentEl.createEl('h2', { text: 'Préparer une session de la Compagnie' });
     contentEl.createEl('p', { text: 'Choisis les PNJ susceptibles d’apparaître. Cette distribution sera temporaire : Obsidian reste le registre permanent.', cls: 'kentaro-import-help' });
     const toolbar = contentEl.createDiv({ cls: 'kentaro-roster-toolbar' });
+    const target = toolbar.createEl('select',{attr:{'aria-label':'Companion de destination'}});
+    for(const [id,name] of Object.entries(companions))target.createEl('option',{text:name,value:id,attr:{value:id}});
+    target.value=this.target||'kentaro';
+    target.onchange=()=>{this.target=target.value;this.updateLaunch();};
     const search = toolbar.createEl('input');
     search.type = 'search';
     search.placeholder = 'Rechercher un PNJ…';
@@ -538,7 +553,10 @@ class PrepareKentaroSessionModal extends Modal {
     this.summaryEl.setText(`${selected.length}/20 PNJ dans la distribution temporaire`);
     this.launch.toggleClass('is-disabled', !selected.length);
     this.launch.setAttr('aria-disabled', String(!selected.length));
-    this.launch.href = selected.length ? `${KENTARO_URL}#roster=${rosterPayload(selected)}` : '#';
+    const id=this.target||'kentaro', name=companions[id];
+    this.launch.setText('Ouvrir '+name);
+    const roster=selected.map(p=>({...p,category:p.relations['relation_'+id]||'Inconnu'}));
+    this.launch.href = selected.length ? `https://bryantoualy-del.github.io/${name}/#roster=${rosterPayload(roster)}` : '#';
   }
 
   onClose() { this.contentEl.empty(); }
@@ -607,11 +625,11 @@ class CreatePnjFromNotesModal extends Modal {
 
 class KentaroSessionImporter extends Plugin {
   async onload() {
-    this.addRibbonIcon('moon-star', 'Importer une session Kentaro', () => this.openImporter());
-    this.addRibbonIcon('users', 'Préparer une session Kentaro', () => this.openRoster());
+    this.addRibbonIcon('moon-star', 'Importer une session de la Compagnie', () => this.openImporter());
+    this.addRibbonIcon('users', 'Préparer une session de la Compagnie', () => this.openRoster());
     this.addCommand({
       id: 'import-kentaro-session',
-      name: 'Importer une session Kentaro',
+      name: 'Importer une session de la Compagnie',
       callback: () => this.openImporter()
     });
     this.addCommand({
@@ -621,7 +639,7 @@ class KentaroSessionImporter extends Plugin {
     });
     this.addCommand({
       id: 'prepare-kentaro-session',
-      name: 'Préparer une session Kentaro',
+      name: 'Préparer une session de la Compagnie',
       callback: () => this.openRoster()
     });
   }

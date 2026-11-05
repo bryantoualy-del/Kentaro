@@ -43,3 +43,6 @@ Le compagnon n’est pas un second registre permanent : seules les fiches explic
 Les PNJ préparés mais non rencontrés ne sont pas ajoutés à la note de session et ne reçoivent aucune mise à jour.
 
 Le traitement est entièrement local.
+
+## Version commune 1.5
+Conserver le dossier et l’identifiant kentaro-session-importer. Mettre à jour le même module. Dans Préparer une session de la Compagnie, choisir Kentaro ou Kobe puis les PNJ. Après la partie, télécharger le ZIP, ouvrir le coffre DND et vérifier l’aperçu. Le reçu identifie la source et la session. Les portraits existants sont conservés.
