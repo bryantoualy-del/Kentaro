@@ -1,6 +1,8 @@
-# Importer une session Kentaro dans Obsidian sur iPad
+# Importer une session de la Compagnie dans Obsidian sur iPad
 
-Le compagnon Kentaro utilise désormais le plugin **Kentaro Session Importer**. Aucun raccourci Apple n’est nécessaire.
+Kentaro et Kobe utilisent le plugin **Compagnie Créole Session Importer**. Aucun raccourci Apple n’est nécessaire.
+
+Le plugin 1.5 conserve son identifiant `kentaro-session-importer`. Mettre à jour le module existant dans son dossier actuel.
 
 ## Installation unique
 
@@ -9,24 +11,24 @@ Le compagnon Kentaro utilise désormais le plugin **Kentaro Session Importer**. 
 3. Ouvre les réglages de BRAT puis choisis **Add beta plugin**.
 4. Saisis : `bryantoualy-del/Kentaro`.
 5. Sélectionne la dernière version disponible.
-6. Active ensuite **Kentaro Session Importer** dans les modules installés.
+6. Active ensuite **Compagnie Créole Session Importer** dans les modules installés.
 
 ## À la fin d’une session
 
 1. Dans l’onglet Journal du compagnon, touche **1 · Télécharger**.
 2. Touche **2 · Ouvrir Obsidian**.
-3. Dans Obsidian, touche l’icône lune ou lance la commande **Importer une session Kentaro**.
-4. Sélectionne le ZIP Kentaro dans Téléchargements.
+3. Dans Obsidian, touche l’icône lune ou lance la commande **Importer une session de la Compagnie**.
+4. Sélectionne le ZIP de la séance dans Téléchargements.
 5. Vérifie l’aperçu puis touche **Importer dans ce coffre**.
 
 Le plugin crée automatiquement les dossiers nécessaires, classe les fichiers puis ouvre la note de session.
 
 ## Avant une session : préparer la distribution
 
-1. Dans Obsidian, touche l’icône de groupe ou lance **Préparer une session Kentaro**.
+1. Dans Obsidian, touche l’icône de groupe ou lance **Préparer une session de la Compagnie**.
 2. Recherche les PNJ dans l’index issu de `02 - Personnages/PNJ`.
 3. Sélectionne les personnages susceptibles d’apparaître, jusqu’à 20.
-4. Touche **Ouvrir Kentaro**.
+4. Touche **Ouvrir Kentaro** ou **Ouvrir Kobe**.
 
 Le compagnon s’ouvre avec cette distribution temporaire. Marque un PNJ présent ou rattache-lui une note lorsqu’il intervient réellement. Les personnages préparés mais absents ne seront pas exportés en fin de séance.
 
@@ -34,7 +36,7 @@ Le compagnon s’ouvre avec cette distribution temporaire. Marque un PNJ présen
 
 - une fiche PNJ existante n’est jamais écrasée ;
 - une session portant déjà le même nom est importée comme copie ;
-- un portrait n’est actualisé que si l’export est plus récent ;
+- les portraits existants sont conservés ;
 - chaque import conserve un reçu dans `98 - Archives/Imports Kentaro` ;
 - tout le traitement reste local sur l’appareil.
 
@@ -42,6 +44,7 @@ Le compagnon s’ouvre avec cette distribution temporaire. Marque un PNJ présen
 
 Dans le carnet Kentaro, une note de type **PNJ** reste une simple mention par défaut. Si le personnage devient important, touche le bouton **♙** de la mention ou **Créer une fiche PNJ**. Seules ces fiches explicites sont envoyées dans le registre Obsidian.
 
-Pendant l’import, le plugin affiche chaque information avec une case à cocher. Il ajoute uniquement les éléments sélectionnés dans une zone **Suivi automatique Kentaro** de la fiche existante. Le reste de la fiche reste intact et les changements de statut sont décochés par défaut.
+Pendant l’import, le plugin affiche chaque information avec une case à cocher. Il ajoute uniquement les éléments sélectionnés dans une zone balisée de suivi automatique de la fiche existante. Le reste de la fiche reste intact et les changements de statut sont décochés par défaut.
 
 Si une ancienne mention devient importante après la séance, sélectionne son passage dans la note Obsidian puis lance **Créer un PNJ depuis la sélection** dans la palette de commandes. La nouvelle fiche conserve automatiquement un lien vers la session source.
+
