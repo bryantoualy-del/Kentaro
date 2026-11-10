@@ -527,15 +527,15 @@ function askNat(label,autoAdv=false,group='sun'){
    const n=parseInt(raw,10);
    if(!Number.isFinite(n)||n<1||n>20){if(field)field.focus();log('❌ d20 manuel : renseigne une valeur entre 1 et 20.');return null}
    if(field)field.value='';
-   return {nat:n,detail:`manuel ${n}`,manual:true}
+   return {nat:n,detail:`manuel ${n}`,manual:true,dice:[n],mode:'manual'}
  }
  let mode=S.attackRollModes[group]||'normal';
  if(window.KentaroCombat?.nextAdvantage(label))autoAdv=true;if(!label.includes('Spectre'))mode=window.RPGHealth?.weaponRollMode(mode,{adv:autoAdv})||(autoAdv?(mode==='dis'?'normal':'adv'):mode);if(label.includes('Spectre')&&window.RPGHealth?.online())mode=RPGSummons.rollMode('spectre',mode);
  if(mode==='adv'||mode==='dis'){
    const a=d(20),b=d(20),n=mode==='adv'?Math.max(a,b):Math.min(a,b);
-   return {nat:n,detail:`${a}/${b} → ${n} · ${mode==='adv'?'avantage':'désavantage'}`}
+   return {nat:n,detail:`${a}/${b} → ${n} · ${mode==='adv'?'avantage':'désavantage'}`,dice:[a,b],mode}
  }
- const a=d(20);return {nat:a,detail:String(a)}
+ const a=d(20);return {nat:a,detail:String(a),dice:[a],mode:'normal'}
 }
 async function setTempHp(amount,source){
  amount=Math.max(0,Number(amount)||0);
@@ -686,7 +686,7 @@ function blade(which,mode='action',rollGroup=which){
    undo.push(before);if(undo.length>40)undo.shift();emitNetworkAutoMiss(name,nat,hitRoll);render();return log(`${name}\nJet ${rr.detail} +10 = ${hitRoll} → ÉCHEC AUTOMATIQUE (1 naturel).`);
  }
  pendingBefore=before;
- S.pendingHit={attackKind:'weapon',kind:'blade',mode,targetId:S.currentTargetId,which,name,total:hitRoll,blessRoll:bless,nat,crit,detail:rr.detail,target:S.currentTarget,cursed,undoBefore:before};
+ S.pendingHit={attackKind:'weapon',kind:'blade',resultId:crypto.randomUUID(),mode,targetId:S.currentTargetId,which,name,total:hitRoll,blessRoll:bless,nat,crit,detail:rr.detail,dice:rr.dice,rollMode:rr.mode,target:S.currentTarget,cursed,undoBefore:before};
  render();
  log(`${name}${crit?` — ✦ CRITIQUE${cursed&&nat===19?" (19 grâce à la Malédiction)":""}`:""}\nJet ${rr.detail} +10 = ${hitRoll}\nEst-ce que l’attaque touche ?`);
 }
@@ -762,7 +762,7 @@ async function confirmPendingBlade(hit){
  const sun=p.which==='sun',name=p.name,target=p.target||'';
  if(!hit){
    if(sun){S.solHit=false;S.solTarget=''}else{S.selHit=false;S.selTarget=''}
-   render();return log(`${name}\nConfirmation : RATÉ\nAttaque : ${p.total}`);
+   render();log(`${name}\nConfirmation : RATÉ\nAttaque : ${p.total}`);window.CompanionResultFocus?.showStructured?.({eventId:p.resultId,title:name+' — RATÉ',attack:{dice:p.dice,mode:p.rollMode,bonus:10,extra:p.blessRoll,total:p.total,critical:p.crit}});return;
  }
  return (await window.KentaroCombat.resolveBlade(p,before));
 
