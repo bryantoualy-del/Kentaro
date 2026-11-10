@@ -115,3 +115,14 @@ test('Kentaro blade damage retains real dice and preserves network request',()=>
  assert.match(code,/showStructured\?\.\(\{eventId:tx\.actionId/);
  assert.match(code,/api\.emitLocal\('attack:damage',request/);
 });
+
+
+test('V1.4: structured result stays visible until explicit close and uses no emoji damage glyphs',()=>{
+ assert.doesNotMatch(source,/setTimeout\(hide,\s*8500\)/);
+ assert.doesNotMatch(source,/[🔥❄⚡💥🧪☠✨🧠🔮🪨🗡]/u);
+ const {normalizeType,semanticColors}=ctx.module.exports;
+ for(const [label,type] of [['feu','fire'],['froid','cold'],['foudre','lightning'],['tonnerre','thunder'],['acide','acid'],['poison','poison'],['nécrotiques','necrotic'],['radiants','radiant'],['psychiques','psychic'],['force','force'],['contondants','bludgeoning'],['perforants','piercing'],['tranchants','slashing']]){
+  assert.equal(normalizeType(label),type);
+  assert.match(semanticColors[type],/^#[0-9A-Fa-f]{6}$/);
+ }
+});
