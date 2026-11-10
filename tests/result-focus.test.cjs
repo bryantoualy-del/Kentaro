@@ -103,3 +103,15 @@ test('Kentaro retains actual d20 dice and displays a confirmed blade miss once',
  assert.match(html,/eventId:p\.resultId,title:name\+' — RATÉ'/);
  assert.match(html,/window\.KentaroCombat\.resolveBlade\(p,before\)/);
 });
+
+test('Kentaro blade damage retains real dice and preserves network request',()=>{
+ const code=fs.readFileSync(path.join(root,'kentaro-combat.js'),'utf8');
+ new vm.Script(code,{filename:'kentaro-combat.js'});
+ assert.match(code,/const weapon=k\.roll\(p\.crit\?2:1,8,4\)/);
+ assert.match(code,/dice:weapon\.dice/);
+ assert.match(code,/dice:radiant\.dice/);
+ assert.match(code,/dice:psychic\.dice/);
+ assert.match(code,/dice:r\.dice/);
+ assert.match(code,/showStructured\?\.\(\{eventId:tx\.actionId/);
+ assert.match(code,/api\.emitLocal\('attack:damage',request/);
+});
