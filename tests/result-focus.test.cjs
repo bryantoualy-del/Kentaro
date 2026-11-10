@@ -92,3 +92,14 @@ test('later ribbon observer cannot overwrite structured result for the same acti
  mutation(); // Different action without structured payload still has legacy fallback.
  assert.equal(card.children[2].children[0].children[1].textContent,'13');
 });
+
+test('Kentaro retains actual d20 dice and displays a confirmed blade miss once',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('module'));
+ for(const [,attrs,code] of scripts)new vm.Script(code,{filename:'Kentaro inline'+attrs});
+ assert.match(html,/dice:\[a,b\],mode/);
+ assert.match(html,/dice:\[n\],mode:'manual'/);
+ assert.match(html,/resultId:crypto\.randomUUID\(\)/);
+ assert.match(html,/eventId:p\.resultId,title:name\+' — RATÉ'/);
+ assert.match(html,/window\.KentaroCombat\.resolveBlade\(p,before\)/);
+});
