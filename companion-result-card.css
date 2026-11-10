@@ -26,3 +26,7 @@
 #companion-result-focus .crf-temp{background:rgba(56,189,248,.12);border-color:#38BDF8;}
 #companion-result-focus .crf-temp span,
 #companion-result-focus .crf-temp strong{color:#38BDF8;}
+
+/* V1.4: a visible result card supersedes the legacy informational ribbon.
+   Keep the native hit confirmation and its controls interactive. */
+body:has(#companion-result-focus:not([hidden])) #kentaro-ribbon.show:not(.awaiting-hit){opacity:0!important;pointer-events:none!important;}
