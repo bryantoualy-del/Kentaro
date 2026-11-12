@@ -730,14 +730,28 @@ Réussite : ${successes} × ${half}
 function castMassSuggestion(){
  if(!S.arcaneReady)return log('❌ Suggestion de groupe déjà utilisée depuis le dernier repos long.');
  const status=window.RPGConnect?.getStatus?.()||{};
- if(status.controlled&&!status.target){window.RPGConnect?.prepareTargets?.({targetMode:'multi',open:false});window.RPGConnect?.openTargetPicker?.();return log('Choisissez les cibles Encounter avant de lancer Suggestion de groupe.');}
- const before=snap();if(!useMainAction('Suggestion de groupe','spell'))return render();
+ if(status.controlled){
+   // Important : passer de cible unique à multicible réinitialise la sélection.
+   // Préparer puis choisir les cibles AVANT de dépenser l'Arcane mystique.
+   window.RPGConnect?.prepareTargets?.({targetMode:'multi',maxTargets:12,open:false});
+   const selected=window.RPGConnect?.getSelectedTargets?.()||window.RPGConnect?.getStatus?.()?.targets||[];
+   if(!selected.length){
+     window.RPGConnect?.openTargetPicker?.();
+     return log('Choisissez jusqu’à 12 cibles Encounter avant de confirmer Suggestion de groupe. Aucune ressource consommée.');
+   }
+ }
+ const before=snap();
+ if(!useMainAction('Suggestion de groupe','spell'))return render();
+ if(status.controlled){
+   const sent=window.RPGConnect?.requestSave?.({
+     ability:'SAG',dc:16,source:'Suggestion de groupe',targetMode:'multi',maxTargets:12,
+     condition:{name:'Suggestion de groupe',durationType:'indefinite',source:'Suggestion de groupe'},
+     failureEffect:'Suit une suggestion raisonnable pendant 24 h, sans concentration ; effet terminé si Kentaro ou ses alliés blessent la cible.'
+   });
+   if(!sent){restore(before);return log('❌ Jet Encounter non envoyé : Arcane et action restaurés. Vérifiez les cibles / la connexion.');}
+ }
  undo.push(before);if(undo.length>40)undo.shift();
  S.arcaneReady=false;S.spellCastRevision=(S.spellCastRevision||0)+1;
- if(status.controlled){
-   window.RPGConnect?.prepareTargets?.({targetMode:'multi',open:false});
-   window.RPGConnect?.requestSave?.({ability:'SAG',dc:16,source:'Suggestion de groupe',targetMode:'multi',condition:{name:'Suggestion de groupe',durationType:'indefinite',source:'Suggestion de groupe'},failureEffect:'Suit la suggestion raisonnable pendant 24 h, sans concentration ; effet terminé si les alliés de Kentaro blessent cette cible.'});
- }
  render();fx('spell');log('✦ Arcane mystique N6 : Suggestion de groupe lancée, sans emplacement de pacte. Jusqu’à 12 cibles, SAG DD16, durée 24 h. Décisions et effets à valider par le MJ.');
 }
 q('#massSuggestion').onclick=castMassSuggestion;
