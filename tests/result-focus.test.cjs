@@ -179,3 +179,17 @@ test('all D&D skill results, including Histoire, are excluded from the combat po
  }
  assert.equal(isSocial('Trait de feu'),false);
 });
+
+test('level 11 Kentaro: three pact pips, full HP and independent Mass Suggestion',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ assert.match(html,/for\(let i=0;i<3;i\+\+\)/);
+ assert.match(html,/slotView'\)\.textContent=S\.slots\+'\/3'/);
+ assert.match(html,/Math\.min\(S\.maxHp,parseInt\(q\('#hpInput'\)/);
+ assert.match(html,/arcaneReady:true/);
+ assert.match(html,/function castMassSuggestion\(/);
+ assert.match(html,/S\.arcaneReady=false/);
+ assert.match(html,/S\.slots=3/);
+ assert.match(html,/Suggestion de groupe/);
+ const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('module'));
+ for(const [,attrs,code] of scripts)new vm.Script(code,{filename:'Kentaro level11'+attrs});
+});
