@@ -30,3 +30,6 @@
 /* V1.4: a visible result card supersedes the legacy informational ribbon.
    Keep the native hit confirmation and its controls interactive. */
 body:has(#companion-result-focus:not([hidden])) #kentaro-ribbon.show:not(.awaiting-hit){opacity:0!important;pointer-events:none!important;}
+
+/* Legacy damage ribbons remain hidden until the FX lead-in finishes. */
+body.cc-result-fx-pending :is(#ribbon,#resultRibbon,#kentaro-ribbon,#resultText,#lastResult,#rb){visibility:hidden!important;pointer-events:none!important}
