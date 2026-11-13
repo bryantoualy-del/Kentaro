@@ -179,3 +179,45 @@ test('all D&D skill results, including Histoire, are excluded from the combat po
  }
  assert.equal(isSocial('Trait de feu'),false);
 });
+
+test('level 11 Kentaro: three pact pips, full HP and independent Mass Suggestion',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ assert.match(html,/for\(let i=0;i<3;i\+\+\)/);
+ assert.match(html,/slotView'\)\.textContent=S\.slots\+'\/3'/);
+ assert.match(html,/Math\.min\(S\.maxHp,parseInt\(q\('#hpInput'\)/);
+ assert.match(html,/arcaneReady:true/);
+ assert.match(html,/function castMassSuggestion\(/);
+ assert.match(html,/S\.arcaneReady=false/);
+ assert.match(html,/S\.slots=3/);
+ assert.match(html,/Suggestion de groupe/);
+ const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('module'));
+ for(const [,attrs,code] of scripts)new vm.Script(code,{filename:'Kentaro level11'+attrs});
+});
+
+test('Mass Suggestion consumes no Arcane or action if multicible Encounter has no target or rejects save',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const start=html.indexOf('function castMassSuggestion(){'),end=html.indexOf("q('#massSuggestion').onclick=castMassSuggestion;",start);
+ assert.ok(start>=0&&end>start,'Mystic Arcanum function exists');
+ const code=html.slice(start,end);
+ for(const scenario of ['no-target','rejected','accepted','offline']){
+   const S={arcaneReady:true,actionUsed:false,slots:3,turnPhase:'kentaro',spellCastRevision:0};
+   let targets=scenario==='no-target'?[]:[{id:'enemy-1',name:'Goblin'}],requests=0,picker=0,rollbacks=0;
+   const online=scenario!=='offline';
+   const window={RPGConnect:{
+     getStatus:()=>({controlled:online,targets,target:targets[0]||null}),
+     prepareTargets:()=>true,getSelectedTargets:()=>targets,
+     openTargetPicker:()=>{picker++},
+     requestSave:()=>{requests++;return scenario!=='rejected'}
+   }};
+   const snap=()=>JSON.parse(JSON.stringify(S));
+   const restore=previous=>{rollbacks++;Object.assign(S,previous)};
+   const useMainAction=()=>{S.actionUsed=true;return true};
+   const cast=vm.runInNewContext('(function(S,window,snap,useMainAction,restore,undo,render,fx,log){'+code+'return castMassSuggestion;})');
+   cast(S,window,snap,useMainAction,restore,[],()=>{},()=>{},()=>{})();
+   assert.equal(S.slots,3,'no pact slot used');
+   if(scenario==='no-target'){assert.equal(picker,1);assert.equal(requests,0);assert.equal(S.arcaneReady,true);assert.equal(S.actionUsed,false)}
+   if(scenario==='rejected'){assert.equal(rollbacks,1);assert.equal(requests,1);assert.equal(S.arcaneReady,true);assert.equal(S.actionUsed,false)}
+   if(scenario==='accepted'){assert.equal(requests,1);assert.equal(S.arcaneReady,false);assert.equal(S.actionUsed,true)}
+   if(scenario==='offline'){assert.equal(requests,0);assert.equal(S.arcaneReady,false);assert.equal(S.actionUsed,true)}
+ }
+});
