@@ -6,9 +6,25 @@ const RECOVERY='kentaro-backup-recovery-v1',KIND='kentaro-complete-backup';
 const capture=()=>Object.fromEntries(KEYS.map(key=>[key,localStorage.getItem(key)]));
 function payload(storage=capture()){return{kind:KIND,version:1,app:'Kentaro — Porteur de l’Éclipse',exportedAt:new Date().toISOString(),storage}}
 function validate(data){
- if(!data||data.kind!==KIND||data.version!==1||!data.storage||typeof data.storage!=='object')throw new Error('Ce fichier n’est pas une sauvegarde complète de Kentaro.');
- for(const key of KEYS){const value=data.storage[key];if(value!==null&&value!==undefined&&typeof value!=='string')throw new Error(`Donnée invalide : ${key}.`);if(typeof value==='string'){const parsed=JSON.parse(value);if(!parsed||typeof parsed!=='object')throw new Error(`Donnée illisible : ${key}.`)}}
- return data.storage;
+ if(data?.format==='kobe-companion'){
+  throw new Error('Fichier de combat Kobe. Pour restaurer Kobe, utilisez Importer dans son Companion. Pour importer une session Kobe dans Obsidian, utilisez son export ZIP avec le plugin Compagnie Créole 1.5.0 ou ultérieur.');
+ }
+ if(!data||data.kind!==KIND||data.version!==1||!data.storage||typeof data.storage!=='object'||Array.isArray(data.storage)){
+  throw new Error('Ce fichier n’est pas une sauvegarde complète de Kentaro.');
+ }
+ const storage=data.storage;
+ for(const key of KEYS){
+  if(!Object.hasOwn(storage,key))throw new Error(`Donnée manquante : ${key}.`);
+  const value=storage[key];
+  if(value===null)continue;
+  if(typeof value!=='string')throw new Error(`Donnée invalide : ${key}.`);
+  const parsed=JSON.parse(value);
+  if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error(`Donnée illisible : ${key}.`);
+  if(key===KEYS[0]&&(!Number.isFinite(parsed.hp)||!Number.isFinite(parsed.slots)||!Array.isArray(parsed.journal))){
+   throw new Error('État de combat Kentaro invalide.');
+  }
+ }
+ return storage;
 }
 function apply(storage){for(const key of KEYS){const value=storage[key];if(value===null||value===undefined)localStorage.removeItem(key);else localStorage.setItem(key,value)}}
 function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
