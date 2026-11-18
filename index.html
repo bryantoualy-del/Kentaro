@@ -554,15 +554,6 @@ async function setTempHp(amount,source){
  if(source!=="Armure d’Agathys")S.agathys=false;
  render();return true
 }
-function rollConcentrationCheck(dmg){
- dmg=Math.max(0,Number(dmg)||0);
- if(!S.conc||window.__RPGNetworkConcentration)return null;
- const dc=Math.max(10,Math.floor(dmg/2));
- const a=d(20)+3,b=d(20)+3,best=Math.max(a,b),ok=best>=dc;
- const spell=S.concSpell||'Concentration';
- if(!ok){S.conc=false;S.concSpell='';S.shroud=false}
- return {dc,a,b,best,ok,spell};
-}
 function updateDamagePreview(){
  const field=q('#incomingDamage'),box=q('#damagePreview');if(!field||!box)return;
  const amount=Math.max(0,Number(field.value)||0),melee=!!q('#incomingMelee')?.checked;
@@ -591,7 +582,7 @@ function processIncomingDamage(amount,{source='dégâts reçus',melee=false}={})
  }
  const hpLoss=Math.min(S.hp,left);
  if(left>0)S.hp=Math.max(0,S.hp-left);
- const conc=rollConcentrationCheck(amount);
+ window.RPGConcentrationLocal?.damage(amount);
  render();
  let lines=[
    `🛡 ${source} : ${amount}`,
@@ -600,22 +591,11 @@ function processIncomingDamage(amount,{source='dégâts reçus',melee=false}={})
    `PV restants : ${S.hp}/${S.maxHp}`
  ];
  if(agathysTriggers)lines.push(`❄ Armure d’Agathys : ${agathysDamage} dégâts de froid à l’attaquant`);
- if(conc){
-   lines.push(`◐ Concentration DD ${conc.dc} : ${conc.a} / ${conc.b} → ${conc.best} ${conc.ok?'✅ MAINTENUE':'❌ PERDUE'}`);
-   if(!conc.ok)lines.push(`${conc.spell} prend fin.`);
- }
  log(lines.join('\n'));
- const box=q('#damagePreview');if(box){const details=[`${absorbed} PV temp absorbés`,`${hpLoss} PV perdus`,`${S.hp}/${S.maxHp} PV restants`];if(agathysTriggers)details.push(`${agathysDamage} froid renvoyés`);if(conc)details.push(`concentration ${conc.ok?'maintenue':'perdue'} (DD ${conc.dc})`);box.className='damage-preview result';box.innerHTML=`<strong>Appliqué :</strong> ${details.join(' • ')}`}
+ const box=q('#damagePreview');if(box){const details=[`${absorbed} PV temp absorbés`,`${hpLoss} PV perdus`,`${S.hp}/${S.maxHp} PV restants`];if(agathysTriggers)details.push(`${agathysDamage} froid renvoyés`);box.className='damage-preview result';box.innerHTML=`<strong>Appliqué :</strong> ${details.join(' • ')}`}
 }
 function applyIncomingDamage(amount,source='dégâts reçus'){
  processIncomingDamage(amount,{source,melee:false});
-}
-function concentrationSave(dmg){
- dmg=Math.max(0,Number(dmg)||0);if(!S.conc)return log('ℹ️ Kentaro ne maintient actuellement aucun sort de concentration.');
- const dc=Math.max(10,Math.floor(dmg/2));
- const a=d(20)+3,b=d(20)+3,best=Math.max(a,b),ok=best>=dc;
- if(!ok){push();const old=S.concSpell;S.conc=false;S.concSpell='';S.shroud=false;render();log(`🧠 Concentration — dégâts ${dmg}, DD ${dc}\nJets avec avantage : ${a} / ${b} → ${best} ❌ ÉCHEC\n${old||'Le sort'} prend fin.`)}
- else log(`🧠 Concentration — dégâts ${dmg}, DD ${dc}\nJets avec avantage : ${a} / ${b} → ${best} ✅ MAINTENUE (${S.concSpell}).`)
 }
 function startConcentration(name){S.rpgConcentrationInstance=crypto.randomUUID();
  if(S.conc && S.concSpell && S.concSpell!==name)log(`⚠️ Concentration remplacée : ${S.concSpell} → ${name}.`);
@@ -897,7 +877,7 @@ render();load(true);
 <script src="kentaro-shell.js?v=4-lot1-dialogs"></script>
 <link rel="stylesheet" href="companion-feedback.css?v=audit1"><script src="companion-feedback.js?v=4-lot1-dialogs"></script>
 <script src="companion-api.js?v=5-table-free-1"></script>
-<script src="rpg-table-session.js?v=24-turns"></script><script src="rpg-resolution.js?v=5-table-free-1"></script><script src="rpg-condition-icons.js?v=1"></script><script src="rpg-connect-icon-registry.js?v=5-condition-icons"></script><script src="rpg-reactions.js?v=4-lot1-dialogs"></script><script src="kentaro-armure-malefice.js?v=4-lot1-dialogs"></script><script src="rpg-concentration.js?v=20261014-lot4-final"></script><script src="rpg-player-saves.js?v=24-lot2-saves"></script>
+<script src="rpg-table-session.js?v=24-turns"></script><script src="rpg-resolution.js?v=5-table-free-1"></script><script src="rpg-condition-icons.js?v=1"></script><script src="rpg-connect-icon-registry.js?v=5-condition-icons"></script><script src="rpg-reactions.js?v=4-lot1-dialogs"></script><script src="kentaro-armure-malefice.js?v=4-lot1-dialogs"></script><script src="rpg-concentration.js?v=24-lot2-concentration"></script><script src="rpg-player-saves.js?v=24-lot2-concentration"></script>
 <script src="rpg-turn-start.js?v=24-turns"></script><script src="rpg-correction-schema.js?v=4-lot3v2"></script><script src="rpg-corrections.js?v=v5-undo-revision-2"></script><script src="rpg-connect-client.js?v=5-table-free-2"></script><script src="rpg-multi-target.js?v=4-lot1-dialogs"></script><script>window.RPGMultiTargetUIConfig={"bindings":[{"selector":"[data-spell=\"Perturbations synaptiques\"]","source":"Perturbations synaptiques","fields":true}],"fields":{"#synTargets":"targets","#synFails":"failures"},"manualHelp":"[data-synaptic-offline-help]"};</script><script src="rpg-effective-damage.js?v=4-lot1-dialogs"></script><script src="rpg-multi-target-ui.js?v=4-lot1-dialogs"></script>
 <script src="social-dice.js?v=4-lot1-dialogs"></script><script type="module" src="dice-engine.js?v=4-lot1-dialogs"></script>
 <script src="companion-turnbar.js?v=24-turns"></script>
